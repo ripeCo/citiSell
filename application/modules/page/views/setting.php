@@ -521,14 +521,24 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 										<div class="row">
 											<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 												<div class="profile_contact">
-													  
-													  
 													  <div class="form-group">
 														<label for="exampleInputEmail1">Shipping Address</label>
-														<textarea name="user_address1" rows="8" cols="4" class="form-control" placeholder="Write Shipping Address"><?php echo $user_address; ?></textarea>
+														<textarea name="user_address1" rows="6" cols="4" class="form-control" placeholder="Line addres 1"><?php echo $user_address; ?></textarea>
+														<label>Zip code</label><input type="text" name="zipCode" class="form-control" placeholder="Zip code" value="<?=$user_zip ?>">
+														<label>Country</label>
+														<select required="required" name="country" id="country" class="form-control">																			
+															<option value="">Select country</option>															
+															<?php $fxdcountry = fixedcountry();
+																foreach($fxdcountry as $cresult) {
+																	if($cresult == $user_country)
+																		$slt = 'selected="selected"';
+																	else
+																		$slt = '';
+																	
+																	echo '<option ' . $slt . ' value="' . $cresult . '">' . $cresult . '</option>';															
+															 } ?>															
+														</select>
 													  </div>
-													  
-													
 												</div>
 											</div>
 										</div>
@@ -575,9 +585,21 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 													  <div class="form-group">
 														<label for="exampleInputEmail1">Shipping Address</label>
 														<textarea name="user_address2" rows="8" cols="4" class="form-control" placeholder="Write Shipping Address"><?php echo $user_address2; ?></textarea>
+														<label>Zip code</label><input type="text" name="zipCode2" class="form-control" placeholder="Zip code" value="<?=$user_zip2 ?>">
+														<label>Country</label>
+														<select required="required" name="country2" id="country2" class="form-control">																			
+															<option value="">Select country</option>															
+															<?php $fxdcountry = fixedcountry();
+																foreach($fxdcountry as $cresult) {
+																	if($cresult == $user_country2)
+																		$slt = 'selected="selected"';
+																	else
+																		$slt = '';
+																	
+																	echo '<option ' . $slt . ' value="' . $cresult . '">' . $cresult . '</option>';															
+															 } ?>															
+														</select>
 													  </div>
-													  
-													
 												</div>
 											</div>
 										</div>

@@ -431,7 +431,7 @@ class Yourshop extends CI_Controller
 				
 				$this->yourshop_model->insertlistedproduct($shopid,$fileName); // Insert Query for products table
 				
-				$this->yourshop_model->generateNewListingBill(); // Insert Query for Listing bill, billdetails table
+				$this->yourshop_model->generateNewListingBill($shopid); // Insert Query for Listing bill, billdetails table
 				
 				
 				//$this->yourshop_model->insertproductoptions($productId); // Insert Query for productoptions table

@@ -653,35 +653,53 @@ class User extends CI_Controller
 
 	// load this function
 	public function shippingaddress1()
-	{
-		
+	{		
 		if($this->session->userdata('userid') == NULL){
 			redirect('page');
 		}
 			
 		$userid = $this->session->userdata('userid');
 		$address = $this->input->post('user_address1');
+		$zipCode = $this->input->post('zipCode');
+		$country = $this->input->post('country');
 		
-		if(empty($address)) 
-		{
-			
+		if(empty($address)) {
 			$data['breadcrumb'] = 'Shipping Address';
 			$data['error_msg'] 	= 'Shipping address didn\'t updated successfully';
 			
 			$data['users'] 		= $this->user_model->get_data($userid);
 			$this->load->view('page/setting',$data);
-		} 
-		else 
-		{
-			$this->user_model->shippingaddressupdate($userid);
-
-			$data['breadcrumb'] 	= 'Shipping Address';
-			$data['success_msg'] 	= 'Shipping address updated successfully';
-			
-			$data['users'] 			= $this->user_model->get_data($userid);
-			$this->load->view('page/setting',$data);
+			return;
 		}
+
+		if (empty($country)) {
+			$data['breadcrumb'] = 'Shipping country';
+			$data['error_msg'] 	= 'Please select country.';
+			
+			$data['users'] 		= $this->user_model->get_data($userid);
+			$this->load->view('page/setting',$data);
+			return;
+		}
+
+		/* If the country is USA, we need the zipcode. */
+		if ($country2 == "USA") {
+			if (empty($zipCode2)) {
+				$data['breadcrumb'] = 'Shipping country';
+				$data['error_msg'] 	= 'For US, zipcode is needed.';
+				
+				$data['users'] 		= $this->user_model->get_data($userid);
+				$this->load->view('page/setting',$data);
+				return;
+			}
+		}
+
+		$this->user_model->shippingaddressupdate($userid);
+
+		$data['breadcrumb'] 	= 'Shipping Address';
+		$data['success_msg'] 	= 'Shipping address updated successfully';
 		
+		$data['users'] 			= $this->user_model->get_data($userid);
+		$this->load->view('page/setting',$data);		
 	}
 	
 
@@ -695,26 +713,46 @@ class User extends CI_Controller
 			
 		$userid = $this->session->userdata('userid');
 		$address = $this->input->post('user_address2');
+		$zipCode2 = $this->input->post('zipCode2');
+		$country2 = $this->input->post('country2');
 		
-		if(empty($address)) 
-		{
-			
+		if(empty($address))	{			
 			$data['breadcrumb'] = 'Shipping Address';
 			$data['error_msg'] 	= 'Shipping address didn\'t updated successfully';
 			
 			$data['users'] 		= $this->user_model->get_data($userid);
 			$this->load->view('page/setting',$data);
-		} 
-		else 
-		{
-			$this->user_model->shippingaddressupdate2($userid);
-
-			$data['breadcrumb'] 	= 'Shipping Address';
-			$data['success_msg'] 	= 'Shipping address updated successfully';
-			
-			$data['users'] 			= $this->user_model->get_data($userid);
-			$this->load->view('page/setting',$data);
+			return;
 		}
+
+		if (empty($country2)) {
+			$data['breadcrumb'] = 'Shipping country';
+			$data['error_msg'] 	= 'Please select country.';
+			
+			$data['users'] 		= $this->user_model->get_data($userid);
+			$this->load->view('page/setting',$data);
+			return;
+		}
+
+		/* If the country is USA, we need the zipcode. */
+		if ($country2 == "USA") {
+			if (empty($zipCode2)) {
+				$data['breadcrumb'] = 'Shipping country';
+				$data['error_msg'] 	= 'For US, zipcode is needed.';
+				
+				$data['users'] 		= $this->user_model->get_data($userid);
+				$this->load->view('page/setting',$data);
+				return;
+			}
+		}
+
+		$this->user_model->shippingaddressupdate2($userid);
+
+		$data['breadcrumb'] 	= 'Shipping Address';
+		$data['success_msg'] 	= 'Shipping address updated successfully';
+		
+		$data['users'] 			= $this->user_model->get_data($userid);
+		$this->load->view('page/setting',$data);
 		
 	}
 	

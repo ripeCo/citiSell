@@ -34,6 +34,16 @@ class Yourshop_model extends CI_Model
 	   $results = $this->db->get();
 	   return $results->result();
 	}
+
+	public function getShippingDetails($productId) 
+	{
+	   $this->db->select('ship_from, lbs, length, width, height');
+	   $this->db->from('mega_shippingdetails');
+	   $this->db->where('productid', $productid);
+	   
+	   $results = $this->db->get();
+	   return $results->row_array();
+	}
 	
         
         

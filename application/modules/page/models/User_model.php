@@ -312,7 +312,9 @@ class User_model extends CI_Model
 	public function shippingaddressupdate($userid) {
 		
 		$data = array(
-			'user_address'			=> $this->input->post('user_address1')
+			'user_address' => $this->input->post('user_address1'),
+			'user_zip' => $this->input->post('zipCode'),
+			'user_country' => $this->input->post('country'),
 		);  
 
 		$this->db->where('userid', $userid);
@@ -359,16 +361,16 @@ class User_model extends CI_Model
 	}   
         
 	
-	// Update record
-	public function shippingaddressupdate2($userid) {
-		
+	// Update address 2 on user's profile page
+	public function shippingaddressupdate2($userid) {		
 		$data = array(
-			'user_address2'			=> $this->input->post('user_address2')
+			'user_address2'			=> $this->input->post('user_address2'),
+			'user_zip2' => $this->input->post('zipCode2'),
+			'user_country2' => $this->input->post('country2'),
 		);  
 
 		$this->db->where('userid', $userid);
 		$this->db->update('users', $data);
-
 	} 
         
 	

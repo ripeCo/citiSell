@@ -14,6 +14,21 @@
 			return false; // cancel button
 		}
 	}
+
+	function update_qty() {
+		var result = confirm("Quantity has been changed. Do you want to proceed?");
+
+		if(result)
+			document.getElementById('updatecart').click();
+		else
+			return false;
+	}
+
+	function addressToggle(chosenAddress) {
+		/* chosenAddress either 1 or 2 only. */
+		document.getElementById('chosenAddress').value = chosenAddress;
+		document.getElementById('updatecart').click();
+	}
 </script>
 
 
@@ -68,9 +83,7 @@
 
 		<link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/mailbox.css" />
 
-        <div class="row">
-			
-			
+        <div class="row">			
 			<?php if($this->session->userdata('isLogin') == TRUE){ ?>
 				<form method="post" action="<?php echo base_url(); ?>page/cart/placeorder">
 			<?php }else{ ?>
@@ -91,6 +104,8 @@
 					<?php
 						}else{
 					?>
+
+					<input type="hidden" name="chosenAddress" id="chosenAddress" value="<?=$chosenAddress;?>" />
 					
                     <table class="table table-responsive table-bordered" style="margin-bottom:0px;">
                     
@@ -139,7 +154,6 @@
 									
 								}
 								
-								
 								echo '<input type="hidden" name="shpid[]" value="'.$item['shopid'].'" />';
 								echo form_hidden('cart['. $item['id'] .'][shopname]', $item['shopname']);
 								
@@ -147,7 +161,7 @@
 								// Get user country
 									$usid = $this->session->userdata('userid');
 									
-									$getUserCountrysql = $this->db->query("select user_country,user_address,user_address2 from mega_users where userid=$usid");
+									$getUserCountrysql = $this->db->query("select user_address, user_zip, user_country, user_address2, user_zip2, user_country2 from mega_users where userid=$usid");
 									
 									extract($getUserCountrysql->row_array());
 									$usrCountry = $user_country;
@@ -171,7 +185,7 @@
 								echo form_hidden('cart['. $item['id'] .'][usercountry]', $usrCountry);
 								
 								
-								if($usrCountry == $shopCountry){
+								/*if($usrCountry == $shopCountry){
 									if(!empty($item['shipping_cost_itself'])){
 										echo form_hidden('cart['. $item['id'] .'][shipping_cost_itself]', $item['shipping_cost_itself']);
 									}else{
@@ -192,7 +206,7 @@
 									if(!empty($item['shipping_cost_int_with_another_items'])){
 										echo form_hidden('cart['. $item['id'] .'][shipping_cost_int_with_another_items]', $item['shipping_cost_int_with_another_items']);
 									}
-								}
+								}*/
 								
 								if(!empty($item['color']) || !empty($item['size'])){
 									echo '<input type="hidden" name="productVariations[]" value="<b>Color -</b> '.$item['color'].', '.'<b>Size -</b> '. $item['size'].'" />';
@@ -425,7 +439,7 @@
 							<td style="padding:10px;" align="center">$ <?php echo number_format($item['price'],2); ?></td>
 						  
 							<td align="center" style="padding-top:10px;">
-								<?php echo form_input('cart['. $item['id'] .'][qty]', $item['qty'], 'maxlength="3" type="hidden" size="8" style="text-align: center"'); ?>
+								<?php echo form_input('cart['. $item['id'] .'][qty]', $item['qty'], 'maxlength="3" type="hidden" size="8" style="text-align: center" onchange="update_qty()"'); ?>
 								
 								<?php //echo $item['qty']; ?>
 								
@@ -549,7 +563,13 @@
 								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 									
 									<h5 style="color: #7fba00; font-weight: bold;">
-										<input checked="checked" type="radio" name="shipaddress" <?php if($user_address == ''){ echo 'required="required"'; } ?> value="<?php if($user_address !== NULL){echo $user_address;} ?>" />
+									<?php
+										if ($chosenAddress == 1)
+											$isChecked = 'checked="checked"';
+										else
+											$isChecked = '';
+									?>
+										<input <?php echo $isChecked; ?> type="radio" name="shipaddress" <?php if($user_address == ''){ echo 'required="required"'; } ?> value="<?php if($user_address !== NULL){echo $user_address;} ?>" onclick="addressToggle(1)" />
 										
 										Shipping Address 1
 									</h5>
@@ -559,9 +579,10 @@
 										if($user_address !== NULL){
 											$add1 = explode(",", $user_address);
 											
-											for($ad1=0;$ad1<count($add1);$ad1++){
+											for($ad1=0;$ad1<count($add1);$ad1++)
 												echo $add1[$ad1].'<br/>';
-											}
+
+											echo $user_zip, "<br />", $usrCountry;
 										}
 									?>
 									</address>
@@ -571,7 +592,13 @@
 								<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
 									
 									<h5 style="color: #7fba00; font-weight: bold;">
-										<input type="radio" name="shipaddress" value="<?php if($user_address2 !== NULL){echo $user_address2;} ?>" />
+										<?php
+											if ($chosenAddress == 2)
+												$isChecked = 'checked="checked"';
+											else
+												$isChecked = '';
+										?>
+										<input <?php echo $isChecked; ?> type="radio" name="shipaddress" value="<?php if($user_address2 !== NULL){echo $user_address2;} ?>" onclick="addressToggle(2)" />
 										
 										Shipping Address 2
 									</h5>
@@ -581,9 +608,10 @@
 											if($user_address2 !== NULL){
 												$add2 = explode(",", $user_address2);
 												
-												for($ad2=0;$ad2<count($add2);$ad2++){
+												for($ad2=0;$ad2<count($add2);$ad2++)
 													echo $add2[$ad2].'<br/>';
-												}
+
+												echo $user_zip2, "<br />", $user_country2;
 											}
 										?>
 									</address>
@@ -734,15 +762,15 @@
 													<span><i class="fa fa-check"></i> 
 														Total shipping cost 
 													</span> =  
-													$<?php echo number_format($totl,2); ?>
-													<input type="hidden" name="shipping_amount" value="<?php echo number_format($totl,2); ?>" />
+													$<?php echo number_format($shippingCost, 2); ?>
+													<input type="hidden" name="shipping_amount" value="<?php echo number_format($shippingCost, 2); ?>" />
 												</h4>
 												
 												<h4 class="shippingM0">
 													<span>
 														Grand Total
 													</span> =  
-													<b>$<?php echo number_format($grand_total + $totl,2); ?></b>
+													<b>$<?php echo number_format($grand_total + $shippingCost, 2); ?></b>
 												</h4>
 												
 											  </div>
@@ -770,10 +798,15 @@
                                         <div class="carttable_bottomL"><!-- Begin: carttable_bottomL -->
 										
                                         	<h6 class="carttable_bottomL_h6">
+                                        		<b>
+													Shipping Cost: 
+												</b>
+												
+												$<?php echo $shippingCost; ?><br />
 												<b>
 													<i class="fa fa-truck"></i> Shopping Total:
 												</b>
-												$<?php echo number_format($grand_total + $totl,2); ?>
+												$<?php echo number_format($grand_total + $shippingCost, 2); ?>
 												
 												<input type="hidden" name="order_amount" value="<?php echo $grand_total + $totl; ?>" />
 												
@@ -804,7 +837,7 @@
 												Clear Cart
 											</button>
 											
-											<button class="btn btn-success" name="updatecart" value="cartupdate" type="submit">
+											<button class="btn btn-success" name="updatecart" id="updatecart" value="cartupdate" type="submit">
 												<i class="fa fa-pencil-square-o"></i>
 												Update Cart
 											</button>
