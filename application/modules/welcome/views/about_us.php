@@ -1,0 +1,2 @@
+<?=lang('general_welcome')?>
+
