@@ -1140,7 +1140,14 @@
 		}
 		
 		function confirmcheckout() {
-		  return confirm('Are you sure want to checkout this?');
+			var shipaddress1 = document.getElementsByName("shipaddress")[0].checked;
+			var shipaddress2 = document.getElementsByName("shipaddress")[1].checked;
+			if (shipaddress1 == true || shipaddress2 == true) {
+				return confirm('Are you sure want to checkout this?');
+			} else {
+				alert('Please select shipping address.');
+				return false;
+			}
 		}
 		
 		function confirmbillpay() {

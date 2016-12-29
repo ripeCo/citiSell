@@ -27,7 +27,7 @@ return array(
         'timezone' => 'America/Denver',
 
         // Your company name
-        'shipper' => 'Citisell',
+        'shipper' => 'RocketShipIt',
 
         // Key shipping contact individual at your company
         'shipContact' => 'Mark Sanborn',

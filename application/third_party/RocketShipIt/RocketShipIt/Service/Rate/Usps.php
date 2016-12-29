@@ -129,6 +129,7 @@ class Usps extends \RocketShipIt\Service\Common implements \RocketShipIt\RateInt
 
     function getRate($allAvailableRates=false)
     {
+        $this->allAvailableRates = false;
         $this->buildPackages();
         if (!$this->isInternational($this->toCountry)) {
             $xmlString = $this->buildUSPSRateXml($allAvailableRates);

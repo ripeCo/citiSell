@@ -87,50 +87,102 @@ class Cart extends CI_Controller {
 	}
 	
 	
-	private function calculateShipping($userId, $chosenAddress = 1) {
-		/* Get recipient info to get the rates. */
-			$userInfo = $this->User_model->get_data($userId);
+	private function calculateShipping($userId, $shopId, $chosenAddress = 1) {
+		/* Get recipient info for the rates. */
+		$buyer = $this->User_model->get_data($userId);
+		/* Get Shop owner. */
+		// $shopInfo = $this->Yourshop_model->getshopdata($this->input->post('shopid'));
+		$shopInfo = $this->Yourshop_model->getshopdata($shopId);
+		$shopOwnerInfo = $this->Yourshop_model->get_data($shopInfo['userid']);
 
-			$rate = new \RocketShipIt\Rate('USPS');
+		$shopOwnerName = $shopOwnerInfo['user_first_name'] . ' ' . $shopOwnerInfo['user_last_name'];
 
-			$rate->setParameter('toName', $userInfo['user_first_name'] . ' ' . $userInfo['user_last_name']);
-			if ($userInfo['user_country'] == 'USA' or $userInfo['user_country'] == 'United States')
-				$rate->setParameter('toCode', $userInfo['user_zip']);
+		$config = new \RocketShipIt\Config;
+		$config->setDefault('generic', 'shipper', $shopInfo['shop_name']);
+		$config->setDefault('generic', 'shipContact', $shopOwnerName);
+		$shipAddr1 = $shopOwnerInfo['user_address'];
+		$config->setDefault('generic', 'shipAddr1', $shipAddr1);
+		$config->setDefault('generic', 'shipCity', $shopOwnerInfo['user_city']);
+		$config->setDefault('generic', 'shipState', $shopOwnerInfo['user_state']);
+		$config->setDefault('generic', 'shipCountry', getCountryISOCodeByCountryName($shopOwnerInfo['user_country']));
+		$config->setDefault('generic', 'shipCode', $shopOwnerInfo['user_zip']);
 
-			if ($chosenAddress == 1)
-				$userCountry = getCountryISOCodeByCountryName($userInfo['user_country']);
-			else
-				$userCountry = getCountryISOCodeByCountryName($userInfo['user_country2']);
+		$rate = new \RocketShipIt\Rate('USPS', array('config' => $config));
+		$toName = $buyer['user_first_name'] . ' ' . $buyer['user_last_name'];
+		$rate->setParameter('toName', $toName);
+		if ($buyer['user_country'] == 'USA' or $buyer['user_country'] == 'United States')
+			$rate->setParameter('toCode', $buyer['user_zip']);
 
-			$rate->setParameter('toCountry', $userCountry);
+		if ($chosenAddress == 1)
+			$userCountry = getCountryISOCodeByCountryName($buyer['user_country']);
+		else
+			$userCountry = getCountryISOCodeByCountryName($buyer['user_country2']);
 
-			// For testing purposes, values are fixed.
-			// lbl should be mandatory
-			$shippingDetails	= $this->Yourshop_model->getShippingDetails($this->input->post('id'));
-			if (empty($shippingDetails['lbs']));
-				$shippingDetails['lbs'] = '2';	// those should be variable
-			if (empty($shippingDetails['length']))
-				$shippingDetails['length'] = '5';
-			if (empty($shippingDetails['width']))
-				$shippingDetails['width'] = '5';
-			if (empty($shippingDetails['height']))
-				$shippingDetails['height'] = '5';
+		$rate->setParameter('toCountry', $userCountry);
 
-			$package = new \RocketShipIt\Package('usps');
-			$package->setparameter('weight', $shippingDetails['lbs']);
+		// For testing purposes, values are fixed.
+		// lbl should be mandatory and extracted from db but it's nullable and sometimes no value for a certain product like product id 26
+		$shippingDetails	= $this->Yourshop_model->getShippingDetails($this->input->post('id'));
+		if (empty($shippingDetails['lbs']));
+			$shippingDetails['lbs'] = '5';	// those should be variable but default for now.
+		if (empty($shippingDetails['length']))
+			$shippingDetails['length'] = '5';
+		if (empty($shippingDetails['width']))
+			$shippingDetails['width'] = '5';
+		if (empty($shippingDetails['height']))
+			$shippingDetails['height'] = '5';
 
-			/* From https://docs.rocketship.it/php/1-0/rate-parameters.html#usps, length, wid height units are inches.
-			Required when service contains one of the PRIORITY variants and Size is LARGE */
+		$package = new \RocketShipIt\Package('usps');
+		$package->setparameter('weight', $shippingDetails['lbs']);
 
-			$package->setparameter('length', $shippingDetails['length']);
-			$package->setparameter('width', $shippingDetails['width']);
-			$package->setparameter('height', $shippingDetails['height']);
-			$package->setparameter('container', 'VARIABLE');
-			$rate->addPackageToShipment($package);
+		/* From https://docs.rocketship.it/php/1-0/rate-parameters.html#usps, length, wid height units are inches.
+		Required when service contains one of the PRIORITY variants and Size is LARGE */
 
-			$response = $rate->getSimpleRates();
-			file_put_contents("c:\\tmp\\test.txt", print_r($response, TRUE));
-			return $response;
+		$package->setparameter('length', $shippingDetails['length']);
+		$package->setparameter('width', $shippingDetails['width']);
+		$package->setparameter('height', $shippingDetails['height']);
+		$package->setparameter('container', 'VARIABLE');
+		$rate->addPackageToShipment($package);
+		$response = $rate->getSimpleRates();
+
+
+		
+		// Note: We do not use RocketShipIt for USPS with Stamps.com so we do not have postage. We just calculated it throught \RocketShipIt\Rate() level.
+
+		$shipment = new \RocketShipIt\Shipment('USPS', array('config' => $config));
+		$shipment->setParameter('toName', $toName);
+		$shipment->setParameter('toPhone', ($buyer['user_phone']) ?: '');
+
+		if ($chosenAddress == 1) {
+			$toAddr1 = $buyer['user_address'];
+			$toCity = $buyer['user_city'];
+			$toState = $buyer['user_state'];
+			$toCode = $buyer['user_zip'];
+			$toCountry = $buyer['user_country'];
+		} else {
+			$toAddr1 = $buyer['user_address2'];
+			$toCity = $buyer['user_city2'];
+			$toState = $buyer['user_state2'];
+			$toCode = $buyer['user_zip2'];
+			$toCountry = $buyer['user_country2'];
+		}		
+
+		$shipment->setParameter('toAddr1', $toAddr1);
+		$shipment->setParameter('toCity', $toCity);
+		$shipment->setParameter('toState', $toState);
+		$shipment->setParameter('toCode', $toCode);
+		$shipment->setParameter('toCountry', $toCountry);
+
+		// $shipment->setParameter('packagingType','PADDED FLAT RATE ENVELOPE');
+		$shipment->setParameter('packagingType','VARIABLE');
+		$shipment->setParameter('weight',$shippingDetails['lbs']);
+		$response = $shipment->submitShipment();
+
+		if (isset($response['trk_main']))
+			$shipment->toFile($response['pkgs'][0]['label_img'], 'c:\\tmp\\label_img1.pdf');
+
+		file_put_contents("c:\\tmp\\test.txt", print_r($response, TRUE));
+		return $response;
 	}
 	
 
@@ -151,7 +203,8 @@ class Cart extends CI_Controller {
 		
 			$buyername = $display_name;
 			$buyerid = $userid;
-			$shippingCost = $this->calculateShipping($usid);
+			$shopId = $this->input->post('shopid');
+			$shippingInfo = $this->calculateShipping($usid, $shopId);
 		}else{
 			$buyername = '';
 			$buyerid = '';
@@ -175,10 +228,17 @@ class Cart extends CI_Controller {
 			'color' => $color,
 			'size' => $size,
 			'price' => $this->input->post('price'),
-			'qty' => $this->input->post('quantity')
-		);		
+			'qty' => $this->input->post('quantity'),
+			'shippingCostPerRow' => (!empty($shippingInfo['charges']) ? $shippingInfo['charges'] : "0.00"),
+			'trk_main' => (!empty($shippingInfo['trk_main']) ? $shippingInfo['trk_main'] : ""),
+			'label_fmt' => (!empty($shippingInfo['pkgs'][0]['label_fmt']) ? $shippingInfo['pkgs'][0]['label_fmt'] : ""),
+			'label_img' => (!empty($shippingInfo['pkgs'][0]['label_img']) ? $shippingInfo['pkgs'][0]['label_img'] : ""),
+		);
 
 		$this->cart->insert($insert_room);
+
+		// file_put_contents("c:\\tmp\\addCart.txt", print_r($this->cart->contents(), TRUE));
+		// file_put_contents("c:\\tmp\\shippingCost.txt", print_r($shippingCost, TRUE));
 		
 		$data['last2items'] 		= $this->page_model->getlastnumberofproducts(2);
 		$data['last4items'] 		= $this->page_model->getlastnumberofrandomproducts(8);
@@ -196,8 +256,6 @@ class Cart extends CI_Controller {
 		
 		$data['message'] = '<p class="bg-success" id="msg"><i class="fa fa-check-square-o"></i> New item added in your cart!</p>';
 		$data['breadcrumb'] = sitename().' - Shopping Cart';
-
-		$data['shippingCost'] = (!empty($shippingCost[0]['rate'])) ? $shippingCost[0]['rate'] : 0;
 		$data['chosenAddress'] = 1; //default is always 1. Chose between 1 or 2.
 		
 		$this->load->view('page/cart', $data);
@@ -207,18 +265,12 @@ class Cart extends CI_Controller {
 	
 	
 	
-	function remove($rowid) {
+	function remove($rowid, $chosenAddress) {
 		
-		if ($rowid === "all"){
+		if ($rowid === "all")
 			$this->cart->destroy();
-		}else{
-			$data = array(
-				'rowid'   => $rowid,
-				'qty'     => 0
-			);
-
-			$this->cart->update($data);
-		}
+		else
+			$this->cart->remove($rowid);
 		
 		$data['breadcrumb'] = sitename().' - Shopping Cart';
 		
@@ -237,21 +289,29 @@ class Cart extends CI_Controller {
 		}
 		
 		$data['message'] = '<p class="bg-success" id="msg"><i class="fa fa-times-circle"></i> 1 Item removed from your cart!</p>';
+		$data['chosenAddress'] = $chosenAddress;
 		$this->load->view('page/cart', $data);
 	}
 	
 
 	
 	
-	function update_cart(){
- 		// file_put_contents('c:\\tmp\\update_cart.txt', print_r($_POST, TRUE));
-		
-		foreach($_POST['cart'] as $id => $cart)
-		{			
+	function update_cart(){		
+		foreach($_POST['cart'] as $id => $cart) {
+			$userId = $this->session->userdata('userid');
+			$chosenAddress = $this->input->post('chosenAddress');	// i.e. 1 or 2
+			$shippingInfo = $this->calculateShipping($userId, $cart['shopid'], $chosenAddress);
+
+			$shippingDetails = array();
+			$shippingDetails['shippingCostPerRow'] = (!empty($shippingInfo['charges']) ? $shippingInfo['charges'] : "0.00");
+			$shippingDetails['trk_main'] = (!empty($shippingInfo['trk_main']) ? $shippingInfo['trk_main'] : "");
+			$shippingDetails['label_fmt'] = (!empty($shippingInfo['pkgs'][0]['label_fmt']) ? $shippingInfo['pkgs'][0]['label_fmt'] : "");
+			$shippingDetails['label_img'] = (!empty($shippingInfo['pkgs'][0]['label_img']) ? $shippingInfo['pkgs'][0]['label_img'] : "");
+
 			$price = $cart['price'];
 			$amount = $price * $cart['qty'];
 			
-			$this->cart_model->update_cart($cart['rowid'], $cart['qty'], $price, $amount);
+			$this->cart_model->update_cart($cart['rowid'], $cart['qty'], $price, $amount, $shippingDetails);
 		}
 		
 		
@@ -272,14 +332,6 @@ class Cart extends CI_Controller {
 		}
 		
 		$data['message'] = '<p class="bg-success" id="msg"><i class="fa fa-pencil-square-o"></i> Your item quantity updated in your cart!</p>';
-
-		$userId = $this->session->userdata('userid');
-		$chosenAddress = $this->input->post('chosenAddress');
-		$shippingCost = $this->calculateShipping($userId, $chosenAddress);
-
-		// file_put_contents('c:\\tmp\\test.txt', print_r($shippingCost, TRUE));
-
-		$data['shippingCost'] = (!empty($shippingCost[0]['rate'])) ? $shippingCost[0]['rate'] : 0;
 		$data['chosenAddress'] = $chosenAddress;
 		
 		$this->load->view('page/cart', $data);

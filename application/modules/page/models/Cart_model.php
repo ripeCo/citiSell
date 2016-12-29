@@ -9,12 +9,16 @@ class Cart_model extends CI_Model {
 	
 
 
-	function update_cart($rowid, $qty, $price, $amount) {
+	function update_cart($rowid, $qty, $price, $amount, $shippingInfo) {
  		$data = array(
 			'rowid'   => $rowid,
 			'qty'     => $qty,
 			'price'   => $price,
-			'amount'   => $amount
+			'amount'   => $amount,
+			'shippingCostPerRow' => $shippingInfo['shippingCostPerRow'],
+			'trk_main' => (!empty($shippingInfo['trk_main']) ? $shippingInfo['trk_main'] : ""),
+			'label_fmt' => (!empty($shippingInfo['label_fmt']) ? $shippingInfo['label_fmt'] : ""),
+			'label_img' => (!empty($shippingInfo['label_img']) ? $shippingInfo['label_img'] : ""),
 		);
 
 		$this->cart->update($data);
@@ -374,6 +378,7 @@ class Cart_model extends CI_Model {
 			
 		}
 		
+		$cart = $this->cart->contents();
 		
 		// orderdetails table data insert
 		for($od=0;$od<count($this->input->post('pid')); $od++){
@@ -385,6 +390,11 @@ class Cart_model extends CI_Model {
 			$shippping_cost = $this->input->post('shippping_cost');
 			$productVariations = $this->input->post('productVariations');
 			$shipprocessingtime = $this->input->post('shipprocessingtime');
+
+			// Let's find the corresponding productId in the cart because this one uses the post data instead of shopping cart.
+			foreach ($cart as $key => $value) {
+				
+			}
 			
 			$insert_orderdetails = array(
 				'shopid' 				=> $shpid[$od],
@@ -395,12 +405,15 @@ class Cart_model extends CI_Model {
 				'subtotal' 				=> $subtotal[$od],
 				'shippping_cost' 		=> $shippping_cost[$od],
 				'productVariations' 	=> $productVariations[$od],
-				'shipprocessingtime' 	=> $shipprocessingtime[$od]
+				'shipprocessingtime' 	=> $shipprocessingtime[$od],
+				'trk_main' => 
 			);
 			
 			// Insert into mega_orderdetails
 			$this->db->insert('orderdetails',$insert_orderdetails); 
 		}
+
+		file_put_contents("c:\\tmp\\update_cart.txt", print_r($this->cart->contents(), TRUE));
 		
 		$data['message'] = '<p class="bg-success" id="msg"><i class="fa fa-check-square-o"></i> Order place confirm!</p>';
 		$data['breadcrumb'] = sitename().' - Order place confirm';

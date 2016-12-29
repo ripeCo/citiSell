@@ -161,7 +161,7 @@
 								// Get user country
 									$usid = $this->session->userdata('userid');
 									
-									$getUserCountrysql = $this->db->query("select user_address, user_zip, user_country, user_address2, user_zip2, user_country2 from mega_users where userid=$usid");
+									$getUserCountrysql = $this->db->query("select user_address, user_city, user_state, user_zip, user_country, user_address2, user_city2, user_state2, user_zip2, user_country2 from mega_users where userid=$usid");
 									
 									extract($getUserCountrysql->row_array());
 									$usrCountry = $user_country;
@@ -207,6 +207,8 @@
 										echo form_hidden('cart['. $item['id'] .'][shipping_cost_int_with_another_items]', $item['shipping_cost_int_with_another_items']);
 									}
 								}*/
+
+								echo form_hidden('cart['. $item['id'] .'][shippingCostPerRow]', $item['shippingCostPerRow']);
 								
 								if(!empty($item['color']) || !empty($item['size'])){
 									echo '<input type="hidden" name="productVariations[]" value="<b>Color -</b> '.$item['color'].', '.'<b>Size -</b> '. $item['size'].'" />';
@@ -457,7 +459,7 @@
 								<?php									
 									
 									// Product Shipping cost calculating here 
-									if($usrCountry == $shopCountry){ // If shop & user local
+									/*if($usrCountry == $shopCountry){ // If shop & user local
 										if($item['qty'] > 1){
 										
 											$pqty = $item['qty'] - 1;
@@ -481,16 +483,19 @@
 										}
 									}
 									
-									$totl += $spcost;
+									$totl += $spcost;*/
+
+									$shippingCost += $item['shippingCostPerRow'];
+
 								?>
 								
-								<input type="hidden" name="shippping_cost[]" value="<?php echo $spcost; ?>" />
+								<input type="hidden" name="shippping_cost[]" value="<?php echo $shippingCost; ?>" />
 								
 							</td>
 						  
 							<td style="padding:10px;" align="center">
 								
-								<a onclick="return confirmDelete();" href="<?php echo base_url(); ?>page/cart/remove/<?php echo $item['rowid']; ?>">
+								<a onclick="return confirmDelete();" href="<?php echo base_url(); ?>page/cart/remove/<?php echo $item['rowid'] . '/' . $chosenAddress; ?>">
 									<i class="fa fa-times-circle"></i>
 								</a>
 								
@@ -582,7 +587,7 @@
 											for($ad1=0;$ad1<count($add1);$ad1++)
 												echo $add1[$ad1].'<br/>';
 
-											echo $user_zip, "<br />", $usrCountry;
+											echo $user_city, "<br />", $user_state, "<br />", $user_zip, "<br />", $usrCountry;
 										}
 									?>
 									</address>
@@ -611,7 +616,7 @@
 												for($ad2=0;$ad2<count($add2);$ad2++)
 													echo $add2[$ad2].'<br/>';
 
-												echo $user_zip2, "<br />", $user_country2;
+												echo $user_city2, "<br />", $user_state2, "<br />", $user_zip2, "<br />", $user_country2;
 											}
 										?>
 									</address>
@@ -802,13 +807,13 @@
 													Shipping Cost: 
 												</b>
 												
-												$<?php echo $shippingCost; ?><br />
+												$<?php echo number_format($shippingCost, 2); ?><br />
 												<b>
 													<i class="fa fa-truck"></i> Shopping Total:
 												</b>
 												$<?php echo number_format($grand_total + $shippingCost, 2); ?>
 												
-												<input type="hidden" name="order_amount" value="<?php echo $grand_total + $totl; ?>" />
+												<input type="hidden" name="order_amount" value="<?php echo $grand_total + $shippingCost; ?>" />
 												
 											</h6>
 											

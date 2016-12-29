@@ -14,6 +14,9 @@
  */
 
 // ------------------------------------------------------------------------
+/* Sources: http://www.codexworld.com/paypal-payment-gateway-integration-in-codeigniter/ 
+			https://github.com/codexworld/paypal-library-for-codeigniter
+*/
 
 /**
  * PayPal_Lib Controller Class (Paypal IPN Class)
@@ -78,7 +81,9 @@ class paypal_lib {
 		}*/
 		
 		//$this->paypal_url = 'https://www.paypal.com/cgi-bin/webscr';
-        $this->paypal_url = 'https://www.paypal.com/row/cgi-bin/merchantpaymentweb';
+        $paypalLive = 'https://www.paypal.com/row/cgi-bin/merchantpaymentweb';
+        $sanbox = $this->CI->config->item('sandbox');
+		$this->paypal_url = ($sanbox == TRUE) ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : $paypalLive;
            
 		$this->last_error = '';
 		$this->ipn_response = '';
