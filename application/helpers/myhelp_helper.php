@@ -569,6 +569,7 @@
 			"GB"=>"United Kingdom",
 			"US"=>"United States",
 			"US"=>"USA",
+			"US"=>"US",
 			"UM"=>"United States Minor Outlying Islands",
 			"UY"=>"Uruguay",
 			"UZ"=>"Uzbekistan",

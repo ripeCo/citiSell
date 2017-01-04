@@ -387,13 +387,18 @@ class Cart_model extends CI_Model {
 			$unitprice = $this->input->post('unitprice');
 			$quantity = $this->input->post('quantity');
 			$subtotal = $this->input->post('subtotal');
-			$shippping_cost = $this->input->post('shippping_cost');
 			$productVariations = $this->input->post('productVariations');
 			$shipprocessingtime = $this->input->post('shipprocessingtime');
 
 			// Let's find the corresponding productId in the cart because this one uses the post data instead of shopping cart.
 			foreach ($cart as $key => $value) {
-				
+				if ($pid[$od] == $value['id']) {
+					$trk_main = $value['trk_main'];
+					$label_fmt = $value['label_fmt'];
+					$label_img = $value['label_img'];
+					$shippping_cost = $value['shippingCostPerRow'];
+					break;
+				}
 			}
 			
 			$insert_orderdetails = array(
@@ -403,17 +408,19 @@ class Cart_model extends CI_Model {
 				'unitprice' 			=> $unitprice[$od],
 				'quantity' 				=> $quantity[$od],
 				'subtotal' 				=> $subtotal[$od],
-				'shippping_cost' 		=> $shippping_cost[$od],
+				'shippping_cost' 		=> $shippping_cost,
 				'productVariations' 	=> $productVariations[$od],
 				'shipprocessingtime' 	=> $shipprocessingtime[$od],
-				'trk_main' => 
+				'trk_main' => $trk_main,
+				'label_fmt' => $label_fmt,
+				'label_img' => $label_img,
 			);
 			
 			// Insert into mega_orderdetails
 			$this->db->insert('orderdetails',$insert_orderdetails); 
 		}
 
-		file_put_contents("c:\\tmp\\update_cart.txt", print_r($this->cart->contents(), TRUE));
+		file_put_contents("c:\\tmp\\cart_contents.txt", print_r($this->cart->contents(), TRUE));
 		
 		$data['message'] = '<p class="bg-success" id="msg"><i class="fa fa-check-square-o"></i> Order place confirm!</p>';
 		$data['breadcrumb'] = sitename().' - Order place confirm';

@@ -9,7 +9,7 @@ class Cart extends CI_Controller {
 		$this->load->model('page_model');
 		$this->load->model('User_model');
 		$this->load->model('Yourshop_model');
-		require_once APPPATH . 'third_party/rocketshipit/autoload.php';
+		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
 	}
 	
 	
@@ -181,10 +181,92 @@ class Cart extends CI_Controller {
 		if (isset($response['trk_main']))
 			$shipment->toFile($response['pkgs'][0]['label_img'], 'c:\\tmp\\label_img1.pdf');
 
-		file_put_contents("c:\\tmp\\test.txt", print_r($response, TRUE));
+		file_put_contents("c:\\tmp\\calculated_shipping.txt", print_r($response, TRUE));
 		return $response;
 	}
-	
+
+	private function calculateShipping2($userId, $shopId, $chosenAddress = 1) {
+		/* Get recipient info for the rates. */
+		$buyer = $this->User_model->get_data($userId);
+		$toName = $buyer['user_first_name'] . ' ' . $buyer['user_last_name'];
+		$toPhone = $buyer['user_phone'];
+		// $countryName = $buyer['user_country'];
+		$countryName = 'Mexico';
+		$toCountry = getCountryISOCodeByCountryName($countryName);
+		if ($chosenAddress == 1 && $toCountry == "US") {
+			$toAddrLine1 = $buyer['user_address'];
+			$toCity = $buyer['user_city'];
+			$toState = $buyer['user_state'];
+			$toCode = $buyer['user_zip'];
+		} elseif ($chosenAddress == 2 && $toCountry == "US") {
+			$toAddrLine1 = $buyer['user_address2'];
+			$toCity = $buyer['user_city2'];
+			$toState = $buyer['user_state2'];
+			$toCode = $buyer['user_zip2'];
+		}
+		/* Get Shop owner. */
+		// $shopInfo = $this->Yourshop_model->getshopdata($this->input->post('shopid'));
+		$shopInfo = $this->Yourshop_model->getshopdata($shopId);
+		$shopOwnerInfo = $this->Yourshop_model->get_data($shopInfo['userid']);
+		$shopOwnerName = $shopOwnerInfo['user_first_name'] . ' ' . $shopOwnerInfo['user_last_name'];
+
+		$config = new \RocketShipIt\Config;
+		$config->setDefault('generic', 'shipper', $shopInfo['shop_name']);
+		$config->setDefault('generic', 'shipContact', $shopOwnerName);
+		$weight = '20.3';
+		$length = '1';
+		$width = '2';
+		$height = '3';
+
+		$rate = new \RocketShipIt\Rate('USPS', array('config' => $config));
+		$rate->setParameter('toName', $toName);
+		$rate->setParameter('toCompany', $toName);
+		
+		if ($toCountry == "US")
+			$rate->setParameter('toCode', $toCode);
+
+		$rate->setParameter('toCountry', $toCountry);
+		$rate->setParameter('service', 'PRIORITY');
+
+		$package = new \RocketShipIt\Package('usps', array('config' => $config));
+		$package->setparameter('weight', $weight);
+		$package->setparameter('length', $length);
+		$package->setparameter('width', $width);
+		$package->setparameter('height', $height);
+		$package->setparameter('container', 'VARIABLE');
+		$rate->addPackageToShipment($package);
+
+		$response = $rate->getSimpleRates();
+
+		// print_r($response);
+		// exit();
+		/////////////////////////
+		$shipment = new \RocketShipIt\Shipment('USPS');
+		$shipment->setParameter('toName', $toName);
+		$shipment->setParameter('toCompany', $toName);
+		$shipment->setParameter('toPhone', $toPhone);
+		$shipment->setParameter('toCountry', $toCountry);
+		if ($toCountry == "US") {	//converted into ISO
+			$shipment->setParameter('toAddr1', $toAddrLine1);
+			$shipment->setParameter('toCity', $toCity);
+			$shipment->setParameter('toState', $toState);
+			$shipment->setParameter('toCode', $toCode);
+		}
+
+		// $shipment->setParameter('packagingType','PADDED FLAT RATE ENVELOPE');
+		$shipment->setParameter('packagingType','VARIABLE');
+		$shipment->setParameter('weight', $weight);
+		$shipment->setParameter('length', $length);
+		$shipment->setParameter('width', $width);
+		$shipment->setParameter('height', $height);
+		$response = $shipment->submitShipment();
+
+		if (isset($response['trk_main']))
+			$shipment->toFile($response['pkgs'][0]['label_img'], 'c:\\tmp\\label_img1.pdf');
+
+		file_put_contents("c:\\tmp\\calculated_shipping.txt", print_r($response, TRUE));
+		return $response;
+	}
 
 	function add()
 	{
@@ -236,9 +318,6 @@ class Cart extends CI_Controller {
 		);
 
 		$this->cart->insert($insert_room);
-
-		// file_put_contents("c:\\tmp\\addCart.txt", print_r($this->cart->contents(), TRUE));
-		// file_put_contents("c:\\tmp\\shippingCost.txt", print_r($shippingCost, TRUE));
 		
 		$data['last2items'] 		= $this->page_model->getlastnumberofproducts(2);
 		$data['last4items'] 		= $this->page_model->getlastnumberofrandomproducts(8);
