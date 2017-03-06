@@ -1,14 +1,17 @@
+# Use PHP56 as default
+# AddHandler application/x-httpd-php56 .php
+# <IfModule mod_rewrite.c>
+#  RewriteEngine On
+#  RewriteBase /
+#  RewriteCond %{REQUEST_FILENAME} !-f
+#  RewriteCond %{REQUEST_FILENAME} !-d
+#  RewriteRule ^(.*)$ index.php?/$1 [L]
+# </IfModule>
+
+#
+
 RewriteEngine on
 RewriteCond $1 !^(index\.php|public|\.txt)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?$1
-
-
-###################################
-### Disable Directory Browsing	###
-###################################
-
-# For security reasons, Option all cannot be overridden.
-#Options All -Indexes
-Options +ExecCGI +Includes +IncludesNOEXEC +SymLinksIfOwnerMatch -Indexes

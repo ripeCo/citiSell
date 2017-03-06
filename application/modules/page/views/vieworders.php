@@ -6,7 +6,6 @@
 
 
 <div id="inner_page"><!-- Begin: inner_page -->
-
 	<div class="userfav_wrapper">
     	<div class="container">
             <div class="row">
@@ -37,10 +36,8 @@
                                 </div><!-- End: user_name2 -->
 								
                             </div>
-							
                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" style="padding-right:0;">
                                 <div class="purchage_list"><!-- Begin: purchage_list -->
-                                    
 									<ul>
                                         <li>
 											<a style="color:#D91E76;" href="<?php echo base_url(); ?>page/login/logout">Sign Out</a>
@@ -63,13 +60,10 @@
 												Purchases &amp; Reviews
 											</a>
 										</li>
-										
                                     </ul>
-									
                                 </div><!-- End: purchage_list -->
                             </div>
                         </div>
-                        
                     </div>  
                 </div><!-- End: user_hi -->
             </div>
@@ -277,7 +271,6 @@
 							
 							
 							<span style="float:left; display:inline; width:15%; position: relative; top: 0;">
-								
 								<a href="<?php echo $producturl; ?>"
 								<!-- Product Image -->
 								<?php
@@ -303,7 +296,6 @@
 							
 							
 							<span style="display:inline;float: left; font-size: 14px; position: relative; text-align: right; top: 0px; width: 20%;">
-								
 								<p>
 									<span> $<?php echo $unitprice; ?> X <?php echo $quantity; ?></span>
 									 =
@@ -321,7 +313,6 @@
 									 =
 									 <b> $<?php echo number_format($subtotal + $shippping_cost,2); ?> </b>
 								</p>
-								
 							</span>
 							
 						</div>

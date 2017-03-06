@@ -4,91 +4,42 @@
 	$this->load->view('../../front-templates/navigation.php');
 ?>
 
-
-<div id="discover_tems"><!-- Begin: discover_tems -->
-    <div class="container">
-    
-        <div class="row">
-            <div class="discover_head"><!-- Begin: discover_head -->
-				
-            	<h1 class="discover_head_h3">
-					
-					<?php if($this->session->flashdata('login_error')){ ?>
-						<span class="text-danger"><i class="fa fa-frown-o"></i> Nope !<span>
-						
-						<div style="padding:3px;" class="alert alert-danger fade in block-inner">
-							<button type="button" class="close" data-dismiss="alert">×</button>
-							<i class="fa fa-exclamation-triangle"></i> <?php echo $this->session->flashdata('login_error'); ?>
-						</div> <!-- Success Or Error Message -->
-					<?php }else{ ?>
-					
-					<span class="text-success"><i class="fa fa-lock"></i> Login Area !<span>
-					
-					<?php } ?>
-                    
-                </h1>
-				
-				<h2 class="discover_head_h3">
-					<?php
-						 
-                        // Success Or Failor check
-						if(isset($success_msg)){
-							echo '<span id="msg" class="text-primary"> <i class="fa fa-check-circle"></i> '.$success_msg.' </span><br/>';
-						}else if(isset($error_msg)){
-							echo '<span class="text-danger"> <i class="fa fa-exclamation-triangle"></i> '.$error_msg.' </span><br/>';
-						}
-					?>
-				</h2>
-                
-                
-                <h3> <i class="fa fa-lock"></i> <?php echo $breadcrumb; ?></h3>
-            
-                
-            </div><!-- End: discover_head -->
-        </div>
-    </div>
-</div><!-- End: discover_tems -->
-
-
 <div id="what_items"><!-- Begin: what_items -->
     <div class="container">
         <div class="row">
             <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                 <div class="whatitem_inner"><!-- Begin: whatitem_inner -->
-                    
-					
-					<div class="signin_details"><!-- Begin: register_details -->
-					  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div class="signin_details" style="padding-top: 40px"><!-- Begin: register_details -->
+					<div class="row">
+					 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						  
-						  <form class="form-horizontal" id="myForm" action="<?php echo base_url(); ?>page/login/dologin" method="post">
-						  
-								<div class="form-group">
-									
+						  <form class="form-horizontal" id="signinp" action="<?php echo base_url(); ?>page/login/dologin" method="post">
+								<div class="hding"><span>Sign into citisell</span></div>
+								<?php if($this->session->flashdata('login_error')){ ?>
+									<div style="padding:10px 10px;border-radius:0;text-align: center" class="alert alert-danger fade in block-inner">
+										<button type="button" class="close" data-dismiss="alert">×</button>
+										<i class="fa fa-exclamation-triangle"></i> <?php echo $this->session->flashdata('login_error'); ?>
+									</div> <!-- Success Or Error Message -->
+								<?php }else{ echo null; }?>
+								<div class="form-group" style="margin-top: 20px">
 									<label for="inputEmail3" class="col-sm-3 control-label">User Email</label>
 									<div class="col-sm-6">
 										<input type="email" name="user_email" class="form-control" id="inputEmail3" placeholder="Enter Email">
 									</div>
-									
-									<?php echo form_error('user_email'); ?>
-									
 								</div>
 								
 								<div class="form-group">
-									
-										<label for="inputPassword3" class="col-sm-3 control-label">Password</label>
+									<label for="inputPassword3" class="col-sm-3 control-label">Password</label>
 									<div class="col-sm-6">
 										<input type="password" name="user_password" class="form-control" id="inputPassword3" placeholder="Enter Password">
 									</div>
-									
-									<?php echo form_error('user_password'); ?>
-									
 								</div>
 							  
 								<div class="form-group">
 									<div class="col-sm-offset-3 col-sm-6">
 									  <div class="checkbox">
 										<label>
-										  <input name="remember" type="checkbox" checked="checked" value="1">Remember me
+										  <input name="remember" type="checkbox" value="1">Remember me
 										</label>
 									  </div>
 									</div>
@@ -96,7 +47,7 @@
 							  
 								<div class="form-group">
 									<div class="col-sm-offset-3 col-sm-6 col-md-9 col-lg-6">
-									  <button type="submit" class="btn btn-info btn-sm custom-button" style="width:40%;">Signin</button>
+									  <button type="submit" class="btn btn-info btn-sm custom-button" style="background: #112C6F;border: 0;border-radius: 0;width: 100%">Signin</button>
 									</div>
 								</div>
 							  
@@ -111,41 +62,35 @@
 						
 						  <div class="pop_social">
 						
-							<div class="row">
-							
-								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+							<div class="row msloggin">
+								<div class="col-lg-12 col-md-21 col-sm-12 col-xs-12">
 								  <div class="logfb">
 									
-									<a class="btn btn-default" href="#" role="button" style="width:60%;background:#4682d8;color:#fff;">
-										<i class="fa fa-facebook"></i> Sign in With Facebook
+									<a class="btn btn-default" href="#" role="button" style="width:100%;background:#4682d8;color:#fff;">
+											<i class="fa fa-facebook"></i> Sign in With Facebook
 									</a>
 									
 								  </div>
 								</div>
 								
-								<!--div class="col-lg-5 col-md-5 col-sm-5 col-xs-12 col-lg-offset-2 col-md-offset-2 col-sm-offset-2 col-xs-offset-0">
+								<div class="col-lg-12 col-md-21 col-sm-12 col-xs-12 text-center">
 								  <div class="logtt">
 									<a class="btn btn-default" href="#" role="button" style="width:100%;background:#e04733;color:#fff;"><i class="fa fa-google-plus"></i> Sign in With Google+</a>
 								  </div>
-								</div-->
-								
+								</div>
 							</div>
 							
 
 						 </div>
-						  
-					  <div class="modal_fp">
-						
-					  </div>
 							<p style="font-size:12px;text-align:center;padding-top:15px;">
 								
 								<a href="#" data-toggle="modal" data-target="#forgotpass" style="color:#337ab7;">Forgot your password?</a> Not a member 
 								
-								<a href="#register" class="registerm" data-toggle="modal" data-target="#myModal" style="color:#5bc0de;">Register Here</a>
+								<a href="javascript:void(0);" class="registerm" data-toggle="modal" data-target=".regging" style="color:#5bc0de;">Register Here</a>
 								
 							</p>
 						</div>
-							
+						</div>	
 						
 					</div><!-- End: register_details -->
                     

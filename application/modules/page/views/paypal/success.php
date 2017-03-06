@@ -44,7 +44,7 @@
                         
          
                     
-                    <div class="whatitem_more">
+                    <div class="whatitem_more" style="overflow:visible;">
                         
 						<h2 style="font-family: 'quicksandbold'; font-size:25px; color:#313131; padding-bottom:8px; text-align: center;">
 							
@@ -55,9 +55,11 @@
 						<span style="color: #7FBA01; font-size:37px; left: -113px; position: relative;"> <i class="fa fa-check-circle"></i>
 
 							Your payment was successful, thank you for purchase.
-						
 						</span><br/>
-						
+						<strong style="display:block">Your Total Item Amount - <?php echo $currency;  ?> <?php echo $itemamnt; ?></strong>
+						<strong style="display:block">Your Total Shipping Amount - <?php echo $currency;  ?> <?php echo $shippingamnt; ?></strong>
+						<strong style="display:block">Total Amount - <?php echo $currency;  ?> <?php echo $amount; ?></strong>
+						<strong style="display:block">Paid Via - <?php echo $payment_type; ?></strong>
                     </div>
 					
 					
@@ -99,5 +101,12 @@
         </div>
     </div>
 </div><!-- End: satisfied_customer -->
+<script type="text/javascript">
+	window.setTimeout(function(){
 
+        // Move to a new location or you can do something else
+        window.location.href = "<?php echo base_url('page/user/userarea'); ?>";
+
+    }, 5000);
+</script>
 <?php $this->load->view('../../front-templates/footer.php'); ?>

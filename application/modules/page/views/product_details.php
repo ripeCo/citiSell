@@ -61,6 +61,7 @@
 											</h6>
                                             <!-- Standard button -->
 											
+											
                                         </div><!-- End: dtl_txt -->
                                     </div>
                                     
@@ -71,36 +72,18 @@
                     	<div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
                             <div class="dt_rt0"><!-- Begin: dt_rt -->
                             	<div class="row">
-                                	
 									<?php
-										$shopppimg = explode(',',$product_image);
-											
-										for($shopppi=0;$shopppi< count($shopppimg);$shopppi++){
-											
-											// Check product Image NULL Or Not
-											if($product_image == NULL){
-												$shoppimglocation = base_url()."assets/frontend/images/shops/default-img.jpg";
-											}else{
-												$sname1 = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-												
-												$shoppimglocation = base_url()."assets/frontend/images/shops/$sname1/$shopppimg[$shopppi]";
-											}
-											
-											//echo '<img class="img-responsive" src="'.$shoppimglocation.'" alt="'.$product_name.'" />';
-											//break;
-											
-											echo '
-												<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-												<div class="photo_dtails"><!-- Begin: photo_dtails -->
-													
-													<img class="img-responsive" src="'.$shoppimglocation.'" alt="'.$product_name.'" />
-													
-												</div><!-- End: photo_dtails -->
-											</div>
-											';
-										}
+										$get_product_photos = $this->yourshop_model->get_photoby_product(intval($productid));
+										foreach($get_product_photos as $photo){
 									?>
-									
+										<div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+											<div class="photo_dtails"><!-- Begin: photo_dtails -->
+											
+											<?php $img_path =  base_url().'assets/frontend/images/shops/'.str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $photo['shopname'])))).'/'.$photo['pic_name']; ?>
+												<img class="img-responsive" src="<?php echo $img_path; ?>" alt="" />
+											</div><!-- End: photo_dtails -->
+										</div>
+									<?php } ?>
 								</div>
                             </div><!-- End: dt_rt -->
                         </div>
@@ -205,38 +188,26 @@
 											
 											
                                             <div data-u="slides" style="cursor: default; position: relative; top: 0px; left: 0px; width: 600px; height: 557px; overflow: hidden;background-color: #fff !important;">
-                                                
-												<?php
-													$shopppsliderimg = explode(',',$product_image);
-														
-													for($shopppi02=0;$shopppi02< count($shopppsliderimg);$shopppi02++){
-														
-														// Check product Image NULL Or Not
-														if($product_image == NULL){
-															$shoppimglocation02 = base_url()."assets/frontend/images/shops/default-img.jpg";
-														}else{
-															$sname02 = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-															
-															$shoppimglocation02 = base_url()."assets/frontend/images/shops/$sname02/$shopppsliderimg[$shopppi02]";
-														}
-														
-														//echo '<img class="img-responsive" src="'.$shoppimglocation.'" alt="'.$product_name.'" />';
-														//break;
-														
-														echo '
-															<div data-p="144.50" style="display: none;">
-                                                    
-																<img class="pdetailsimg" data-u="image" src="'.$shoppimglocation02.'" />
-																
-																
-																<img data-u="thumb" src="'.$shoppimglocation02.'" />
-																
-															</div>
-														';
-													}
+                                                <?php
+													$get_product_photos = $this->yourshop_model->get_photoby_product(intval($productid));
 													
+													if(count($get_product_photos) !== 0){
+													$shoppimglocation02 = base_url()."assets/frontend/images/shops/default-img.jpg";
+													foreach($get_product_photos as $photo){
 												?>
+													<?php $img_path =  base_url().'assets/frontend/images/shops/'.str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $photo['shopname'])))).'/'.$photo['pic_name']; ?>
+													<div data-p="144.50" style="display: none;">
+														<img class="pdetailsimg" data-u="image" src="<?php echo $img_path; ?>" />
+														<img data-u="thumb" src="<?php echo $img_path; ?>" />
+													</div>
+												<?php }?>
 												
+												<?php }else{ ?>
+													<div data-p="144.50" style="display: none;">
+														<img class="pdetailsimg" data-u="image" src="<?php echo $shoppimglocation02; ?>" />
+														<img data-u="thumb" src="<?php echo $shoppimglocation02; ?>" />
+													</div>
+												<?php } ?>
 												
                                             </div>
 											
@@ -583,11 +554,7 @@
                                         
                                         	<div class="payment_box02">
                                             	<h3 class="payment_box_h3">Our policies</h3>
-                                                
-                                                <div class="row">
-												
-                                                	
-                                                        
+                                                <div class="row">    
                                                         <?php
 																	
 															$sqlshopPolicy = $this->db->query("select * from mega_shopsettings where shopid=$shopid");
@@ -727,7 +694,7 @@
                 
                     <div class="details_sidebar"><!-- Begin: details_sidebar -->
                     
-						<form class="form-horizantal" accept-charset="utf-8" method="post" action="<?php echo base_url(); ?>page/cart/add">
+						<form class="form-horizantal" accept-charset="utf-8" method="post" action="<?php echo base_url(); ?>page/cart/savecrt">
 						
                     	<div class="row">
                         	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -822,6 +789,9 @@
                                                                             
                                     </div>
                                     
+									<input type="hidden" name="shippinghome" value="<?php echo $shipping_cost_by_itself; ?>" />
+									<input type="hidden" name="shippingint" value="<?php echo $shipping_cost_int_by_itself ; ?>" />
+									
                                     <div class="row">
                                     
                                         <div class="select_price"><!-- Begin: select_price -->
@@ -843,7 +813,7 @@
                                                     
                                                 </div><!-- End: select_pricebox -->
                                             </div>
-                                            
+											
                                             <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                 <div class="select_pricebox"><!-- Begin: select_pricebox -->
                                                     
@@ -882,24 +852,14 @@
 															
 															foreach($shopPdtlsFetch as $shopdtlsPview){
 														?>
-														
 														<option value="<?php echo trim($shopdtlsPview->optionname.' '.$shopdtlsPview->measuringunits); ?>">
 															<?php echo $shopdtlsPview->optionname.' '.$shopdtlsPview->measuringunits; ?>
 														</option>
-														
 														<?php } ?>
-														
                                                     </select>
-													
 													<?php } } ?>
-													
-													
                                                 </div><!-- End: select_pricebox -->
-												
-												
-												
                                             </div>
-											
 											<div class="col-lg-12">
 												<!-- Product Overview -->
 									<div class="p-overview">
@@ -951,6 +911,15 @@
 											<b>
 											<i class="fa fa-check"></i> 
 											Materials - </b> : 
+											<?php 
+												$get_materials = $this->yourshop_model->get_materials($productid);
+											?>
+											<?php if(count($get_materials) !== 0){ ?>
+												<?php foreach($get_materials as $material){ ?>
+												<?php echo ucfirst($material['material_title']).", "; ?>
+												<?php } ?>
+											<?php }else{ echo null; } ?>
+											
 											<?php
 												echo ucfirst($materials);
 											?>
@@ -1031,8 +1000,6 @@
 													<!--form accept-charset="utf-8" method="post" action="<?php //echo base_url(); ?>page/cart/add"-->
 													
 														<input type="hidden" value="<?php echo $productid; ?>" name="id">
-														
-														<input type="hidden" value="<?php echo $shopppsliderimg[0]; ?>" name="pimg">
 														
 														<input type="hidden" value="<?php echo $shopid; ?>" name="shopid">
 														
@@ -1223,6 +1190,7 @@
 												$nvsd_resultsShopRelatedP 	= $nvsd_queryShopRelatedP->result();
 												
 												foreach($nvsd_resultsShopRelatedP as $viewShopRelatedP){
+													$get_thumbs = $this->page_model->get_productimgs($viewShopRelatedP->productid);
 											?>
 											
 											
@@ -1238,25 +1206,18 @@
                         
                                                               <a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $viewShopRelatedP->product_name)))))))); ?>/<?php echo $viewShopRelatedP->productid; ?>">
 															  
-															  <?php
-																$shoprppimg = explode(',',$viewShopRelatedP->product_image);
-																	
-																for($shoprppi=0;$shoprppi< count($shoprppimg);$shoprppi++){
-																	
-																	// Check product Image NULL Or Not
-																	if($viewShopRelatedP->product_image == NULL){
-																		$shoprpimglocation = base_url()."assets/frontend/images/shops/default-img.jpg";
-																	}else{
-																		$snameshoprp = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-																		
-																		$shoprpimglocation = base_url()."assets/frontend/images/shops/$snameshoprp/$shoprppimg[$shoprppi]";
-																	}
-																	
-																	echo '<img height="100%" class="img-responsive img-thumbnail" src="'.$shoprpimglocation.'" alt="'.$viewShopRelatedP->product_name.'" />';
-																	break;
-																}
-															?>
-															  
+																<?php
+																	$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));	
+																	$pooimglocation = base_url()."assets/frontend/images/shops/".$sname."/";
+																?>
+																
+																<?php 
+																	if(count($get_thumbs) !== 0){
+																?>
+																<img class="img-responsive" src="<?php echo $pooimglocation.$get_thumbs['pic_name']; ?>" alt="<?php echo $viewShopRelatedP->product_name; ?>" />';
+																<?php }else{ ?>
+																<img class="img-responsive" src="<?php echo base_url()."assets/frontend/images/shops/default-img.jpg"; ?>" alt="No Image Avaliable" />';
+																<?php } ?>
 															</a>
 															
 															<!--div class="mask">

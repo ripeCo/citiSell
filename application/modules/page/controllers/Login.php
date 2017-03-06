@@ -17,7 +17,7 @@ class Login extends CI_Controller
 	}
 	
 	// Default load this function
-	public function index() 
+	public function index()
 	{
 		// Check user session at first
 		$session = $this->session->userdata('isLogin');
@@ -49,6 +49,7 @@ class Login extends CI_Controller
 		}
 		else 
 		{
+			
 			$check = $this->login_model->check_user();
 			
 			if($check == TRUE) 
@@ -79,7 +80,6 @@ class Login extends CI_Controller
 				
 				$this->login_model->login_time(); // Update login time
 				
-			
 				$this->load->view('page/user/user', $data);
 				
 				//$this->smtpmail('rony@wanitbd.com','Test Subject','Test Message','rony@wanitbd.com','rony@wanitbd.com','http://ead123.com/multi2/upload/images/promo/0/banner_1.jpg');
@@ -498,7 +498,13 @@ class Login extends CI_Controller
 		force_download("$dbname.zip", $backup);
 	}
 	
-	
+	function checkuser(){
+		$email = $this->input->post('user_email');
+		$password = $this->input->post('user_password');
+		
+		$result = array("status"=>'ok', 'usernm' => $email);
+		echo json_encode($result);
+	}
 
 	// Logout function 
 	public function logout() 

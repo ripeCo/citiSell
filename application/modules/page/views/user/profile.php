@@ -244,6 +244,7 @@
 									<?php
 										$i=0;
 										foreach($favouriteitemsF4 as $getresult1){
+											$get_thumbs = $this->page_model->get_productimgs($getresult1->productid);
 											$i++;
 											$shopid = $getresult1->shopid;
 											// Get shop info
@@ -255,26 +256,17 @@
 									<div class="item_titlepic" id="<?php if($i==4){ echo 'last_box'; } ?>">
                                     	
 										<a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $getresult1->product_name)))))))); ?>/<?php echo $getresult1->productid; ?>">
-										
 											<?php
-											$ppimgRec1 = explode(',',$getresult1->product_image);
-												
-											for($ppiRec1=0;$ppiRec1< count($ppimgRec1);$ppiRec1++){
-												
-												// Check product Image NULL Or Not
-												if($getresult1->product_image == NULL){
-													$pimglocationRec1 = base_url()."assets/frontend/images/shops/default-img.jpg";
-												}else{
-													$snameRec1 = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-													
-													$pimglocationRec1 = base_url()."assets/frontend/images/shops/$snameRec1/$ppimgRec1[$ppiRec1]";
-												}
-												
-												echo '<img style="height:113px !important;width:135px !important;" class="img-responsive img-thumbnail" src="'.$pimglocationRec1.'" alt="'.$getresult1->product_name.'" />';
-												break;
-											}
-										?>
-											
+												$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));	
+												$pooimglocation = base_url()."assets/frontend/images/shops/".$sname."/";
+											?>
+											<?php 
+												if(count($get_thumbs) !== 0){
+											?>
+											<img class="img-responsive" src="<?php echo $pooimglocation.$get_thumbs['pic_name']; ?>" alt="<?php echo $getresult1->product_name; ?>" />
+											<?php }else{ ?>
+											<img class="img-responsive" src="<?php echo base_url()."assets/frontend/images/shops/default-img.jpg"; ?>" alt="No Image Avaliable" />
+											<?php } ?>
 										</a>
 										
                                     </div>

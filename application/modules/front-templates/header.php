@@ -162,7 +162,7 @@
 		
 ?>
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>-->
 <script type="text/javascript">
 	
 	function fill(Value)
@@ -297,11 +297,7 @@
 								
 								<p class="cart_rt_rate_p">
 									<?php
-										if ($cart = $this->cart->contents()){
-											echo checkNumber(count($cart));
-										}else{
-											echo '0';
-										}
+										echo $this->crttoal->total_itm();
 									?>
 								</p>
 								

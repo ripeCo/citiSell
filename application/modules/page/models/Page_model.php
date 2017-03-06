@@ -346,6 +346,7 @@ class Page_model extends CI_Model
 			$this->db->select("*");
 			
 			$this->db->join('shops','products.shopid=shops.shopid', 'LEFT');
+			$this->db->join('mega_tags','products.productid=mega_tags.tag_productid', 'LEFT');
 			$this->db->join('section','products.productsection=section.sectionid', 'LEFT');
 			$this->db->join('productcategories','products.product_category_id=productcategories.category_id', 'LEFT');
 			$this->db->join('subcategory','products.product_sub_category_id=subcategory.sub_category_id', 'LEFT');
@@ -353,6 +354,7 @@ class Page_model extends CI_Model
 			
 			$query2 = $this->db->like('products.product_name',$search, 'after')
              ->or_like('products.productid',$search, 'after')
+             ->or_like('mega_tags.tag_title',$search, 'after')
              ->or_like('products.shopid',$search, 'after')
              ->or_like('products.product_item_details',$search, 'after')
              ->or_like('products.product_location',$search, 'after')
@@ -609,6 +611,17 @@ class Page_model extends CI_Model
 	}
 	*/
 	
-
+	public function get_productimgs($productid)
+	{
+		$query = $this->db->query("select * from mega_productpic where mega_productpic.pic_productid='$productid'");
+		$result = $query->row_array();
+		return $result;
+	}
+	
+	public function checkumail($email){
+		$query = $this->db->query("select * from mega_users where user_email='$email'");
+		$reslt = $query->row_array();
+		return $reslt;
+	}
 	
 }

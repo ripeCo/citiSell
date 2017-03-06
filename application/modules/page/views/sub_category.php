@@ -430,6 +430,7 @@
 				
 					<?php
 						foreach($allitems as $allitemsview){
+							$get_thumbs = $this->page_model->get_productimgs($allitemsview->productid);
 					?>
 				
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -449,24 +450,17 @@
 											$nvsoo_results 	= $nvsoo_query->row_array();
 											extract($nvsoo_results);
 											
-											$poopimg = explode(',',$allitemsview->product_image);
+											$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));	
+											$pooimglocation = base_url()."assets/frontend/images/shops/".$sname."/";
 												
-											for($poopi=0;$poopi< count($poopimg);$poopi++){
-												
-												// Check product Image NULL Or Not
-												if($allitemsview->product_image == NULL){
-													$pooimglocation = base_url()."assets/frontend/images/shops/default-img.jpg";
-												}else{
-													$sname04 = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-													
-													$pooimglocation = base_url()."assets/frontend/images/shops/$sname04/$poopimg[$poopi]";
-												}
-												
-												echo '<img style="height:226px !important;" class="img-responsive img-thumbnail" src="'.$pooimglocation.'" alt="'.$allitemsview->product_name.'" />';
-												break;
-											}
 										?>
-										
+										<?php 
+											if(count($get_thumbs) !== 0){
+										?>
+										<img class="img-responsive img-thumbnail" src="<?php echo $pooimglocation.$get_thumbs['pic_name']; ?>" alt="<?php echo $allitems->product_name; ?>" />
+										<?php }else{ ?>
+										<img class="img-responsive img-thumbnail" src="<?php echo base_url()."assets/frontend/images/shops/default-img.jpg"; ?>" alt="No Image Avaliable" />
+										<?php } ?>
                                         <!--div class="mask">
 											<div class="heart_rate">
 												

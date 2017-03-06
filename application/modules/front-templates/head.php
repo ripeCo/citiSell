@@ -3,20 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title><?php echo $breadcrumb; ?></title>
+<!--<title><?php echo $breadcrumb; ?></title>-->
+<title>Citisell</title>
 	
 	<?php $this->load->view('../../templates/favicon.php'); ?>
-    
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/dragula.css" type="text/css" />
 	<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,300italic,700" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/animate.css" type="text/css" />
-	
+	<link href="http://cdn.rawgit.com/noelboss/featherlight/1.6.1/release/featherlight.min.css" type="text/css" rel="stylesheet" />
+	<link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/jquery.masterblaster.css" type="text/css" />
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.css" rel="stylesheet">
 	<link href="<?php echo base_url(); ?>assets/frontend/css/datatables-bootstrap3.css" rel="stylesheet">
 	
     <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/css/bootstrap-datepicker.css" type="text/css" />
 	
+    <link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/shipping.css" type="text/css" />
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/styles.css" type="text/css" />
     
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/jquery-ui.css" type="text/css" />
@@ -24,17 +27,20 @@
     <link rel="stylesheet" href="<?php echo base_url(); ?>assets/frontend/css/recommend.css" type="text/css" />
     
     <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/frontend/css/elastislide.css" />
+	<link rel="stylesheet" href="<?php  echo base_url('assets/frontend/css/smart_wizard.css'); ?>" />
+	<link rel="stylesheet" href="<?php  echo base_url('assets/frontend/css/smart_wizard_theme_dots.css'); ?>" />
 	
     <link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/frontend/css/slicknav.css" /><!--slicknav.css for menu-->
 	<!-- Mega Navigation Munu css -->
 	
+	<script type="text/javascript">
+		var base_url = "<?php echo base_url(); ?>";
+	</script>
 	
 	
 	<!-- Custom & Overide Style CSS -->
 	<link rel="stylesheet" type="text/css" href="<?php echo base_url(); ?>assets/frontend/css/custom.css" />
-	
 	<style type="text/css">
-		
 		.cart_rt_rate{
 			width:37px;
 			height:25px;
@@ -43,9 +49,7 @@
 			left:-20px;
 			background:url(<?php echo base_url(); ?>assets/frontend/images/interface/bg_cart.png) no-repeat;
 		}
-		
 	</style>
-	
 	<style>
 		
 		/* navigation style */
@@ -193,9 +197,13 @@
 		</style>
 		<![endif]-->
 	
-	<!-- Device Touch Enable Scripts -->
+    <!-- Include SmartWizard CSS -->
+    <link href="<?php echo base_url('assets/frontend/css/smart_wizard.css'); ?>" rel="stylesheet" type="text/css" />
+    
+    <!-- Optional SmartWizard theme -->
+    <link href="<?php echo base_url('assets/frontend/css/smart_wizard_theme_dots.css'); ?>" rel="stylesheet" type="text/css" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript'>
-		
 		function init() {
 		  var touchzone = document.getElementById("mycanvas");
 		  
@@ -206,11 +214,6 @@
 			  ctx = canvas.getContext("2d");
 			}
 		}
-	
 	</script>
-	
-	
-    
 </head>
-
 <body onload="init()">

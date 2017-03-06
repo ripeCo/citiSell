@@ -96,7 +96,9 @@ class paypal_lib {
 		// populate $fields array with a few default values.  See the paypal
 		// documentation for a list of fields and their data types. These defaul
 		// values can be overwritten by the calling script.
-		$this->add_field('rm','2');			  // Return method = POST
+		$this->add_field('rm','1');			  // Return method = POST
+		//$this->add_field('add','1');			  // Return method = POST
+		//$this->add_field('undefined_quantity','1');			  // Return method = POST
 		$this->add_field('cmd','_xclick');
 
 		$this->add_field('currency_code', $this->CI->config->item('paypal_lib_currency_code'));

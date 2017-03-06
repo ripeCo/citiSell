@@ -9,7 +9,18 @@ if(!empty($users)){
 	redirect(base_url()."page/yourshop/addlisting");
 }
 ?>
-
+<style type="text/css">
+	span.delete {
+	  bottom: 0;
+	  color: #666;
+	  cursor: pointer;
+	  float: right;
+	  margin-right: 5px;
+	  position: absolute;
+	  right: 0;
+	  z-index: 2147483647;
+	}
+</style>
 <!-- This for dependency select category, Subcategory & Subcategory level2-->
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/jquery-1.4.1.min.js"></script>
 
@@ -150,8 +161,8 @@ if(!empty($users)){
 						<div id="step-3" class="row setup-content" style="display: none;">
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 							
-								<h3 class="shop_steptitle">Stock your shop </h3>
-								<p class="shop_step_p">Add as many listings as you can. Ten or more would be a great start.<br>More listings means more chances to be discovered! </p>
+								<h3 class="shop_steptitle">LISTING PAGE</h3>
+								<p class="shop_step_p">Add your product listing, Add up to 5 picture for each listing,<br> more listing means more chance to sell.</p>
 									
 								<div class="row">
 								
@@ -171,8 +182,11 @@ if(!empty($users)){
 												
 												<form role="form" action="<?php echo base_url(); ?>page/yourshop/shopproductstock" method="post" enctype="multipart/form-data" accept-charset="utf-8" autocomplete="off">
 												
-												
-												
+												<?php 
+													if(isset($_GET['refstock']) && $_GET['refstock'] == 'true'){
+												?>
+												<input type="hidden" name="refstock" value ="<?php echo $_GET['refstock']; ?>"/>
+												<?php }else{  echo null; } ?>
 												<div class="stockmodal00"><!-- Begin: stockmodal -->
 												
 													<?php
@@ -201,160 +215,56 @@ if(!empty($users)){
 														<div class="modal-content">
 														  <div class="modal-header">
 															
-															<button aria-label="Close" data-dismiss="modal" class="close" type="button">
-																<span aria-hidden="true">×</span>
+
 															</button>
 															
-															<h4 id="myModalLabel" class="modal-title shop_steptitle">Add a new listing</h4>
+															<h4 id="myModalLabel" class="modal-title shop_steptitle">Add a new product listing</h4>
 														  </div>
 														  <div class="modal-body">
-														  
 															<div class="row">
-															
 																<div class="formstock_box"><!-- Begin: formstock_box -->
-																	
 																	<h6 class="formstock_box_h6">Product Photos</h6>
-																	
 																	<p class="formstock_box_p">
-																		Add at least one photo. Use all four photos to show different angles and details.
+																		Add Photos:
+Use high quality jpg, png & gfi files for photos, use 500px to 1070px wide.
 																	</p>
-																	
-																	
-																		
-																	<div class="col-lg-10 col-md-10 col-sm-10 col-xs-10">
-																		<div class="stockform_lft"><!-- Begin: stockform_lft -->
-																			<div class="row">
-																				
-																				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-																					
-																					<h5 class="text-danger">
-																						<i class="fa fa-upload"></i>
-																						Product Image upload here!
-																					</h5>
-																					
-																					<div class="shopfrm_box"><!-- Begin: shopfrm_box -->
-																						
-																						<div class="fileUpload">
-																							
-																							<span class="custom-span">
-																								<i class="fa fa-camera"></i>
-																							</span>
-																							<p class="custom-para">Add a Image</p>
-							
-																							<input type="file" id="files1" name="userfile[]" />
-																							
-																							<b id="imgclose1">
-																								<i class="fa fa-times-circle"></i>
-																							</b>
-																							
-																						</div>
-																						
-																						
-																						<div class="fileUpload">
-																							
-																							<span class="custom-span">
-																								<i class="fa fa-camera"></i>
-																							</span>
-																							<p class="custom-para">Add a Image</p>
-																							
-																							<input type="file" id="files2" name="userfile[]" />
-																							
-																							<b  id="imgclose2">
-																								<i class="fa fa-times-circle"></i>
-																							</b>
-																							
-																						</div>
-																						
-																						
-																						<div class="fileUpload">
-																							
-																							<span class="custom-span">
-																								<i class="fa fa-camera"></i>
-																							</span>
-																							<p class="custom-para">Add a Image</p>
-																							
-																							<input type="file" id="files3" name="userfile[]" />
-																							
-																							<b id="imgclose3">
-																								<i class="fa fa-times-circle"></i>
-																							</b>
-																							
-																						</div>
-																						
-																						
-																						<div class="fileUpload">
-																							
-																							<span class="custom-span">
-																								<i class="fa fa-camera"></i>
-																							</span>
-																							<p class="custom-para">Add a Image</p>
-																							
-																							<input type="file" id="files4" name="userfile[]" />
-																							
-																							<b id="imgclose4">
-																								<i class="fa fa-times-circle"></i>
-																							</b>
-																							
-																						</div>
-																						
-																						
-																						<div class="fileUpload">
-																							
-																							<span class="custom-span">
-																								<i class="fa fa-camera"></i>
-																							</span>
-																							<p class="custom-para">Add a Image</p>
-																							
-																							<input type="file" id="files5" name="userfile[]" />
-																							
-																							<b id="imgclose5">
-																								<i class="fa fa-times-circle"></i>
-																							</b>
-																							
-																						</div>
-																						
-																					</div><!-- End: shopfrm_box -->
+																	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+																		<div class="stockform_lft droggg" id="uppel">
+																			 <!--
+																			 <div class="single_upld_img one" id="imgup">
+																				<div class="thumb_container">
+																					<div id="preview"></div>
+																					<div id="firstEl">
+																						<button id="clickFle"></button>
+																						<input type="file" id="file_upload" name="attachment_file" />
+																						<input type="file" id="files" name="files[]" multiple />
+																						<span class="icon_cm"><i class="fa fa-camera"></i></span>
+																						<span>Add New Photo</span>
+																					</div>
 																				</div>
-																				
-																			</div>
-																		</div><!-- End: stockform_lft -->
+																			 </div>
+																			 -->
+																			 <div class="single_upld_img one" id="imgup">
+																				<div class="thumb_container">
+																					<div id="preview"></div>
+																					<div id="firstEl">
+																						<button id="clickFle"></button>
+																						<input type="file" id="file_upload" name="attachment_file" />
+																						<input type="hidden" id="#inputclick" onclick="return sendData();" />
+																						<span class="icon_cm"><i class="fa fa-camera"></i></span>
+																						<span>Add New Photo</span>
+																					</div>
+																				</div>
+																			 </div>
+																			 <div class="single_upld_img">
+																				<div class="thumb_container">
+																				</div>
+																			 </div>
+																			 <div class="single_upld_img"><div class="thumb_container"></div></div>
+																			 <div class="single_upld_img"><div class="thumb_container"></div></div>
+																			 <div class="single_upld_img"><div class="thumb_container"></div></div>
+																		</div>
 																	</div>
-																	
-																	
-																	<script>
-																		// Preview Images Remove
-																		
-																		$(document).ready(function(){
-																			$("#imgclose1").click(function(){
-																				$("#thumb1").remove();
-																			});
-																			
-																			$("#imgclose2").click(function(){
-																				$("#thumb2").remove();
-																			});
-																			
-																			$("#imgclose3").click(function(){
-																				$("#thumb3").remove();
-																			});
-																			
-																			$("#imgclose4").click(function(){
-																				$("#thumb4").remove();
-																			});
-																			
-																			$("#imgclose5").click(function(){
-																				$("#thumb5").remove();
-																			});
-																			
-																			$("#imgclose1").on('click', function() { $("#files1").val(''); });
-																			$("#imgclose2").on('click', function() { $("#files2").val(''); });
-																			$("#imgclose3").on('click', function() { $("#files3").val(''); });
-																			$("#imgclose4").on('click', function() { $("#files4").val(''); });
-																			$("#imgclose5").on('click', function() { $("#files5").val(''); });
-																		});
-																		
-																	</script>
-																	
-																	
 																	<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
 																		<div class="stockform_rht"><!-- Begin: stockform_rht -->
 																			<!--p class="stockform_rht_p">Use high-quality JPG, PNG or GIF files that are at least 570px wide (we recommend 1000px).<br><br>The best photos use natural or diffused lighting, and don’t use a flash.<br><br>These are thumbnails of your photos. Zoom in to see them full-size.</p--> &nbsp;
@@ -362,12 +272,10 @@ if(!empty($users)){
 																	</div>
 																</div><!-- End: formstock_box -->
 																<div class="clearfix"></div>
-																
 																<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
 																	<h6 class="formstock_box_h6">Listing details</h6>
-																	<p class="formstock_box_p">Tell the world all about your item and why they’ll love it.</p>
-																	
-																	<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+																	<p class="formstock_box_p">add your product details such as price, category, description, key word, materials etc.</p>
+																	<div class="">
 																		<div class="stockform_lft"><!-- Begin: stockform_lft -->
 																		
 																			<div class="hor_frm">
@@ -381,8 +289,8 @@ if(!empty($users)){
 																									<span style="color:#FF3A3D"> *</span>
 																								</label>
 																								
-																								<div class="col-sm-9">
-																									<input required type="text" name="product_name" id="product_name" placeholder="Enter product name..." class="form-control">
+																								<div class="col-sm-6">
+																									<input type="text" name="product_name" id="product_name" placeholder="Enter product name..." class="form-control">
 																								</div>
 																							</div>
 																							
@@ -440,13 +348,28 @@ if(!empty($users)){
 																									<optgroup label="Not yet made">
 																											<option value="made_to_order">Made To Order</option>
 																									</optgroup>
-																									<optgroup label="Recently">
-																											<option value="2010_2016">2010 - 2016</option>
-																											<option value="2000_2009">2000s</option>
-																											<option value="1997_1999">1997 - 1999</option>
-																									</optgroup>
+																									<optgroup label="Made by year">
+																											<option value="2010_2016">2017</option>
+<option value="2010_2016">2016</option>
+<option value="2010_2016">2015</option>
+<option value="2010_2016">2014</option>
+<option value="2010_2016">2013</option>
+<option value="2010_2016">2012</option>
+<option value="2010_2016">2011</option>
+<option value="2010_2016">2010</option>
+
+
+<option value="2010_2016">2009</option>
+
+<option value="2010_2016">2008</option>
+
+<option value="2010_2016">2007</option>
+
+<option value="2010_2016">2006</option>
+<option value="2010_2016">2005</option>
+																																																																													</optgroup>
 																									<optgroup label="Vintage">
-																											<option value="before_1997">Before 1997</option>
+																											<option value="before_199">Before 1997</option>
 																											<option value="1990_1996">1990 - 1996</option>
 																											<option value="1980s">1980s</option>
 																											<option value="1970s">1970s</option>
@@ -540,7 +463,7 @@ if(!empty($users)){
 																									Price($)<span style="color:#FF3A3D"> *</span>
 																								</label>
 																								
-																								<div class="col-sm-4">
+																								<div class="col-sm-2">
 																								<input required type="text" name="product_price" id="product_price" placeholder="Enter price..." class="form-control">
 																								</div>
 																						  </div>
@@ -549,7 +472,7 @@ if(!empty($users)){
 																						  
 																						  <div style="margin-top:15px" class="form-group">
 																							<label class="col-sm-3 control-label hor_frm_title" for="inputEmail3">Quantity<span style="color:#FF3A3D">*</span></label>
-																							<div class="col-sm-4">
+																							<div class="col-sm-2">
 																							  <input required type="text" name="product_stock" placeholder="Enter quantity..." class="form-control">
 																							</div>
 																						  </div>
@@ -699,7 +622,7 @@ if(!empty($users)){
 																									Item details  <span style="color:#FF3A3D"> *</span>
 																								</label>
 																								
-																								<div class="col-sm-9">
+																								<div class="col-sm-8">
 																									<textarea required name="product_item_details" id="product_item_details" placeholder="Item details..." class="form-control" cols="7" rows="15"></textarea>
 																								</div>
 																						  </div>
@@ -795,9 +718,8 @@ if(!empty($users)){
 																
 	<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
 		<h6 class="formstock_box_h6">Product Variations</h6>
-		
 		<p class="formstock_box_p">
-			Add available options, such as color or size. If you add variations, buyers must select them before adding your items to their cart.
+			choose available option such as colors, size, inch, etc, so buyers can pick accurate option.
 		</p>
 		
 		<p>&nbsp;</p>
@@ -1095,12 +1017,55 @@ if(!empty($users)){
 	</div><!-- End: formstock_box -->
 	<div class="clearfix"></div>
 																
-																
-																
 			<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
+							<h6 class="formstock_box_h6">Search terms</h6>
+							<p class="formstock_box_p">Key word is for  help buyer to find item they are looking for.</p>
+							
+							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="stockform_lft"><!-- Begin: stockform_lft -->
+								
+									<div class="hor_frm">
+										<div class="row">
+											<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+												<div class="form-horizontal">
+													 <div class="form-group">
+														<label class="col-sm-3 control-label hor_frm_title2" for="inputEmail3">KEY WORD FOR SEARCH</label>
+														<div class="col-lg-9 col-md-9">
+														   <div class="row">
+															  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+																  <input id="tags" placeholder="Enter Keywords here"/>
+															  </div>
+														   </div>
+														</div>
+													 </div>
+													 <div class="form-group">
+														<label class="col-sm-3 control-label hor_frm_title2" for="inputEmail3">PRODUCT MATERIALS</label>
+														<div class="col-lg-9 col-md-9">
+														   <div class="row">
+															  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+																  <input id="mateRial" placeholder="Enter Materials here"/>
+															  </div>
+														   </div>
+														</div>
+													 </div>
+												  </div>
+											</div>
+										</div>
+									</div>
+									
+								</div><!-- End: stockform_lft -->
+							</div>
+							
+							<!--div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+								<div class="stockform_rht">
+									<p class="stockform_rht_p">What words might someone use to search for your listings? Use all 13 tags to get found. Get ideas for tags.</p>
+								</div>
+							</div-->
+						</div>
+						<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
 				<h3 class="formstock_box_h6">Shipping</h3>
 				
-				<p class="formstock_box_p">Set clear and realistic shipping expectations for shoppers by providing accurate processing time and shipping rates. </p>
+				<p class="formstock_box_p">choose shipping option for help buyers to find shop from which country, what is estimated time for ship etc. </p>
 				
 				<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 					<div class="stockform_lft"><!-- Begin: stockform_lft -->
@@ -1395,134 +1360,6 @@ if(!empty($users)){
 				
 			</div><!-- End: formstock_box -->
 			<div class="clearfix"></div>
-			
-			
-			<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
-							<h6 class="formstock_box_h6">Search terms</h6>
-							<p class="formstock_box_p">Help more people discover your listing by using accurate and descriptive words or phrases. How does search work on citiSell?</p>
-							
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								<div class="stockform_lft"><!-- Begin: stockform_lft -->
-								
-									<div class="hor_frm">
-										<div class="row">
-											<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-												<div class="form-horizontal">
-												
-												  <div class="form-group">
-													
-													<!-- For Tags -->
-													<div class="form-group varition-sectmain3">
-																				
-														<label class="col-lg-2 col-md-2 col-sm-2 control-label hor_frm_title3" for="inputEmail3">
-															
-															<strong>Tags</strong>
-															
-														</label>
-														
-														<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-															<div class="row">
-																<div class="varition-area clearfix new-option-content3">
-																	
-																	<div class="variation-head">
-																	
-																		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-																			<h5 style="padding-left:10px;">Tag Name</h5>
-																		</div>
-																		
-																		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-																			<h5 style="padding-left:10px;text-align:right;">Action</h5>
-																		</div>
-																		
-																	</div>
-																	
-																
-																
-																</div>
-																
-																
-															</div>
-																
-															<!-- Add new Color Options -->	
-															<div class="clearfix add-new-option" style="padding:10px;">
-																  
-																<input style="display:inline;width:80%" id="optionInput3" type="text" class="form-control checklist-new-item-text" placeholder="+ Add a new tag...">
-																  
-																<button style="display:inline;" id="add3" type="button" class="btn btn-primary btn-sm new-option-add">Add</button>
-																
-															</div>
-																
-																
-														</div>
-													</div>
-		
-													  
-												  </div>
-												
-													<div class="form-group">
-													
-													<!-- For Size -->
-													<div class="form-group varition-sectmain3">
-																				
-														<label class="col-lg-2 col-md-2 col-sm-2 control-label hor_frm_title4" for="inputEmail3">
-															
-															<strong>Materials</strong>
-															
-														</label>
-														
-														<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-															<div class="row">
-																<div class="varition-area clearfix new-option-content4">
-																	
-																	<div class="variation-head">
-																	
-																		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-																			<h5 style="padding-left:10px;">Name of Materials</h5>
-																		</div>
-																		
-																		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-																			<h5 style="padding-left:10px;text-align:right;">Action</h5>
-																		</div>
-																		
-																	</div>
-																	
-																
-																
-																</div>
-																
-																
-															</div>
-																
-															<!-- Add new Color Options -->	
-															<div class="clearfix add-new-option" style="padding:10px;">
-																  
-																<input style="display:inline;width:80%" id="optionInput4" type="text" class="form-control checklist-new-item-text" placeholder="+ Add a new materials...">
-																  
-																<button style="display:inline;" id="add4" type="button" class="btn btn-primary btn-sm new-option-add">Add</button>
-																
-															</div>
-																
-																
-														</div>
-													</div>
-		
-													  
-												  </div>
-												  
-												</div>
-											</div>
-										</div>
-									</div>
-									
-								</div><!-- End: stockform_lft -->
-							</div>
-							
-							<!--div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-								<div class="stockform_rht">
-									<p class="stockform_rht_p">What words might someone use to search for your listings? Use all 13 tags to get found. Get ideas for tags.</p>
-								</div>
-							</div-->
-						</div>
 						
 						<!-- End of adding tag, Materials -->
 																
@@ -1534,7 +1371,7 @@ if(!empty($users)){
 														  
 															<div class="modal-footer">
 														  
-																<button data-dismiss="modal" class="btn btn-default" type="button">Close</button>
+								
 																<button class="btn btn-primary" id="productlisting" type="submit">Save and continue</button>
 															
 															</div>
@@ -1575,19 +1412,365 @@ if(!empty($users)){
 
 </div><!-- End: usershop_inner -->        
 </div>
-
 </div>
-
 </div>
-
-
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/dragula.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/jquery.masterblaster.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/jquery.materials.js"></script>
+<script src="http://cdn.rawgit.com/noelboss/featherlight/1.6.1/release/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	$('.zoooom').featherlight();
+</script>
+<script type="text/javascript">
+      $( "#tags" ).masterblaster( {
+        animate: true
+      } );
+	  $( "#mateRial" ).materials( {
+        animate: true
+      } );
+</script>
+<script type="text/javascript">
+	$("input#file_upload").hide();
+	$("#preload").hide();
+	$("button#clickFle").click(function(){
+		$("input#file_upload").click();
+	});
+	$("input#file_upload").change(function() {
+		sendData();
+	});
+	function sendData()
+	{
+		$("<div class=\"single_upld_img\"><div class=\"thumb_container\">" +
+		"<div id=\"preload\"><img src=\"<?php echo base_url('assets/preload.gif'); ?>\" /></div>" +
+		"</div></div>").insertBefore("#imgup");
+		$("#preload").show();
+		var data = new FormData();
+		data.append('attachment_file', $('#file_upload').prop('files')[0]);
+		 $.ajax({
+				   type:"POST",
+				   url:"<?php echo base_url('page/yourshop/add_new_image');?>",
+				   data: data,
+				   dataType: 'json',
+				   mimeType: "multipart/form-data",
+					contentType: false,
+					cache: false,
+					processData: false,
+				   success: function(data){
+					dragula([document.querySelector('.droggg')]);
+					$('#imgup').prev().remove();
+					$(data.img_preview).insertBefore("#imgup");
+					$("#preload").hide();
+				   }
+		   });
+		   
+	}
+	function check_click(val){
+		$("<div class=\"single_upld_img placeholder\"><div class=\"thumb_container\"><div id=\"preview\">" +				
+		"</div></div></div>").insertAfter("#imgup");
+		var base_url = "<?php echo base_url(); ?>";
+		$.post(base_url + "page/yourshop/delete_ajaximg", {filepath: val}, function(data){
+			if(data.status == 'ok'){
+				$("<div class=\"single_upld_img placeholder\"><div class=\"thumb_container\"><div id=\"preview\">" +				
+				"</div></div></div>").insertAfter("#imgup");
+			}else{
+				//error display;
+				alert('Data deletion failed !');
+			}
+		}, "json");
+		
+	}
+</script>
+<!--
+<script type="text/javascript">
+	$("input#file_upload1").hide();
+	$("button#clickFle1").click(function(){
+		$("input#file_upload1").click();
+	});
+	$("input#file_upload1").change(function() {
+		sendData1();
+	});
+	function sendData1()
+	{
+		var data1 = new FormData();
+		data1.append('attachment_file1', $('#file_upload1').prop('files')[0]);
+		 $.ajax({
+				   type:"POST",
+				   url:"<?php echo base_url('page/yourshop/add_new_imageone');?>",
+				   data: data1,
+				   dataType: 'json',
+				   mimeType: "multipart/form-data",
+					contentType: false,
+					cache: false,
+					processData: false,
+				   success: function(data){
+					$("div#preview1").html(data.img_preview);
+					$("div#firstEl2").html(data.add_new_up);
+					$("div#firstEl1").html('');
+				   }
+		   });
+	}
+	function check_click1(){
+		if(typeof img_pth1 !== 'undefined'){
+			var filepath1 = img_pth1;
+			var up_img = $("input[name='msproimg\\[\\]']").map(function(){return $(this).val();}).get();
+			var total_length = up_img.length;
+			$.post(base_url + "page/yourshop/delete_ajaximgone", {filepath1: filepath1}, function(data){
+				if(data.status == 'ok'){
+					$('.single_upld_img.two').remove();
+					$(".droggg").append(
+					  '<div class="single_upld_img two">'
+					   + '<div class="thumb_container">'
+					   + '<div id="preview1"></div>'
+					   + '<div id="firstEl1">'
+					   + '<button id="clickFle1"></button>'
+					   + '<input type="file" id="file_upload1" name="attachment_file1" />'
+					   + '<input type="hidden" id="#inputclick1" onclick="return sendData1();" />'
+					   + '<span class="icon_cm"><i class="fa fa-camera"></i></span>'
+					   + '<span>Add New Photo</span>'
+					   + '</div>'
+					   + '</div>'
+					   + '</div>'
+					 );
+					 $("input#file_upload1").hide();
+					 $("button#clickFle1").click(function(){
+						$("input#file_upload1").click();
+					 });
+					 $("input#file_upload1").change(function() {
+						sendData1();
+					 });
+					/*
+					$("div#preview1").html('');
+					if(total_length === ''){
+						$("div#firstEl1").html(data.form_html);
+					}else{
+						$("div#firstEl1").html('');
+					}
+					$("div#firstEl1").html(data.form_html);
+					*/
+				}else{
+					//error display;
+					alert('Data deletion failed !');
+				}
+			}, "json");
+		}else{
+			return null;
+		}
+	}
+</script>
+<script type="text/javascript">
+	$("input#file_upload2").hide();
+	$("button#clickFle2").click(function(){
+		$("input#file_upload2").click();
+	});
+	$("input#file_upload2").change(function() {
+		sendData2();
+	});
+	function sendData2()
+	{
+		var data2 = new FormData();
+		data2.append('attachment_file2', $('#file_upload2').prop('files')[0]);
+		 $.ajax({
+				   type:"POST",
+				   url:"<?php echo base_url('page/yourshop/add_new_imagetwo');?>",
+				   data: data2,
+				   dataType: 'json',
+				   mimeType: "multipart/form-data",
+					contentType: false,
+					cache: false,
+					processData: false,
+				   success: function(data){
+					$("div#preview2").html(data.img_preview);
+					$("div#firstEl3").html(data.add_new_up);
+					$("div#firstEl2").html('');
+				   }
+		   });
+	}
+	function check_click2(){
+		if(typeof img_pth2 !== 'undefined'){
+			var filepath2 = img_pth2;
+			var up_img = $("input[name='msproimg\\[\\]']").map(function(){return $(this).val();}).get();
+			var total_length = up_img.length;
+			$.post(base_url + "page/yourshop/delete_ajaximgtwo", {filepath2: filepath2}, function(data){
+				if(data.status == 'ok'){
+					$('.single_upld_img.three').remove();
+					$(".droggg").append(
+					  '<div class="single_upld_img three">'
+					   + '<div class="thumb_container">'
+					   + '<div id="preview2"></div>'
+					   + '<div id="firstEl2">'
+					   + '<button id="clickFle2"></button>'
+					   + '<input type="file" id="file_upload2" name="attachment_file2" />'
+					   + '<input type="hidden" id="#inputclick2" onclick="return sendData2();" />'
+					   + '<span class="icon_cm"><i class="fa fa-camera"></i></span>'
+					   + '<span>Add New Photo</span>'
+					   + '</div>'
+					   + '</div>'
+					   + '</div>'
+					 );
+					 $("input#file_upload2").hide();
+					$("button#clickFle2").click(function(){
+						$("input#file_upload2").click();
+					});
+					$("input#file_upload2").change(function() {
+						sendData2();
+					});
+					/*
+					$("div#preview2").html('');
+					if(total_length > 2){
+						$("div#firstEl2").html(data.form_html);
+					}else{
+						$("div#firstEl2").html('');
+					}
+					*/
+				}else{
+					//error display;
+					alert('Data deletion failed !');
+				}
+			}, "json");
+		}else{
+			return null;
+		}
+	}
+</script>
+<script type="text/javascript">
+	$("input#file_upload3").hide();
+	$("button#clickFle3").click(function(){
+		$("input#file_upload3").click();
+	});
+	$("input#file_upload3").change(function(){
+		sendData3();
+	});
+	function sendData3()
+	{
+		var data3 = new FormData();
+		data3.append('attachment_file3', $('#file_upload3').prop('files')[0]);
+		 $.ajax({
+				   type:"POST",
+				   url:"<?php echo base_url('page/yourshop/add_new_imagethree');?>",
+				   data: data3,
+				   dataType: 'json',
+				   mimeType: "multipart/form-data",
+					contentType: false,
+					cache: false,
+					processData: false,
+				   success: function(data){
+					$("div#preview3").html(data.img_preview);
+					$("div#firstEl4").html(data.add_new_up);
+					$("div#firstEl3").html('');
+				   }
+		   });
+	}
+	function check_click3(){
+		if(typeof img_pth3 !== 'undefined'){
+			var filepath3 = img_pth3;
+			var up_img = $("input[name='msproimg\\[\\]']").map(function(){return $(this).val();}).get();
+			var total_length = up_img.length;
+			$.post(base_url + "page/yourshop/delete_ajaximgthree", {filepath3: filepath3}, function(data){
+				if(data.status == 'ok'){
+					$('.single_upld_img.four').remove();
+					$(".droggg").append(
+					  '<div class="single_upld_img four">'
+					   + '<div class="thumb_container">'
+					   + '<div id="preview3"></div>'
+					   + '<div id="firstEl3">'
+					   + '<button id="clickFle3"></button>'
+					   + '<input type="file" id="file_upload3" name="attachment_file3" />'
+					   + '<input type="hidden" id="#inputclick3" onclick="return sendData3();" />'
+					   + '<span class="icon_cm"><i class="fa fa-camera"></i></span>'
+					   + '<span>Add New Photo</span>'
+					   + '</div>'
+					   + '</div>'
+					   + '</div>'
+					 );
+					/*
+					$("div#preview3").html('');
+					if(total_length > 3){
+						$("div#firstEl3").html(data.form_html);
+					}else{
+						$("div#firstEl3").html('');
+					}
+					*/
+				}else{
+					//error display;
+					alert('Data deletion failed !');
+				}
+			}, "json");
+		}else{
+			return null;
+		}
+	}
+</script>
+<script type="text/javascript">
+	$("input#file_upload4").hide();
+	$("button#clickFle4").click(function(){
+		$("input#file_upload4").click();
+	});
+	$("input#file_upload4").change(function() {
+		sendData4();
+	});
+	function sendData4()
+	{
+		var data4 = new FormData();
+		data4.append('attachment_file4', $('#file_upload4').prop('files')[0]);
+		 $.ajax({
+				   type:"POST",
+				   url:"<?php echo base_url('page/yourshop/add_new_imagefour');?>",
+				   data: data4,
+				   dataType: 'json',
+				   mimeType: "multipart/form-data",
+					contentType: false,
+					cache: false,
+					processData: false,
+				   success: function(data){
+					$("div#preview4").html(data.img_preview);
+					$("div#firstEl4").html('');
+				   }
+		   });
+	}
+	function check_click4(){
+		if(typeof img_pth4 !== 'undefined'){
+			var filepath4 = img_pth4;
+			var up_img = $("input[name='msproimg\\[\\]']").map(function(){return $(this).val();}).get();
+			var total_length = up_img.length;
+			$.post(base_url + "page/yourshop/delete_ajaximgfour", {filepath4: filepath4}, function(data){
+				if(data.status == 'ok'){
+					$('.single_upld_img.five').remove();
+					$(".droggg").append(
+					  '<div class="single_upld_img five">'
+					   + '<div class="thumb_container">'
+					   + '<div id="preview4"></div>'
+					   + '<div id="firstEl4"></div>'
+					   + '</div>'
+					   + '</div>'
+					 );
+					/*
+					$("div#preview4").html('');
+					if(total_length > 4){
+						$("div#firstEl4").html(data.form_html);
+					}else{
+						$("div#firstEl4").html('');
+					}
+					*/
+				}else{
+					//error display;
+					alert('Data deletion failed !');
+				}
+			}, "json");
+		}else{
+			return null;
+		}
+	}
+</script>
+-->
+<script>
 
+</script>
 <script type="text/javascript">
 
 // Shop Name Avalibility Check
 
-$(document).ready(function(){    
+$(document).ready(function(){   
 	$("#shop_name").keyup(function()
 	{		
 		var shop_name = $(this).val();	
@@ -1627,7 +1810,6 @@ $(document).ready(function(){
 
 <script type="text/javascript">
 $(function() {
-
 // Shop Preferences 
 $('#submit').click(function() {
 
@@ -1715,6 +1897,4 @@ $('#billing000000').click(function() {
 
 });
 </script>
-
-
 <?php $this->load->view('../../front-templates/footer.php'); ?>

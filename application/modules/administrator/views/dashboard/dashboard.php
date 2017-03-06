@@ -370,11 +370,8 @@
                 <div class="top-stats-panel">
 				
                     <h4 class="widget-h">Average Daily Sales Amount</h4>
-					
                     <div id="daily-visit-chart" style="width:100%; height: 100px; display: block;text-align:center;">
-						
 						<h3 class="text-warning">
-							
 							<?php
 								$getallDeliveredSalesAmountSql = $this->db->query("select SUM(order_amount) as orderamount from mega_orders where order_status='Delivered'");
 								
@@ -391,25 +388,20 @@
 							?>
 							
 						</h3>
-						
 						<h4 style="font-weight:bold;">
 							USD
 						</h4>
 					</div>
-					
 					<ul class="chart-meta clearfix">
 						<li class="pull-left visit-chart-value">&nbsp;</li>
                         <li class="pull-right visit-chart-title">
 							<i class="fa fa-arrow-up"></i> Sales Amount
 						</li>
 					</ul>
-					
                 </div>
             </div>
         </section>
     </div>
-	
-	
 </div>
 <!--mini statistics end-->
 

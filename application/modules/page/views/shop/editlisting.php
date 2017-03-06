@@ -18,7 +18,6 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 
 <!-- This for dependency select category, Subcategory & Subcategory level2 --->
 <script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/jquery-1.4.1.min.js"></script>
-
 <script type="text/javascript">
 	$(document).ready(function(){
 		
@@ -93,7 +92,6 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 
 <div class="row">
 	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-	
 		<h4 class="text-center">
 			<?php
 				
@@ -115,16 +113,13 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 				}
 				
 			?>
-			
 		</h4>
-	
 	</div>
 </div>
 
 
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 	<div class="your_shop"><!-- Begin: your_shop -->
-	
 		<div class="row">
 			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				
@@ -150,30 +145,24 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 			</div>
 		</div>
 		
-		
+		<form role="form" action="<?php echo base_url(); ?>page/yourshop/pedit/<?php echo $this->uri->segment(4); ?>/<?php echo $shopid; ?>" method="post" accept-charset="utf-8">
 		<div class="row">
 			<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<div class="wizarcontent" style="margin-top:0px;min-height: 500px; height: auto;"><!-- Begin: wizarcontent -->
-		
-					   
 						<div id="step-3" class="row setup-content" style="display: none;">
 							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-							
 								<h3 class="shop_steptitle">Edit your stock shop product's </h3>
 								<p class="shop_step_p">You can change products information's! </p>
-									
 								<div class="row">
-								
 									<div class="stepcontent02"><!-- Begin: stepcontent01 -->
-									
 										<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-											<div class="shoppre_box" style="padding:7px;"><!-- Begin: shoppre_box -->
+											<div class="shoppre_box editproe" style="padding:7px;"><!-- Begin: shoppre_box -->
 												
 												<?php
 													
 													// Get products informations
 													$pid = $this->uri->segment(4);
-													$updateproductSql = $this->db->query("select * from mega_products where productid=$pid");
+													$updateproductSql = $this->db->query("select * from mega_products where mega_products.productid=$pid");
 													$editproductFetch = $updateproductSql->row_array();
 													extract($editproductFetch);
 													
@@ -184,227 +173,95 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 												
 												?>
 												
-	<form role="form" action="<?php echo base_url(); ?>page/yourshop/pedit/<?php echo $this->uri->segment(4); ?>/<?php echo $shopid; ?>" method="post" enctype="multipart/form-data" accept-charset="utf-8">
-												
-												
-												<div class="row">
-															
+												<div class="row">		
 													<div class="formstock_box"><!-- Begin: formstock_box -->
-														
 														<h6 class="formstock_box_h6">Product Photos</h6>
-														
+														<p class="formstock_box_p">
+															Add Photos: Use high quality jpg, png & gfi files for photos, use 500px to 1070px wide.
+														</p>
 														<p class="formstock_box_p">
 															<b>Name:</b> <?php echo $product_name; ?>
 														</p>
-														
-														
-															
-														<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+														<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 															<div class="stockform_lft"><!-- Begin: stockform_lft -->
 																<div class="row">
-																	
-																	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-																		
-																		
-																		<!--div class="shopfrm_box" style="padding-bottom:2px;"><!-- Begin: shopfrm_box -->
-																			
-																			<?php
-																				/*$pimg1 = explode(',',$product_image);
-																				$pi1 = 1;
-																				
-																				foreach($pimg1 as $pimg01){
+																	<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">	
+																			<!--Mostak Display Exist photo here -->
+																			<div class="stockform_lft droggg editpro" id="uppel">
+																				 <!--
+																				 <div class="single_upld_img one" id="imgup">
+																					<div class="thumb_container">
+																						<div id="preview"></div>
+																						<div id="firstEl">
+																							<button id="clickFle"></button>
+																							<input type="file" id="file_upload" name="attachment_file" />
+																							<input type="file" id="files" name="files[]" multiple />
+																							<span class="icon_cm"><i class="fa fa-camera"></i></span>
+																							<span>Add New Photo</span>
+																						</div>
+																					</div>
+																				 </div>
+																				 -->
+																				<?php
+																					$get_product_photos = $this->yourshop_model->get_photoby_product(intval($pid));
+																					foreach($get_product_photos as $photo){
+																					$img_path =  $_SERVER['DOCUMENT_ROOT'].'/'.'assets/frontend/images/shops/'.str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $this->session->userdata('shopname'))))).'/'.$photo['pic_name'];
+																					$disp_path = base_url().'/'.'assets/frontend/images/shops/'.str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $this->session->userdata('shopname'))))).'/'.$photo['pic_name'];
+																				?>
+																				<div class="single_upld_img">
+																					<div class="thumb_container">
+																						<div id="preview">
+																							<img style="width:100%; height:100%;" id="dynfile" src="<?php echo $disp_path; ?>" alt=""/>
+																							<input type="hidden" class="myppic" name="msproimg[]" value="<?php echo $photo['pic_name']; ?>" />
+																							<div class="action">
+																								<a class="zoooom" data-featherlight="<?php echo $disp_path; ?>"><span class="zoom"><i class="fa fa-eye"></i></span></a>
+																							</div>
+																						</div>
+																					</div>
 																					
-																					$pi1++;
-																					$img_old = $pimg01;
-																			?>
-																			
-																			<!--div class="fileUpload">
-																				
-																				<span class="custom-span">
-																					<i class="fa fa-camera"></i>
-																				</span>
-																				<p class="custom-para">Add a Image</p>
-																				
-																				<input type="file" id="files<?php echo $pi1; ?>" value="<?php echo $img_old; ?>" name="userfile[]" />
-																				
-																				<b id="imgclose<?php echo $pi1; ?>">
-																					<i class="fa fa-times-circle"></i>
-																				</b>
-																				
-																			</div-->
-																			
-																			<?php }*/ ?>
-																			
-																		<!--/div-->
-	
-					
-					<!--script src="<?php //echo base_url(); ?>assets/frontend/js/interact.min.js"></script-->
-					
-					<script type="text/javascript">
-						// target elements with the "draggable" class
-						interact('.draggable')
-						  .draggable({
-							// enable inertial throwing
-							inertia: true,
-							// keep the element within the area of it's parent
-							restrict: {
-							  restriction: "parent",
-							  endOnly: true,
-							  elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
-							},
-							// enable autoScroll
-							autoScroll: true,
-
-							// call this function on every dragmove event
-							onmove: dragMoveListener,
-							// call this function on every dragend event
-							onend: function (event) {
-							  var textEl = event.target.querySelector('p');
-
-							  textEl && (textEl.textContent =
-								'moved a distance of '
-								+ (Math.sqrt(event.dx * event.dx +
-											 event.dy * event.dy)|0) + 'px');
-							}
-						  });
-
-						  function dragMoveListener (event) {
-							var target = event.target,
-								// keep the dragged position in the data-x/data-y attributes
-								x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
-								y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-							// translate the element
-							target.style.webkitTransform =
-							target.style.transform =
-							  'translate(' + x + 'px, ' + y + 'px)';
-
-							// update the posiion attributes
-							target.setAttribute('data-x', x);
-							target.setAttribute('data-y', y);
-						  }
-
-						  // this is used later in the resizing and gesture demos
-						  window.dragMoveListener = dragMoveListener;
-					</script>																		
-																			
-																		<div class="shopfrm_box" style="padding-bottom:2px;"><!-- Begin: shopfrm_box -->	
-																			
-<?php
-	$pimg = explode(',',$product_image);
-		
-	for($pi=0;$pi<5;$pi++){
-	//for($pi=0;$pi<count($pimg);$pi++){
-		$pii = $pi+1;
-		$pppimg = $pimg[$pi];
-		
-		echo '<input id="files'.$pii.'" type="hidden" name="usrfile[]" value="'.$pppimg.'">';
-		
-	echo '<div id="drag-'.$pi.'" class="dpblock draggable">';
-		
-		// Check product Image NULL Or Not
-		if(!empty($pppimg)){
-			$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-			
-			$imglocation = base_url()."assets/frontend/images/shops/$sname/$pppimg";
-			
-			echo '<div class="fileUpload editp" style="padding:5px;height:120px;">';
-				echo '<img src="'.$imglocation.'" id="thumb'.$pii.'" title="" />';
-				//echo '<b id="imgclose'.$pii.'"> <i class="fa fa-times-circle"></i> </b>';
-			echo '</div>';
-		}else{
-			$imglocation = base_url()."assets/frontend/images/shops/default-img.jpg";
-			echo '<div class="fileUpload editp" style="padding:5px;height:120px;">';
-				echo '<img src="'.$imglocation.'" id="thumb'.$pii.'" title="" />';
-				//echo '<b id="imgclose'.$pii.'"> <i class="fa fa-times-circle"></i> </b>';
-			echo '</div>';
-		}
-		
-		echo '<div class="panel panel-default img-upload">';
-                        
-				echo '<div class="panel-body img-file-tab">';
-					echo '<div>';
-						echo '<span class="btn btn-default btn-file img-select-btn">';
-							
-							if($pi == 0){
-								echo '<span>Change Image</span>';
-							}else{
-								echo '<span>Change Image</span>';
-							}
-							
-							echo '<input id="files'.$pii.'" type="file" name="userfile[]" value="'.$pppimg.'">';
-							
-						echo '</span>';
-						echo '<span class="btn btn-default img-remove-btn">Remove</span>';
-					echo '</div>';
-				echo '</div>';
-				
-			echo '</div>';
-			
-	echo '</div>';
-		
-		if(count($pimg) >5){
-			break;
-		}
-		
-	}
-?>
-																			
-																		</div><!-- End: shopfrm_box -->
+																					<?php 
+																						echo '
+																							<span class="delete" onclick="check_click(\''.$img_path.'\', '.$photo['pic_id'].'), $(this).parent().remove();"><i class="fa fa-times"></i></span>
+																						'; 
+																					
+																					?>
+																				 </div>
+																				<?php
+																					}
+																				 ?>
+																				 <div class="single_upld_img one" id="imgup">
+																					<div class="thumb_container">
+																						<div id="preview"></div>
+																						<div id="firstEl">
+																							<button id="clickFle"></button>
+																							<input type="file" id="file_upload" name="attachment_file" />
+																							<input type="hidden" id="#inputclick" onclick="return sendData();" />
+																							<span class="icon_cm"><i class="fa fa-camera"></i></span>
+																							<span>Add New Photo</span>
+																						</div>
+																					</div>
+																				 </div>
+																				 <div class="single_upld_img">
+																					<div class="thumb_container">
+																					</div>
+																				 </div>
+																				 <div class="single_upld_img"><div class="thumb_container"></div></div>
+																				 <div class="single_upld_img"><div class="thumb_container"></div></div>
+																				 <div class="single_upld_img"><div class="thumb_container"></div></div>
+																			</div>
 																		
 																	</div>
 																	
 																</div>
 															</div><!-- End: stockform_lft -->
 														</div>
-														
-														
-											<script>
-												// Preview Images Remove
-												
-												$(document).ready(function(){
-													
-													$("#imgclose1").click(function(){
-														$("#thumb1").remove();
-													});
-													
-													$("#imgclose2").click(function(){
-														$("#thumb2").remove();
-													});
-													
-													$("#imgclose3").click(function(){
-														$("#thumb3").remove();
-													});
-													
-													$("#imgclose4").click(function(){
-														$("#thumb4").remove();
-													});
-													
-													$("#imgclose5").click(function(){
-														$("#thumb5").remove();
-													});
-													
-													$("#imgclose1").on('click', function() { $("#files1").val(''); });
-													$("#imgclose2").on('click', function() { $("#files2").val(''); });
-													$("#imgclose3").on('click', function() { $("#files3").val(''); });
-													$("#imgclose4").on('click', function() { $("#files4").val(''); });
-													$("#imgclose5").on('click', function() { $("#files5").val(''); });
-													
-												});
-												
-											</script>
-														
-														
 													</div><!-- End: formstock_box -->
 													<div class="clearfix"></div>
 													
 													<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
 														
-														<h6 class="formstock_box_h6">
-															<i class="fa fa-th"></i> Listing details
-														</h6>
-														
-														<p class="formstock_box_p">Tell the world all about your item and why they’ll love it.</p>
+														<h6 class="formstock_box_h6">Listing details</h6>
+														<p class="formstock_box_p">add your product details such as price, category, description, key word, materials etc.</p>
 														
 														<div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
 															<div class="stockform_lft"><!-- Begin: stockform_lft -->
@@ -621,22 +478,14 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 																			  </div>
 																			  
 																			  <div class="clearfix"></div>
-																			  
-																			  
 																			  <div style="margin-top:15px" class="form-group">
-																				
 																				<label class="col-sm-3 control-label hor_frm_title" for="inputEmail3">
 																					Quantity<span style="color:#FF3A3D">*</span>
 																				</label>
-																				
 																				<div class="col-sm-3">
-																				  
 																				  <input required type="text" name="product_stock" placeholder="Enter quantity..." class="form-control" value="<?php echo $product_stock; ?>" />
-																				  
 																				</div>
-																				
 																			  </div>
-																			  
 																			  <div class="clearfix"></div>
 																			  
 																			  
@@ -679,13 +528,10 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 																			  
 																			  
 																				<div style="margin-top:15px" class="form-group">
-																					
 																					<label class="col-sm-3 control-label hor_frm_title" for="inputEmail3">
 																						Item details  <span style="color:#FF3A3D"> *</span>
 																					</label>
-																					
 																					<div class="col-sm-9">
-																						
 																						<textarea required="required" name="product_item_details" id="product_item_details" placeholder="Item details..." class="form-control" cols="7" rows="15"><?php echo $product_item_details; ?></textarea>
 																						
 																					</div>
@@ -744,11 +590,8 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 															</div><!-- End: stockform_rht -->
 														</div>
 													</div><!-- End: formstock_box -->
-													<div class="clearfix"></div>
-												
-
-												
-												<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+													<div class="clearfix"></div>												
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 <script type="text/javascript">
 	$(function () {
 		
@@ -850,13 +693,10 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 												<!-- Add Variations -->
 													
 												<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
-													
 													<h6 class="formstock_box_h6">Product Variations</h6>
-													
 													<p class="formstock_box_p">
-														Add available options, such as color or size. If you add variations, buyers must select them before adding your items to their cart.
+														choose available option such as colors, size, inch, etc, so buyers can pick accurate option.
 													</p>
-													
 													<p>&nbsp;</p>
 													
 													<?php
@@ -1270,8 +1110,85 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 													</div-->
 												</div><!-- End: formstock_box -->
 												<div class="clearfix"></div>		
-													
-													
+													<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
+														<h6 class="formstock_box_h6">Search terms</h6>
+														<p class="formstock_box_p">Key word is for  help buyer to find item they are looking for.</p>
+														
+														<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+															<div class="stockform_lft"><!-- Begin: stockform_lft -->
+															
+																<div class="hor_frm">
+																	<div class="row">
+																		<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+																			<div class="form-horizontal">
+																				 <div class="form-group">
+																					<label class="col-sm-3 control-label hor_frm_title2" for="inputEmail3">KEY WORD FOR SEARCH</label>
+																					<div class="col-lg-9 col-md-9">
+																					   <div class="row">
+																						  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+																							  <input id="tags" placeholder="Enter Keywords here"/>
+																							  <div class="mb-container">
+																									<ul class="mb-taglist" style="margin-top:5px !important">
+																										<?php 
+																											$get_alltags = $this->yourshop_model->get_tagsbypid(intval($pid));
+																											if(count($get_alltags) !== 0){
+																												foreach($get_alltags as $tag){
+																										?>
+																										<li class="mb-tag tags" data-tag="<?php echo $tag['tag_title']; ?>" style="opacity: 1;">
+																											<div class="mb-tag-content">
+																												<input type="hidden" value="<?php echo $tag['tag_title']; ?>" name="tags[]" class="inputtxt"><span class="mb-tag-text"><?php echo $tag['tag_title']; ?></span>
+																												<a class="mb-tag-remove" onclick="delete_tag(<?php echo $tag['tag_id']; ?>), $(this).parent().parent().remove();"></a>
+																											</div>
+																										</li>
+																										<?php } ?>
+																										<?php }else{ echo null; } ?>	
+																									</ul>
+																							  </div>
+																						  </div>
+																					   </div>
+																					</div>
+																				 </div>
+																				 <div class="form-group">
+																					<label class="col-sm-3 control-label hor_frm_title2" for="inputEmail3">PRODUCT MATERIALS</label>
+																					<div class="col-lg-9 col-md-9">
+																					   <div class="row">
+																						  <div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+																							  <input id="mateRial" placeholder="Enter Materials here"/>
+																							  <div class="mb-container">
+																								<ul class="mb-taglist" style="margin-top:5px !important">
+																									<?php 
+																										$get_allmaterials = $this->yourshop_model->get_materialsbypid(intval($pid));
+																										if(count($get_allmaterials) !== 0){
+																											foreach($get_allmaterials as $material){
+																									?>
+																									<li class="mb-tag tags" data-tag="<?php echo $material['material_title']; ?>" style="opacity: 1;">
+																										<div class="mb-tag-content">
+																											<input type="hidden" value="<?php echo $material['material_title']; ?>" name="materials[]" class="inputtxt"><span class="mb-tag-text"><?php echo $material['material_title']; ?></span>
+																											<a class="mb-tag-remove" onclick="delete_material(<?php echo $material['material_id']; ?>), $(this).parent().parent().remove();"></a>
+																										</div>
+																									</li>
+																									<?php } ?>
+																									<?php }else{ echo null; } ?>	
+																								</ul>
+																							  </div>
+																						  </div>
+																					   </div>
+																					</div>
+																				 </div>
+																			  </div>
+																		</div>
+																	</div>
+																</div>
+																
+															</div><!-- End: stockform_lft -->
+														</div>
+														
+														<!--div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+															<div class="stockform_rht">
+																<p class="stockform_rht_p">What words might someone use to search for your listings? Use all 13 tags to get found. Get ideas for tags.</p>
+															</div>
+														</div-->
+													</div>
 													
 													<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
 														<h3 class="formstock_box_h6">Shipping</h3>
@@ -1597,221 +1514,36 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 														</div>
 														
 													</div><!-- End: formstock_box -->
-													<div class="clearfix"></div>
-													
-			
-			
-			<div style="margin-top:40px;" class="formstock_box"><!-- Begin: formstock_box -->
-							<h6 class="formstock_box_h6">Search terms</h6>
-							<p class="formstock_box_p">Help more people discover your listing by using accurate and descriptive words or phrases. How does search work on ctSell?</p>
-							
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								<div class="stockform_lft"><!-- Begin: stockform_lft -->
-								
-									<div class="hor_frm">
-										<div class="row">
-											<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-												<div class="form-horizontal">
-												
-													<div class="form-group">
-													
-													<!-- For Tags -->
-													<div class="form-group varition-sectmain3">
-																				
-														<label class="col-lg-2 col-md-2 col-sm-2 control-label hor_frm_title3" for="inputEmail3">
-															
-															<strong>Tags</strong>
-															
+													<div class="clearfix"></div>					  
+													<div style="margin-top:15px;" class="form-group">
+														<label class="col-sm-3 control-label hor_frm_title" for="inputEmail3">
+															Product Status
 														</label>
-														
-														<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-															<div class="row">
-																<div class="varition-area clearfix new-option-content3">
+														<div class="col-sm-9">
+															<div class="col-group panel-heading p-xs-2 bb-xs-0 hide-xs">
+																<div class="input-group">
+																	<?php// if($bill_paid_or_not == 1){ ?>
+																	<label class="radio-inline">
+																		<input type="radio" <?php if($product_live == 'Active'){ echo 'checked'; } ?> name="product_live" id="product_live" value="Active" /> Active
+																	</label>
+																	<?php //} ?>
 																	
-																	<div class="variation-head">
-																	
-																		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-																			<h5 style="padding-left:10px;">Tag Name</h5>
-																		</div>
-																		
-																		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-																			<h5 style="padding-left:10px;text-align:right;">Action</h5>
-																		</div>
-																		
-																	</div>
-																<?php
-																	$tagsArr = explode(',', $tags);
-																	foreach ($tagsArr as $tagsVal) {
-																?>
-																<div class="variation-fields">
-																	<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12"> 
-																		<input type="text" name="tags[]" value="<?php echo $tagsVal; ?>">
-																	</div>
-																	
-																	<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-																		<p>
-																			<b class="pull-right remove"><span class="fa fa-remove"></span></b>
-																		</p>
-																	</div>
+																	<label class="radio-inline">
+																		<input type="radio"  <?php if($product_live == 'Inactive'){ echo 'checked'; } ?> name="product_live" id="product_live" value="Inactive" /> Deactive
+																	</label>
 																</div>
-																
-																<?php } ?>
-																
-																</div>
-																
-																
 															</div>
-																
-															<!-- Add new Color Options -->	
-															<div class="clearfix add-new-option" style="padding:10px;">
-																  
-																<input style="display:inline;width:80%" id="optionInput3" type="text" class="form-control checklist-new-item-text" placeholder="+ Add a new tag...">
-																  
-																<button style="display:inline;" id="add3" type="button" class="btn btn-primary btn-sm new-option-add">Add</button>
-																
-															</div>
-																
-																
 														</div>
-													</div>
-		
-													  
-												  </div>
-												
-													<div class="form-group">
-													
-													<!-- For Size -->
-													<div class="form-group varition-sectmain3">
-																				
-														<label class="col-lg-2 col-md-2 col-sm-2 control-label hor_frm_title4" for="inputEmail3">
-															
-															<strong>Materials</strong>
-															
-														</label>
-														
-														<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-															<div class="row">
-																<div class="varition-area clearfix new-option-content4">
-																	
-																	<div class="variation-head">
-																	
-																		<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">
-																			<h5 style="padding-left:10px;">Name of Materials</h5>
-																		</div>
-																		
-																		<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-																			<h5 style="padding-left:10px;text-align:right;">Action</h5>
-																		</div>
-																		
-																	</div>
-																	
-																	<?php
-																		$materialsArr = explode(',', $materials);
-																		foreach ($materialsArr as $materialsVal) {
-																	?>
-																	<div class="variation-fields">
-																		<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12"> 
-																			<input type="text" name="materials[]" value="<?php echo $materialsVal; ?>">
-																		</div>
-																		
-																		<div class="col-lg-2 col-md-2 col-sm-2 col-xs-12">
-																			<p>
-																				<b class="pull-right remove"><span class="fa fa-remove"></span></b>
-																			</p>
-																		</div>
-																	</div>
-																	
-																	<?php } ?>
-																
-																
-																</div>
-																
-																
-															</div>
-																
-															<!-- Add new Color Options -->	
-															<div class="clearfix add-new-option" style="padding:10px;">
-																  
-																<input style="display:inline;width:80%" id="optionInput4" type="text" class="form-control checklist-new-item-text" placeholder="+ Add a new materials...">
-																  
-																<button style="display:inline;" id="add4" type="button" class="btn btn-primary btn-sm new-option-add">Add</button>
-																
-															</div>
-																
-																
-														</div>
-													</div>
-		
-													  
-												  </div>
-												  
-												</div>
-											</div>
-										</div>
-									</div>
-									
-								</div><!-- End: stockform_lft -->
-							</div>
-							
-							<!--div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-								<div class="stockform_rht">
-									<p class="stockform_rht_p">What words might someone use to search for your listings? Use all 13 tags to get found. Get ideas for tags.</p>
-								</div>
-							</div-->
-						</div>
-						
-						<!-- End of adding tag, Materials -->
-
-
-																	  
-																	
-											<div style="margin-top:15px;" class="form-group">
-												<label class="col-sm-3 control-label hor_frm_title" for="inputEmail3">
-													Product Status
-												</label>
-												
-												<div class="col-sm-9">
-													
-													<div class="col-group panel-heading p-xs-2 bb-xs-0 hide-xs">
-														
-														<div class="input-group">
-															
-															<?php if($bill_paid_or_not == 1){ ?>
-															<label class="radio-inline">
-																<input type="radio" <?php if($product_live == 'Active'){ echo 'checked'; } ?> name="product_live" id="product_live" value="Active" /> Active
-															</label>
-															<?php } ?>
-															
-															<label class="radio-inline">
-																<input type="radio"  <?php if($product_live == 'Inactive'){ echo 'checked'; } ?> name="product_live" id="product_live" value="Inactive" /> Deactive
-															</label>
-															
-															
-														</div>
-														
-													</div>
-													
-												</div>
-												
+													  </div>
+													  <div class="clearfix"></div>					
+													  <div class="col-lg-12 col-md-12 col-sm-12">
+														  <div style="display: block; height: 50px; margin: 20px 0; position: relative;">
+															<button class="btn btn-primary pull-left" id="productlisting" type="submit">
+																Update Listing
+															</button>
+														  </div>
+													  </div>
 											  </div>
-											  <div class="clearfix"></div>						
-																		
-																		
-																		
-									<div class="col-lg-12 col-md-12 col-sm-12">
-										
-										<div style="display: block; height: 50px; left: 207px; margin: 20px 0; position: relative;top: 23px;">
-										
-											<button class="btn btn-primary pull-left" id="productlisting" type="submit">
-												Update Listing
-											</button>
-											
-										</div>
-										
-									</div>
-													
-
-												</div>
 												
 												
 												
@@ -1854,15 +1586,92 @@ if($this->uri->segment(4) == NULL){ redirect(base_url()."page/yourshop/listingma
 <!--script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script-->
 
 <script src="https://code.jquery.com/jquery-1.12.2.min.js"></script>
-<script src="<?php echo base_url(); ?>assets/frontend/js/img-upload.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/dragula.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/jquery.masterblaster.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>assets/frontend/js/jquery.materials.js"></script>
+<script src="http://cdn.rawgit.com/noelboss/featherlight/1.6.1/release/featherlight.min.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	$('.zoooom').featherlight();
+</script>
+<script type="text/javascript">
+      $( "#tags" ).masterblaster( {
+        animate: true
+      } );
+	  $( "#mateRial" ).materials( {
+        animate: true
+      } );
+</script>
 <script>
-	$('.img-upload').imgUpload({
+	$('.img-upload').im
+	gUpload({
 	  allowedFormats: [ "jpg", "jpeg", "png", "gif" ],
 	  previewWidth: 147,
 	  previewHeight: 147
 	});
 </script>
-
+<script type="text/javascript">
+	dragula([document.querySelector('.droggg')]);
+	$("input#file_upload").hide();
+	$("#preload").hide();
+	$("button#clickFle").click(function(e){
+		e.preventDefault()
+		$("input#file_upload").click();
+		return false;
+	});
+	$("input#file_upload").change(function() {
+		sendData();
+		return false;
+	});
+	function sendData()
+	{
+		$("<div class=\"single_upld_img\"><div class=\"thumb_container\">" +
+		"<div id=\"preload\"><img src=\"<?php echo base_url('assets/preload.gif'); ?>\" /></div>" +
+		"</div></div>").insertBefore("#imgup");
+		$("#preload").show();
+		var data = new FormData();
+		data.append('attachment_file', $('#file_upload').prop('files')[0]);
+		 $.ajax({
+				   type:"POST",
+				   url:"<?php echo base_url('page/yourshop/add_new_image');?>",
+				   data: data,
+				   dataType: 'json',
+				   mimeType: "multipart/form-data",
+					contentType: false,
+					cache: false,
+					processData: false,
+				   success: function(data){
+					$('#imgup').prev().remove();
+					$(data.img_preview).insertBefore("#imgup");
+					$("#preload").hide();
+				   }
+		   });
+		   
+	}
+	function check_click(val, val2){
+		$("<div class=\"single_upld_img placeholder\"><div class=\"thumb_container\"><div id=\"preview\">" +				
+		"</div></div></div>").insertAfter("#imgup");
+		var base_url = "<?php echo base_url(); ?>";
+		$.post(base_url + "page/yourshop/delete_ajaximg", {filepath: val, pid: val2}, function(data){
+			if(data.status == 'ok'){
+				$("<div class=\"single_upld_img placeholder\"><div class=\"thumb_container\"><div id=\"preview\">" +				
+				"</div></div></div>").insertAfter("#imgup");
+			}else{
+				//error display;
+				alert('Data deletion failed !');
+			}
+		}, "json");
+		
+		return false;
+	}
+</script>
+<script type="text/javascript">
+	function delete_tag(val){
+		$.post(base_url + "page/yourshop/delete_tag", {tagid: val}, function(data){}, "json");
+	}
+	function delete_material(val){
+		$.post(base_url + "page/yourshop/delete_material", {materialid: val}, function(data){}, "json");
+	}
+</script>
 <script type="text/javascript">
 
 // Shop Name Avalibility Check

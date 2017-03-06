@@ -3,13 +3,13 @@
 class Users extends CI_Controller 
 {
 	
-	public function __construct() 
+	function __construct() 
 	{  
 		parent:: __construct(); 
 		// Check user session
-		if($this->session->userdata('isLogin') == FALSE) 
-		{ 
-			goodbye(); // It's active when hacking attempt.
+		$checklogin = $this->session->userdata('isAdminLogin');
+		if($checklogin === null && $checklogin !== TRUE){
+			redirect('administrator');
 		}
 		// Load models 
 		$this->load->model('users_model'); 

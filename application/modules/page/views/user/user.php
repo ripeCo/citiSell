@@ -4,8 +4,6 @@
 	$this->load->view('../../front-templates/navigation.php');
 	
 ?>
-
-
 <div id="inner_page"><!-- Begin: inner_page -->
     <div class="container">
     
@@ -49,6 +47,7 @@
             
                 <?php
 					foreach($shoplast6p as $viewShopLast6p){
+						$get_thumbs = $this->page_model->get_productimgs($viewShopLast6p->productid);
 						
 						// Get shop info
 						$nvs_queryShopL6p 		= $this->db->query("SELECT * FROM mega_shops where shopid='".$viewShopLast6p->shopid."'");
@@ -60,26 +59,18 @@
                     <div class="ourpic4u_box"><!-- Begin: ourpic4u_box -->
                         
 						<a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $viewShopLast6p->product_name)))))))); ?>/<?php echo $viewShopLast6p->productid; ?>">
-							
 							<?php
-								$ppimgShopL6p = explode(',',$viewShopLast6p->product_image);
-									
-								for($ppiShopL6p=0;$ppiShopL6p< count($ppimgShopL6p);$ppiShopL6p++){
-									
-									// Check product Image NULL Or Not
-									if($viewShopLast6p->product_image == NULL){
-										$pimglocationShopL6p = base_url()."assets/frontend/images/shops/default-img.jpg";
-									}else{
-										$snameShopL6p = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-										
-										$pimglocationShopL6p = base_url()."assets/frontend/images/shops/$snameShopL6p/$ppimgShopL6p[$ppiShopL6p]";
-									}
-									
-									echo '<img class="img-responsive" src="'.$pimglocationShopL6p.'" alt="'.$viewShopLast6p->product_name.'" />';
-									break;
-								}
+								$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));	
+								$pooimglocation = base_url()."assets/frontend/images/shops/".$sname."/";
 							?>
 							
+							<?php 
+								if(count($get_thumbs) !== 0){
+							?>
+							<img class="img-responsive" src="<?php echo $pooimglocation.$get_thumbs['pic_name']; ?>" alt="<?php echo $viewShopLast6p->product_name; ?>" />
+							<?php }else{ ?>
+							<img class="img-responsive" src="<?php echo base_url()."assets/frontend/images/shops/default-img.jpg"; ?>" alt="No Image Avaliable" />
+							<?php } ?>
 						</a>
 						
                     </div><!-- End: ourpic4u_box -->
@@ -125,7 +116,7 @@
 						
 							<?php
 								foreach($last60items as $recommandedpview){
-									
+									$get_thumbs = $this->page_model->get_productimgs($recommandedpview->productid);
 									// Get product info
 									$recomndProductsql = $this->db->query("SELECT * FROM mega_products where productid='".$recommandedpview->productid."'");
 									
@@ -147,30 +138,20 @@
 										<div class="main view-third">
 											<!-- THIRD EXAMPLE -->
 											<div class="view">
-
-											<a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $product_name)))))))); ?>/<?php echo $productid; ?>">
-											
-											<?php
-												$ppimgRec = explode(',',$product_image);
+												<a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $product_name)))))))); ?>/<?php echo $productid; ?>">
+													<?php
+														$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));	
+														$pooimglocation = base_url()."assets/frontend/images/shops/".$sname."/";
+													?>
 													
-												for($ppiRec=0;$ppiRec< count($ppimgRec);$ppiRec++){
-													
-													// Check product Image NULL Or Not
-													if($product_image == NULL){
-														$pimglocationRec = base_url()."assets/frontend/images/shops/default-img.jpg";
-													}else{
-														$snameRec = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-														
-														$pimglocationRec = base_url()."assets/frontend/images/shops/$snameRec/$ppimgRec[$ppiRec]";
-													}
-													
-													echo '<img style="height:225px !important;" class="img-responsive img-thumbnail" src="'.$pimglocationRec.'" alt="'.$product_name.'" />';
-													break;
-												}
-											?>
-												
-											</a>	
-												
+													<?php 
+														if(count($get_thumbs) !== 0){
+													?>
+													<img class="img-responsive" src="<?php echo $pooimglocation.$get_thumbs['pic_name']; ?>" alt="<?php echo $recommandedpview->product_name; ?>" />
+													<?php }else{ ?>
+													<img class="img-responsive" src="<?php echo base_url()."assets/frontend/images/shops/default-img.jpg"; ?>" alt="No Image Avaliable" />
+													<?php } ?>
+												</a>
 											</div>
 										</div>
 									

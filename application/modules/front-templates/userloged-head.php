@@ -1,4 +1,3 @@
-
 <div class="alfa">
 	<div class="container">
 		<div class="row">
@@ -40,7 +39,7 @@
 					<div class="shr_box logged"><!-- Begin: shr_box -->
 						<a href="<?php echo base_url(); ?>page/user/messages/<?php echo $this->session->userdata('userid'); ?>">
 							
-							<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+							<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js" type="text/javascript" charset="utf-8"></script>-->
 							<script type="text/javascript" charset="utf-8">
 							 
 							function addmsg(type, msg){
@@ -181,10 +180,18 @@
 													</li>
 
 													<li>
+														<a href="<?php echo base_url('page/order'); ?>">
+															Orders
+														</a>
+													</li>
+													<!--
+													<li>
 														<a href="<?php echo base_url(); ?>page/user/vieworders/<?php echo $this->session->userdata('userid'); ?>/<?php echo $this->session->userdata('shopopen'); ?>/0">
 															Orders
 														</a>
 													</li>
+													-->
+													
 
 													<li>
 														<a href="<?php echo base_url(); ?>page/yourshop/listingmanager">
@@ -280,12 +287,19 @@
 											<li><a href="#">Order Management</a>
 
 												<ul>
-
+													
+													<li>
+														<a href="<?php echo base_url('page/order'); ?>">
+															Orders
+														</a>
+													</li>
+													<!--
 													<li>
 														<a href="<?php echo base_url(); ?>page/user/vieworders/<?php echo $this->session->userdata('userid'); ?>/<?php echo $this->session->userdata('shopopen'); ?>/0">
 															Orders
 														</a>
 													</li>
+													-->
 
 													<!--li><a href="#">Shipping Labels</a></li>
 

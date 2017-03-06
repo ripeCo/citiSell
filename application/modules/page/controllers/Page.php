@@ -10,7 +10,6 @@ class Page extends CI_Controller
 		// Load models 
 		$this->load->model('navigation_model');
 		$this->load->model('page_model');
-		
 	}
 	
 
@@ -103,11 +102,12 @@ class Page extends CI_Controller
     
 	
 	// ctSell product details page function
-	public function pdetails() 
+	public function pdetails()
 	{
-		$pid 			= $this->uri->segment(4);
+		$this->load->model('yourshop_model');
+		$pid = $this->uri->segment(4);
 		
-		$data['pdetails'] 	= $this->page_model->getproductdetails($pid);
+		$data['pdetails'] = $this->page_model->getproductdetails($pid);
 		
 		$this->page_model->recommendedproductsave($pid); // Insert user recommended products
 		
@@ -182,14 +182,12 @@ class Page extends CI_Controller
 	 
 	// User main searching results
 	public function mainsearchresults($offset=0){
-  
 		$origin 	= $this->uri->segment(2);
 		$page 		= $this->uri->segment(3);
 		$pagenum 	= $this->uri->segment(4);
 		$catname 	= $this->uri->segment(5);
 		$catid 		= $this->uri->segment(6);
 		$sectionid 	= $this->uri->segment(9);
-		
 		
 		$searchitem	= ucfirst($this->uri->segment(5)) .'-'. ucfirst($this->uri->segment(8));
 		
@@ -790,7 +788,17 @@ class Page extends CI_Controller
 		//exit;
 	}
 
-
+	function checkemail(){
+		$mail = $this->input->post('mail');
+		$result = $this->page_model->checkumail($mail);
+		if($result == true){
+			$eresult = array('status' => 'ok', 'emerrmess' => 'The email is already exist.');
+			echo json_encode($eresult);
+		}else{
+			$eresult = array('status' => 'nok');
+			echo json_encode($eresult);
+		}
+	}
 
 
 

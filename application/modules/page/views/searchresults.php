@@ -88,6 +88,7 @@
 						//foreach($allitems as $allitemsview){
 							if(is_array($allitem) && count($allitem) ) {
 								foreach($allitem as $allitems){
+									$get_thumbs = $this->page_model->get_productimgs($allitems->productid);
 							
 					?>
 					<?php //echo ($page+$i+1); ?>
@@ -102,32 +103,24 @@
 										<div class="view">
 
 										  <?php
-												$nvsoo_query 		= $this->db->query("SELECT * FROM mega_shops where shopid='".$allitems->shopid."'");
-												$nvsoo_results 	= $nvsoo_query->row_array();
+												$nvsoo_query = $this->db->query("SELECT * FROM mega_shops where shopid='".$allitems->shopid."'");
+												$nvsoo_results = $nvsoo_query->row_array();
 												extract($nvsoo_results);
 												
-												$poopimg = explode(',',$allitems->product_image);
-													
-												for($poopi=0;$poopi< count($poopimg);$poopi++){
-													
-													// Check product Image NULL Or Not
-													if($allitems->product_image == NULL){
-														$pooimglocation = base_url()."assets/frontend/images/shops/default-img.jpg";
-													}else{
-														$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-														
-														$pooimglocation = base_url()."assets/frontend/images/shops/$sname/$poopimg[$poopi]";
-													}
+												$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));	
+												$pooimglocation = base_url()."assets/frontend/images/shops/".$sname."/";
 													
 											?>
 											
 											<a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $allitems->product_name)))))))); ?>/<?php echo $allitems->productid; ?>">
-											
-											<?php
-													echo '<img class="img-responsive" src="'.$pooimglocation.'" alt="'.$allitems->product_name.'" />';
-													break;
-												}
+											<?php 
+												if(count($get_thumbs) !== 0){
 											?>
+											<img class="img-responsive" src="<?php echo $pooimglocation.$get_thumbs['pic_name']; ?>" alt="<?php echo $allitems->product_name; ?>" />
+											<?php }else{ ?>
+											<img class="img-responsive" src="<?php echo base_url()."assets/frontend/images/shops/default-img.jpg"; ?>" alt="No Image Avaliable" />
+											<?php } ?>
+											
 										  </a>
 											
 										</div>

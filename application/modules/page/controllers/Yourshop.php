@@ -1,8 +1,7 @@
 <?php if(!defined('BASEPATH')) exit('Hacking Attempt: Get out of the system ..!');
 
 class Yourshop extends CI_Controller 
-{
-	
+{	
 	public function __construct() 
 	{  
 		parent:: __construct(); 
@@ -509,7 +508,7 @@ class Yourshop extends CI_Controller
 			extract($this->yourshop_model->get_data_shops($userid));
 			
 			$productId = $this->yourshop_model->max()+1; // Get Maximum Product ID
-			
+			/*
 			$filename = $_FILES["userfile"]["name"];
 			
 				for($sn=0;$sn<count($filename);$sn++){
@@ -538,11 +537,10 @@ class Yourshop extends CI_Controller
 			}else{
 				$fileName = 'default-img.jpg';
 			}
-				
-			
+			*/
 			if( $shopid !== NULL ){
 				
-				$this->yourshop_model->insertlistedproduct($shopid,$fileName); // Insert Query for products table
+				$this->yourshop_model->insertlistedproduct($shopid); // Insert Query for products table
 				
 				$this->yourshop_model->generateNewListingBill(); // Insert Query for Listing bill, billdetails table
 				
@@ -574,7 +572,11 @@ class Yourshop extends CI_Controller
 				$data['users'] 			= $this->yourshop_model->get_data($userid);
 				$data['sections'] 	= $this->yourshop_model->get_sectiondata();
 				
-				$this->load->view('page/shop/addlisting',$data);
+				if($this->input->post('refstock') !== null && $this->input->post('refstock') == 'true'){
+					redirect("page/yourshop/newshop");
+				}else{
+					$this->load->view('page/shop/addlisting',$data);
+				}
 				
 			}else{
 			
@@ -960,98 +962,12 @@ class Yourshop extends CI_Controller
 				
 					// Change Listing Imagess
 					$productId = $this->uri->segment(4); // Get product id
-					
 					// Get Shop name
 					$userid = $this->session->userdata('userid');
-					extract($this->yourshop_model->get_data_shops($userid));
-					
-					if(!empty($_FILES["userfile"]["name"])){	
-						$filename = $_FILES["userfile"]["name"];
-						//var_dump($filename);
-						//echo 'Input';
-					}else{
-						$filename = $this->input->post('usrfile');
-						/*for($sn=0;$sn<count($filename);$sn++){
-							echo $filename[$sn];
-						}*/
-						//echo 'Input File';
-						//var_dump($filename);
-					}
-					//die();
-						for($sn=0;$sn<count($filename);$sn++){
-							//echo $sn.' - '.$filename[$sn];
-							$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-							
-							$dir_path ="./assets/frontend/images/shops/$sname/";
-							
-							$file_basename = substr($filename[$sn], 0, strripos($filename[$sn], '.'));
-							$file_ext = substr($filename[$sn], strripos($filename[$sn], '.'));
-							$path = $dir_path.$productId.'_'.$sn.$file_ext;
-							$userfile1 = $productId.'_'.$sn.$file_ext;
-					
-							if($userfile1 == $productId.'_'.$sn){
-								// Nothing	
-							}else{ $pimages[] = $userfile1; }
-							
-							// Upload to shop directory
-							move_uploaded_file($_FILES["userfile"]["tmp_name"][$sn], $path);
-							
-							
-						$this->img_resize(1087,1087,$sname,$userfile1); // resize image after upload
-					
-						}
-						
-						$sqlpop = $this->db->query("select product_image from mega_products where productid=$productId");
-						$sqlpopresult = $sqlpop->row_array();
-						extract($sqlpopresult);
-						
-						$pimages2 = explode(',',$product_image);
-						
-						if(!empty($pimages)){
-							
-							$fileName = implode(',',$pimages2);
-							// Check Image Exist Or Not
-							if($product_image == ''){
-								$fileName .= implode(',',$pimages);
-							}else{
-								$fileName .= ','.implode(',',$pimages);
-							}
-							
-							$fileName00[] = $fileName;
-							
-							$original = implode(',',$fileName00);
-							$fieldnames_original = explode(',',$original);
-							
-							$vv = array();
-							
-							foreach($fieldnames_original as $v)
-							{
-								$vv[] = $v;
-							}
-							$filterimages0 = array_unique($vv);
-							//print_r($filterimages);
-						}else{
-							$fl = $this->input->post('usrfile');
-							for($i=0;$i<count($fl);$i++){
-								if($fl[$i] == ''){
-									break;
-								}
-								$ffl[] = $fl[$i];
-							}
-								
-							$filterimages0 = array_unique($ffl);
-							
-						}
-						
-						$filterimages = implode(",",$filterimages0);
-						
-						//die();
-						
-						// Update Listing information's
-						$this->yourshop_model->updateshopproduct($pid,$shopid,$filterimages) ; // Product info update
-				
+					extract($this->yourshop_model->get_data_shops($userid));	
+					// Update Listing information's
+					$this->yourshop_model->updateshopproduct($pid, $shopid) ; // Product info update
 					$grpNameC = $this->input->post('option_group_nameC');
-					
 					// Get Product Variations from mega_productvariations table
 					$varitionGet1 = $this->db->query("select * from mega_productvariations where productid=$pid and optiongroupid=$grpNameC");
 					
@@ -1559,8 +1475,63 @@ class Yourshop extends CI_Controller
 				->send();
 
 	}
-
-    
-
-
+	//one
+	public function add_new_image()
+    {
+	  $this->load->library('upload');
+	  $config['upload_path']          = 'assets/frontend/images/shops/'.str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $this->session->userdata('shopname'))))).'/';
+      $config['allowed_types']        = 'gif|jpg|png|jpeg';
+      $config['max_size']             = 10000;
+      $config['max_width']            = 5000;
+      $config['max_height']           = 5000;
+	  $this->upload->initialize($config);
+	  if (!$this->upload->do_upload('attachment_file')){
+		 $upload_error = $this->upload->display_errors();
+	  }else{
+		$fileData = $this->upload->data();
+		$file_path = base_url($config['upload_path'].$fileData['file_name']);
+		$img_pth = $_SERVER['DOCUMENT_ROOT'].'/citisell/'.$config['upload_path'].$fileData['file_name'];
+		$json_data['img_preview'] = '<div class="single_upld_img">
+										<div class="thumb_container">
+											<div id="preview">
+												<img style="width:100%; height:100%;" id="dynfile" src="'.$file_path.'" alt="" />
+												<input type="hidden" class="myppic" name="msproimg[]" value="'.$fileData['file_name'].'" />
+												<div class="action">
+													<a class="zoooom" data-featherlight="'.$file_path.'"><span class="zoom"><i class="fa fa-eye"></i></span></a>
+												</div>
+											</div>
+										</div>
+										<span class="delete" onclick="check_click(\''.$img_pth.'\'), $(this).parent().remove();"><i class="fa fa-times"></i></span>
+									</div>
+									';
+		echo json_encode($json_data);
+		exit();
+	  }
+    }
+	function delete_ajaximg(){
+		$filepath = $this->input->post('filepath', true);
+		$pic_id = $this->input->post('pid', true);
+		$this->db->query("delete from mega_productpic where mega_productpic.pic_id='$pic_id'");
+		if(file_exists($filepath)){
+			unlink($filepath);
+			$return_mess = "File has been deleted!";
+		}else{
+			$return_mess = "File is not exist!";
+		}
+		$result = array('status' => 'ok');
+		echo json_encode($result);
+		exit();
+	}
+	function delete_tag(){
+		$tag_id = $this->input->post('tagid');
+		$this->db->query("delete from mega_tags where mega_tags.tag_id='$tag_id'");
+		$result = array('status'=> 'ok');
+		echo json_encode($result);
+	}
+	function delete_material(){
+		$materialid = $this->input->post('materialid');
+		$this->db->query("delete from mega_materials where mega_materials.material_id='$materialid'");
+		$result = array('status'=> 'ok');
+		echo json_encode($result);
+	}
 }

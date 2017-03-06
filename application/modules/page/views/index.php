@@ -6,34 +6,26 @@
 	//echo listingfee();
 	//echo salescommission().'%';
 ?>
-
-
 <div id="discover_tems"><!-- Begin: discover_tems -->
     <div class="container">
-    
         <div class="row">
             <div class="discover_head"><!-- Begin: discover_head -->
             	<h3 class="discover_head_h3"> <?php echo sitename(); ?> home page </h3>
             </div><!-- End: discover_head -->
         </div>
-        
-		
-		
 		<div class="recommend_products"><!-- Begin: recommend_products -->
 			<div class="row">
 			
 				<?php
 					foreach($alllitems as $recommandedpview){
-						
 						// Get product info
-						$recomndProductsql = $this->db->query("SELECT * FROM mega_products where productid='".$recommandedpview->productid."'");
-						
+						$recomndProductsql = $this->db->query("SELECT * FROM mega_products LEFT JOIN mega_productpic ON mega_productpic.pic_productid=mega_products.productid where productid='".$recommandedpview->productid."'");
 						$recomndProductFetch 	= $recomndProductsql->row_array();
 						extract($recomndProductFetch);
 						
 						// Get shop info
-						$nvs_queryRecom 		= $this->db->query("SELECT * FROM mega_shops where shopid='".$shopid."'");
-						$nvs_resultsRecom 	= $nvs_queryRecom->row_array();
+						$nvs_queryRecom = $this->db->query("SELECT * FROM mega_shops where shopid='".$shopid."'");
+						$nvs_resultsRecom = $nvs_queryRecom->row_array();
 						extract($nvs_resultsRecom);
 				?>
 				
@@ -50,22 +42,17 @@
 								  <a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $product_name)))))))); ?>/<?php echo $productid; ?>">
 								  
 								<?php
-									$ppimgRec = explode(',',$product_image);
-										
-									for($ppiRec=0;$ppiRec< count($ppimgRec);$ppiRec++){
-										
 										// Check product Image NULL Or Not
-										if($product_image == NULL){
+										if($pic_name == NULL){
 											$pimglocationRec = base_url()."assets/frontend/images/shops/default-img.jpg";
 										}else{
 											$snameRec = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
 											
-											$pimglocationRec = base_url()."assets/frontend/images/shops/$snameRec/$ppimgRec[$ppiRec]";
+											$pimglocationRec = base_url()."assets/frontend/images/shops/$snameRec/".$pic_name;
 										}
 										
 										echo '<img style="height:225px !important;" class="img-responsive img-thumbnail" src="'.$pimglocationRec.'" alt="'.$product_name.'" />';
-										break;
-									}
+										
 								?>
 									
 									</a>
@@ -122,10 +109,6 @@
         
     </div>
 </div><!-- End: discover_tems -->
-
-
-
-
 <!--div id="satisfied_customer">
     <div class="container">
         <div class="row">

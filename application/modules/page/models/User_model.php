@@ -1,8 +1,7 @@
 <?php if(!defined('BASEPATH')) exit('Hacking Attempt : Get Out of the system ..!'); 
 
 class User_model extends CI_Model 
-{
-	
+{	
 	// Get all record from users table
 	/*public function index() 
 	{
@@ -88,8 +87,7 @@ class User_model extends CI_Model
 	
 	// User messages Archive Or Delete model
 	public function messagearchiveordelete() 
-	{
-		
+	{		
 		if($this->input->post('msgdelete')){
 			// echo 'Delete';
 			
@@ -108,10 +106,8 @@ class User_model extends CI_Model
 
 				$this->db->where('conversationid', $updateid);
 				$this->db->update('message', $data);
-			}
-			
-		}
-		
+			}			
+		}		
 		
 		if($this->input->post('msgarchive')){
 			//echo 'Archive';
@@ -131,12 +127,9 @@ class User_model extends CI_Model
 
 				$this->db->where('conversationid', $updateid);
 				$this->db->update('message', $data);
-			}
-			
-		}
-		
+			}			
+		}		
 	}
-
 	
 	// Send user message continue record
 	public function continuemessage($filename) 
@@ -153,24 +146,21 @@ class User_model extends CI_Model
 		$msgdate	 = date('M d, Y');
 		
 		
-			$data = array(
-				'senderid'			=> $this->input->post('senderid'),  
-				'receiverid'		=> $this->input->post('receiverid'),  
-				'receivedto'		=> $this->input->post('receiverid'),  
-				'refid'				=> $this->input->post('refid'),  
-				'msgtitle'			=> '',
-				'message'         	=> $this->input->post('message'),
-				'msgfile' 			=> $filename,
-				'attamps'        	=> $attamps,
-				'msgdatetime'    	=> $msgdatetime,  
-				'msgdate'        	=> $msgdate,  
-				'msgstatus'      	=> $msgstatus
-			);  
-			$this->db->insert('message', $data);
-		
+		$data = array(
+			'senderid'			=> $this->input->post('senderid'),  
+			'receiverid'		=> $this->input->post('receiverid'),  
+			'receivedto'		=> $this->input->post('receiverid'),  
+			'refid'				=> $this->input->post('refid'),  
+			'msgtitle'			=> '',
+			'message'         	=> $this->input->post('message'),
+			'msgfile' 			=> $filename,
+			'attamps'        	=> $attamps,
+			'msgdatetime'    	=> $msgdatetime,  
+			'msgdate'        	=> $msgdate,  
+			'msgstatus'      	=> $msgstatus
+		);  
+		$this->db->insert('message', $data);		
 	}
-	
-	
     
     // Email Exist Checking Model Function
     public function mail_exists($key)
@@ -203,8 +193,7 @@ class User_model extends CI_Model
 
 		$this->db->where('userid', $id);
 		$this->db->update('users', $data);
-	}
-	
+	}	
         
         
 	// Get record by id for update
@@ -286,8 +275,7 @@ class User_model extends CI_Model
 	} 
 	
 	// Update record
-	public function updateprofile() 
-	{
+	public function updateprofile() {
 		$display_name 	= $this->input->post('user_first_name'). ' '. $this->input->post('user_last_name');
 		$userid 		= $this->input->post('userid');
 		
@@ -304,24 +292,72 @@ class User_model extends CI_Model
 
 		$this->db->where('userid', $userid);
 		$this->db->update('users', $data);
-
 	}  
         
 	
 	// Update record
-	public function shippingaddressupdate($userid) {
-		
-		$data = array(
-			'user_address' => $this->input->post('user_address1'),
-			'user_zip' => $this->input->post('zipCode'),
-			'user_country' => $this->input->post('country'),
-		);  
+	public function shippingaddressupdate($userid, $address) {		
+		if (trim($address['country']) == 'USA') {
+			$data = array(
+				'user_country' => $address['country'],
+				'user_state' => $address['state'],
+				'user_city' => $address['city'],
+				'user_address' => $address['addrLine1'],
+				'addrLine2Of1' => $address['addrLine2Of1'],
+				'user_zip' => $address['zipcode'],
+				'extendedZipcode1' => $address['extendedZipcode'],
+				'notUSfullAddress1' => null,
+			);
+		} else {
+			$data = array(
+				'user_country' => $address['country'],
+				'notUSfullAddress1' => $address['notUSfullAddress'],
+				'user_state' => null,
+				'user_city' => null,
+				'user_address' => null,
+				'user_zip' => null,
+				'addrLine2Of1' => null,
+				'extendedZipcode1' => null,
+			);
+		}
+
+		$data['preferredAddress'] = $address['preferredAddress'];
 
 		$this->db->where('userid', $userid);
 		$this->db->update('users', $data);
+	}
 
-	}  
-        
+	// Update address 2 on user's profile page
+	public function shippingaddressupdate2($userid, $address) {
+		if ($address['country'] == 'USA') {
+			$data = array(
+				'user_country2' => $address['country'],
+				'user_state2' => $address['state'],
+				'user_city2' => $address['city'],
+				'user_address2' => $address['addrLine1'],
+				'addrLine2Of2' => $address['addrLine2Of2'],
+				'user_zip2' => $address['zipcode'],
+				'extendedZipcode2' => $address['extendedZipcode'],
+				'notUSfullAddress2' => null,
+			);
+		} else {
+			$data = array(
+				'user_country2' => $address['country'],
+				'notUSfullAddress2' => $address['notUSfullAddress'],
+				'user_state2' => null,
+				'user_city2' => null,
+				'user_address2' => null,
+				'addrLine2Of2' => null,
+				'user_zip2' => null,
+				'extendedZipcode2' => null,
+			);
+		}
+
+		$data['preferredAddress'] = $address['preferredAddress'];
+
+		$this->db->where('userid', $userid);
+		$this->db->update('users', $data);
+	}        
 	
 	// Update record
 	public function billingcardinfoedit($userid,$shopid) {
@@ -339,8 +375,7 @@ class User_model extends CI_Model
 		$this->db->where('userid', $userid);
 		$this->db->where('shopid', $shopid);
 		$this->db->update('paymentmethods', $data);
-	}  
-        
+	}        
 	
 	// Update record
 	public function billingbankinfoedit($userid,$shopid) {
@@ -358,20 +393,18 @@ class User_model extends CI_Model
 		$this->db->where('userid', $userid);
 		$this->db->where('shopid', $shopid);
 		$this->db->update('paymentmethods', $data);
-	}   
-        
-	
-	// Update address 2 on user's profile page
-	public function shippingaddressupdate2($userid) {		
-		$data = array(
-			'user_address2'			=> $this->input->post('user_address2'),
-			'user_zip2' => $this->input->post('zipCode2'),
-			'user_country2' => $this->input->post('country2'),
-		);  
+	}
 
-		$this->db->where('userid', $userid);
-		$this->db->update('users', $data);
-	} 
+	public function getPreferredAddress($userId) {
+		$this->db->select('preferredAddress');
+		$this->db->where('preferredAddress = 1 or preferredAddress = 2');
+		$query = $this->db->get_where('users', array('userid' => $userId));
+		$row = $query->row();
+		if (isset($row))
+			return $row->preferredAddress;
+		else
+			return NULL;
+	}
         
 	
 	// Update record
@@ -489,100 +522,78 @@ class User_model extends CI_Model
 		 
 		return $query2->result();
 		
-	}
-	
+	}	
 	
 	// Main Action Search
-	public function getuserpurchasetotalrecords(){
-		
-		if( $this->session->userdata('isLogin') == TRUE){
+	public function getuserpurchasetotalrecords() {		
+		if( $this->session->userdata('isLogin') == TRUE) {
 			$userid 				= $this->uri->segment(4);
-		}else{
+		} else {
 			$userid 				= $this->uri->segment(4);
 		}
 		
-		if($this->uri->segment(6) !== NULL){ $purchaseStatus = $this->uri->segment(6); }
+		if ($this->uri->segment(6) !== NULL) { $purchaseStatus = $this->uri->segment(6); }
 		
 		$this->db->select("*");
 		
-		if($this->uri->segment(6) == NULL){
-			
+		if ($this->uri->segment(6) == NULL) {			
 			$query2 = $this->db->where('order_userid', $userid)
-             ->get('orders');
-			 
-		}else{
-			
+             ->get('orders');			 
+		} else {			
 			$query2 = $this->db->where('order_status', $purchaseStatus)
              ->where('order_userid', $userid)
              ->get('orders');
-		}
-		
+		}		
 		 
-		return $query2->num_rows();
-		
+		return $query2->num_rows();		
 	}
 	
 	
 	// Main Action Search
-	public function getuserpurchaseAllrecords(){
-		
-		if( $this->session->userdata('isLogin') == TRUE){
+	public function getuserpurchaseAllrecords() {		
+		if( $this->session->userdata('isLogin') == TRUE) {
 			$userid 				= $this->uri->segment(4);
-		}else{
+		} else {
 			$userid 				= $this->uri->segment(4);
 		}
 		
-		if($this->uri->segment(6) !== NULL){ $purchaseStatus = $this->uri->segment(6); }
+		if ($this->uri->segment(6) !== NULL) { $purchaseStatus = $this->uri->segment(6); }
 		
 		$this->db->select("*");
-		
+
 		if($this->uri->segment(4) !== NULL){
 			
 			$query2 = $this->db->where('order_userid', $userid)
-             ->get('orders');
-			 
+             ->get('orders');			 
 		}
 		 
-		return $query2->num_rows();
-		
-	}
-	
+		return $query2->num_rows();		
+	}	
 	
 	// Main Action Search
-	public function getuserpurchasetotalrecordsByStatus($status){
-		
-		if( $this->session->userdata('isLogin') == TRUE){
+	public function getuserpurchasetotalrecordsByStatus($status) {
+		if ( $this->session->userdata('isLogin') == TRUE) {
 			$userid 				= $this->uri->segment(4);
-		}else{
+		} else {
 			$userid 				= $this->uri->segment(4);
 		}
 		
-		$this->db->select("*");
-		
+		$this->db->select("*");		
 		$query2 = $this->db->where('order_status', $status)
              ->where('order_userid', $userid)
              ->get('orders');
 		 
-		return $query2->num_rows();
-		
-	}
-	
-	
-	
-	
-	
-	
+		return $query2->num_rows();		
+	}	
 	
 	// Main Search
-	public function yourorderdetails(){
-		
-		if( $this->session->userdata('isLogin') == TRUE){
+	public function yourorderdetails() {		
+		if ($this->session->userdata('isLogin') == TRUE) {
 			$orderid 				= $this->uri->segment(4);
 			$shopid 				= $this->uri->segment(5);
-		}else{
+		} else {
 			redirect('page/login/logout');
-		}
-		
+		}		
 		
 		$this->db->select("*");
 		$this->db->join('ordershop','ordershop.orderid=orders.orderid', 'LEFT');
@@ -591,18 +602,15 @@ class User_model extends CI_Model
 		$query2 = $this->db->where('orders.orderid', $orderid)
 				->get('orders');
 		 
-		return $query2->row_array();
-		
-	}
-	
+		return $query2->row_array();		
+	}	
 	
 	// Main Search
-	public function getAllUserOedersrecords($limit=NULL,$offset=NULL){
-		
-		if( $this->session->userdata('isLogin') == TRUE){
+	public function getAllUserOedersrecords($limit=NULL,$offset=NULL) {
+		if ( $this->session->userdata('isLogin') == TRUE) {
 			$userid 				= $this->uri->segment(4);
 			$shopid 				= $this->uri->segment(5);
-		}else{
+		} else {
 			$userid 				= $this->uri->segment(4);
 		}
 		
@@ -612,16 +620,13 @@ class User_model extends CI_Model
 		$this->db->join('orders','orders.orderid=ordershop.orderid', 'LEFT');
 		$this->db->join('orderdetails','orderdetails.orderid=orders.orderid', 'LEFT');
 		
-		if($this->uri->segment(7) == NULL){
-			
+		if ($this->uri->segment(7) == NULL) {			
 			$query2 = $this->db->where('ordershop.shopid', $shopid)
 				->group_by('ordershop.orderid')
 				->order_by('ordershop.orderid', 'DESC')
 				->limit($limit, $offset)
 				->get('ordershop');
-			 
-		}else{
-			
+		} else {			
 			$query2 = $this->db->where('orders.order_status', $orderStatus)
 				->where('ordershop.shopid', $shopid)
 				->group_by('ordershop.orderid')
@@ -630,54 +635,45 @@ class User_model extends CI_Model
 				->get('ordershop');
 		}
 		 
-		return $query2->result();
-		
-	}
-	
+		return $query2->result();		
+	}	
 	
 	// Main Action Search
-	public function getshoptotalorderrecords(){
-		
+	public function getshoptotalorderrecords() {
 		if( $this->session->userdata('isLogin') == TRUE){
 			$userid 				= $this->uri->segment(4);
 			$shopid 				= $this->uri->segment(5);
-		}else{
+		} else {
 			$userid 				= $this->uri->segment(4);
 		}
 		
-		if($this->uri->segment(7) !== NULL){ $orderStatus = $this->uri->segment(7); }
+		if ($this->uri->segment(7) !== NULL) { $orderStatus = $this->uri->segment(7); }
 		
 		$this->db->select("*");
 		$this->db->join('orders','orders.orderid=ordershop.orderid', 'LEFT');
 		$this->db->join('orderdetails','orderdetails.orderid=orders.orderid', 'LEFT');
 		
-		if($this->uri->segment(7) == NULL){
-			
+		if ($this->uri->segment(7) == NULL) {			
 			$query2 = $this->db->where('ordershop.shopid', $shopid)
 			->group_by('ordershop.orderid')
 			->get('ordershop');
 			 
-		}else{
-			
+		} else {			
 			$query2 = $this->db->where('ordershop.shopid', $shopid)
 			->where('orders.order_status', $orderStatus)
 			->group_by('ordershop.orderid')
 			->get('ordershop');
-		}
-		
+		}		
 		 
-		return $query2->num_rows();
-		
-	}
-	
+		return $query2->num_rows();		
+	}	
 	
 	// Main Action Search
-	public function getAllShopUserOedersrecords(){
-		
-		if( $this->session->userdata('isLogin') == TRUE){
+	public function getAllShopUserOedersrecords() {
+		if( $this->session->userdata('isLogin') == TRUE) {
 			$userid 				= $this->uri->segment(4);
 			$shopid 				= $this->uri->segment(5);
-		}else{
+		} else {
 			$userid 				= $this->uri->segment(4);
 		}
 		
@@ -689,22 +685,18 @@ class User_model extends CI_Model
 			
 			$query2 = $this->db->where('ordershop.shopid', $shopid)
 			->group_by('ordershop.orderid')
-			->get('ordershop');
-			 
+			->get('ordershop');			 
 		}
 		 
-		return $query2->num_rows();
-		
-	}
-		
+		return $query2->num_rows();		
+	}		
 	
 	// Main Action Search
-	public function getOederstotalrecordsByStatus($status){
-		
-		if( $this->session->userdata('isLogin') == TRUE){
+	public function getOederstotalrecordsByStatus($status) {
+		if ($this->session->userdata('isLogin') == TRUE) {
 			$userid 				= $this->uri->segment(4);
 			$shopid 				= $this->uri->segment(5);
-		}else{
+		} else {
 			$userid 				= $this->uri->segment(4);
 		}
 		
@@ -718,10 +710,22 @@ class User_model extends CI_Model
 			->get('ordershop');
 		 
 		return $query2->num_rows();
-		
 	}
-	
-	
-	
+
+	public function getShopInfo($shopId) {
+		$this->db->select('shop_name, display_name, user_address, user_city, user_state, user_zip, user_country');
+		$this->db->select('user_address2, user_city2, user_state2, user_zip2, user_country2');
+		$this->db->select('notUSfullAddress1, notUSfullAddress2, preferredAddress, user_phone');
+		$this->db->from('users');
+		$this->db->join('shops', 'users.userid = shops.userid');
+		$this->db->where('(preferredAddress = 1 or preferredAddress = 2)');
+		$this->db->where('shops.shopid', $shopId);
+		$query = $this->db->get();
+		$row = $query->row_array();
+		if (isset($row))
+			return $row;
+		else
+			return NULL;
+	}
 
 }

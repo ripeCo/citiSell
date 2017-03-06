@@ -10,7 +10,7 @@ class Yourshop_model extends CI_Model
 		$date = date('Y-m-d H:i:s', bd_time());
                   
 		$data = array(
-			'userid'          			=> $this->session->userdata('userid'),  
+			'userid'          			=> $this->session->userdata('userid'), 
 			'shop_language'            	=> $this->input->post('shop_language'),  
 			'shop_currency'            	=> $this->input->post('shop_currency'),  
 			'shop_location'             => $this->input->post('shop_location'),
@@ -238,11 +238,12 @@ class Yourshop_model extends CI_Model
 	
 	
 	// Product Listing query
-	public function insertlistedproduct($shopid,$imgfiles) 
+	public function insertlistedproduct($shopid) 
 	{
 		$userid 		= $this->input->post('userid');
 		$date 			= date('Y-m-d H:i:s', bd_time());
 		
+		/*
 		$tags = array();
 		foreach($this->input->post('tags') as $res) {
 			//do something
@@ -256,6 +257,8 @@ class Yourshop_model extends CI_Model
 			$materials[] = $resMat;
 		}
 		$materialsVal = implode(',', $materials);
+		*/
+		
 		
 		$data = array(
 			'product_name'					=> $this->input->post('product_name'),
@@ -264,7 +267,7 @@ class Yourshop_model extends CI_Model
 			'when_made'						=> $this->input->post('when_made'),
 			'product_price'					=> $this->input->post('product_price'),
 			'product_item_details'			=> $this->input->post('product_item_details'),
-			'product_image'					=> $imgfiles,
+			'product_image'					=> '',
 			'shopid'						=> $shopid,
 			'product_category_id'			=> $this->input->post('product_category_id'),  
 			'product_sub_category_id'		=> $this->input->post('product_sub_category_id'),  
@@ -276,36 +279,39 @@ class Yourshop_model extends CI_Model
 			'product_live'					=> 'Active',
 			'product_location'				=> $this->input->post('product_location'),
 			'productsection'				=> $this->input->post('section'),
-			'tags'							=> $tagsVal,
-			'materials'						=> $materialsVal,
+			'tags'							=> '',
+			'materials'						=> '',
 			'product_renew'					=> 1
 		);  
 
-		$this->db->insert('products', $data);
+		$insert_id = $this->db->insert('products', $data);
+		$product_id = $this->db->insert_id($insert_id);
+		$filename = $this->input->post('msproimg');
+		for($sn=0;$sn<count($filename);$sn++){
+			$pimages['pic_productid'] = $product_id;
+			$pimages['shopname'] = $this->session->userdata('shopname');
+			$pimages['pic_name'] = $filename[$sn];
+			if(!empty($pimages['pic_name'])){
+				$this->db->insert('mega_productpic', $pimages);
+			}
+		}
+		$total_tags = $this->input->post('tags');
+		for($i=0;$i < count($total_tags);$i++){
+			$product_tags['tag_productid'] = $product_id;
+			$product_tags['tag_title'] = $total_tags[$i];
+			if(!empty($product_tags['tag_title'])){
+				$this->db->insert('mega_tags', $product_tags);
+			}
+		}
 
 	}
 	
 	
 	// Product Update Listing query
-	public function updateshopproduct($productid,$shopid,$listingimg) 
+	public function updateshopproduct($productid,$shopid)
 	{
 		$userid 		= $this->input->post('userid');
 		$date 			= date('Y-m-d H:i:s', bd_time());
-		
-		$tags = array();
-		foreach($this->input->post('tags') as $res) {
-			//do something
-			$tags[] = $res;
-		}
-		$tagsVal = implode(',', $tags);
-		
-		$materials = array();
-		foreach($this->input->post('materials') as $resMat) {
-			//do something
-			$materials[] = $resMat;
-		}
-		$materialsVal = implode(',', $materials);
-		
 		$data = array(
 			'product_name'					=> $this->input->post('product_name'),
 			'who_made'						=> $this->input->post('who_made'),
@@ -313,20 +319,47 @@ class Yourshop_model extends CI_Model
 			'when_made'						=> $this->input->post('when_made'),
 			'product_price'					=> $this->input->post('product_price'),
 			'product_item_details'			=> $this->input->post('product_item_details'),
-			'product_image'					=> $listingimg,
 			'product_category_id'			=> $this->input->post('product_category_id'),  
 			'product_sub_category_id'		=> $this->input->post('product_sub_category_id'),  
 			'product_sub_category_lev2_id'	=> $this->input->post('product_sub_category_lev2_id'), 
 			'product_stock'					=> $this->input->post('product_stock'),
 			'product_live'					=> $this->input->post('product_live'),
-			'productsection'				=> $this->input->post('section'),
-			'tags'							=> $tagsVal,
-			'materials'						=> $materialsVal
+			'productsection'				=> $this->input->post('section')
 		);  
 
 		$this->db->where('productid', $productid);
 		$this->db->where('shopid', $shopid);
 		$this->db->update('products', $data);
+		$this->db->query("delete from mega_productpic where mega_productpic.pic_productid='$productid'");
+		$filename = $this->input->post('msproimg');
+		for($sn=0;$sn<count($filename);$sn++){
+			$pimages['pic_productid'] = $productid;
+			$pimages['shopname'] = $this->session->userdata('shopname');
+			$pimages['pic_name'] = $filename[$sn];
+			if(!empty($pimages['pic_name'])){
+				$this->db->insert('mega_productpic', $pimages);
+			}
+		}
+		
+		$this->db->query("delete from mega_tags where mega_tags.tag_productid='$productid'");
+		$mytag = $this->input->post('tags');
+		for($i=0;$i<count($mytag);$i++){
+			$tagdata['tag_productid'] = $productid;
+			$tagdata['tag_title'] = $mytag[$i];
+			if(!empty($tagdata['tag_title'])){
+				$this->db->insert('mega_tags', $tagdata);
+			}
+		}
+		
+		$this->db->query("delete from mega_materials where mega_materials.material_proid='$productid'");
+		$mymaterials = $this->input->post('materials');
+		for($i=0;$i<count($mymaterials);$i++){
+			$materialdata['material_proid'] = $productid;
+			$materialdata['material_title'] = $mymaterials[$i];
+			if(!empty($materialdata['material_title'])){
+				$this->db->insert('mega_materials', $materialdata);
+			}
+		}
 	} 
 	
 	
@@ -759,55 +792,53 @@ class Yourshop_model extends CI_Model
 		
 	}  
 	
-	
+	public function get_productid($shopid){
+		$query = $this->db->query("select * from mega_products where mega_products.shopid='$shopid'");
+		$result = $query->row_array();
+		return $result;
+	}
 	
 	// shop listings
 	public function shoplistingview($shopid)
 	{
+		$get_proid = $this->get_productid($shopid);
+		$product_id = $get_proid['productid'];
 		$select = 'SELECT *';
-		$from = " From ".$_POST['tableName'];
-		$where = " WHERE shopid=$shopid";
-		$orderby = ' ORDER BY productid desc';
+		$from = " FROM mega_products";
+		$where = " LEFT JOIN mega_productpic ON mega_productpic.pic_productid=mega_products.productid WHERE shopid=$shopid";
+		$orderby = ' ORDER BY mega_products.productid desc';
 		$opts = isset($_POST['filterOpts'])? $_POST['filterOpts'] : array('');
 		$main_opts = isset($_POST['filterMainOpts'])? $_POST['filterMainOpts'] : array('');	
 		$from_colsize = '';
-		
 		$sql = $this->db->query("SHOW COLUMNS ".$from." where Field NOT LIKE 'product_suk' AND Field NOT LIKE 'product_name' AND Field NOT LIKE 'who_made' AND Field NOT LIKE 'is_supply' AND Field NOT LIKE 'when_made' AND Field NOT LIKE 'product_price' AND Field NOT LIKE 'product_item_details' AND Field NOT LIKE 'product_overview' AND Field NOT LIKE 'product_shopping_policy' AND Field NOT LIKE 'product_image' AND Field NOT LIKE 'shopid' AND Field NOT LIKE 'product_category_id' AND Field NOT LIKE 'product_sub_category_id' AND Field NOT LIKE 'product_sub_category_lev2_id' AND Field NOT LIKE 'product_update_date' AND Field NOT LIKE 'product_update_date' AND Field NOT LIKE 'bill_paid_or_not' AND Field NOT LIKE 'product_ratings' AND Field NOT LIKE 'product_favourites' AND Field NOT LIKE 'product_location'");	
-
 		$colname = $sql->result();
-
-		   foreach($colname as $queryShow)
+	    foreach($colname as $queryShow)
+		{
+			if (in_array("$queryShow->Field", $main_opts))
 			{
-				if (in_array("$queryShow->Field", $main_opts))
-				{
-					$where .=" AND ( ";
-					$field = $queryShow->Field;
-					$filters = $this->db->query("SELECT distinct $field".$from);
-					$colname1 = $filters->result();
-					foreach($colname1 as $queryShw)
-					{	
-						if (in_array("{$queryShw->$field}", $opts))
-						{
-							$where .=" $queryShow->Field like '{$queryShw->$field}' OR ";
-						}
+				$where .=" AND ( ";
+				$field = $queryShow->Field;
+				$filters = $this->db->query("SELECT distinct $field".$from);
+				$colname1 = $filters->result();
+				foreach($colname1 as $queryShw)
+				{	
+					if (in_array("{$queryShw->$field}", $opts))
+					{
+						$where .=" $queryShow->Field like '{$queryShw->$field}' OR ";
 					}
-					$where .=" FALSE) ";
 				}
+				$where .=" FALSE) ";
 			}
-
-
-		$sql = $select . $from . $from_colsize . $where. $orderby;
+		}
+		$sql = $select . $from . $from_colsize . $where . $orderby;
 		$statement = $this->db->query($sql);
 		$results = $statement->result();
 		$json = json_encode($results);
 		echo ($json);
 		
 	}
-	
-	
-	
 	// shop listings
-	public function shoplistinginactivatedview($shopid,$ppstatus)
+	public function shoplistinginactivatedview($shopid, $ppstatus)
 	{
 		$select = 'SELECT *';
 		$from = " From ".$_POST['tableName'];
@@ -846,11 +877,7 @@ class Yourshop_model extends CI_Model
 		$results = $statement->result();
 		$json = json_encode($results);
 		echo ($json);
-		
 	}
-	
-	
-	
 	// shop listings
 	public function shoplistingrenewview($shopid)
 	{
@@ -891,11 +918,7 @@ class Yourshop_model extends CI_Model
 		$results = $statement->result();
 		$json = json_encode($results);
 		echo ($json);
-		
 	}  
-	
-	
-	
 	// Shops privacy policy Insert model
 	public function shopprivacypolicysave() 
 	{
@@ -1007,7 +1030,7 @@ class Yourshop_model extends CI_Model
 		
 		$this->db->trans_start();
 		
-		$shopid = $this->session->userdata('shopid');
+		$shopid = 13; //$this->session->userdata('shopid');
 		$userid = $this->session->userdata('userid');
 		
 		$billingmonth = date('F Y');
@@ -1063,12 +1086,9 @@ class Yourshop_model extends CI_Model
 		
 		$this->db->trans_complete();
 		
-	} 
-	
-	
-	
+	}
 	// Shops privacy policy update model
-	public function shopprivacypolicyupdate() 
+	public function shopprivacypolicyupdate()
 	{
 		$shopid = $this->session->userdata('shopid');
 		$userid = $this->session->userdata('userid');
@@ -1109,9 +1129,6 @@ class Yourshop_model extends CI_Model
 		$this->db->update('products', $data);
 		
 	}
-	
-	
-	
 	// Shops product Deactivate model
 	public function deactiveproduct() 
 	{
@@ -1182,12 +1199,8 @@ class Yourshop_model extends CI_Model
              ->limit($limit, $offset)
              ->get('products');
 		}
-		 
 		return $query2->result();
-		
 	}
-	
-	
 	// Main Action Search
 	public function getsectiontotalrecords(){
 		
@@ -1219,9 +1232,56 @@ class Yourshop_model extends CI_Model
 		 
 		return $query2->num_rows();
 		
+	}  
+	public function get_photoby_product($product_id){
+		$query = $this->db->query("select * from mega_productpic where mega_productpic.pic_productid='$product_id' order by mega_productpic.pic_id asc");
+		$result = $query->result_array();
+		return $result;
 	}
-        
-	
-	
-
+	public function get_productslist($shopid){
+		$query = $this->db->query("select * from mega_products
+								   WHERE mega_products.shopid='$shopid'
+								   ORDER BY mega_products.productid ASC
+								");
+		$result = $query->result_array();
+		return $result;
+	}
+	public function getprophoto($productid){
+		$query = $this->db->query("select * from mega_productpic
+								   WHERE mega_productpic.pic_productid='$productid'
+								");
+		$result = $query->row_array();
+		return $result;
+	}
+	public function get_tagsbypid($productid){
+		$query = $this->db->query("select * from mega_tags where mega_tags.tag_productid='$productid' order by mega_tags.tag_id asc");
+		$result = $query->result_array();
+		return $result;
+	}
+	public function get_materialsbypid($productid){
+		$query = $this->db->query("select * from mega_materials where mega_materials.material_proid='$productid' order by mega_materials.material_id asc");
+		$result = $query->result_array();
+		return $result;
+	}
+	public function get_productimgs($productid)
+	{
+		$query = $this->db->query("select * from mega_productpic where mega_productpic.pic_productid='$productid'");
+		$result = $query->row_array();
+		return $result;
+	}
+	public function get_materials($productid){
+		$query = $this->db->query("select * from mega_materials where mega_materials.material_proid='$productid'");
+		$result = $query->result_array();
+		return $result;
+	}
+	public function getshop_logo($shopid){
+		$query = $this->db->query("select * from mega_shops where mega_shops.shopid='$shopid'");
+		$result = $query->row_array();
+		return $result;
+	}
+	public function get_shipdetails($productid){
+		$query = $this->db->query("select * from mega_shippingdetails where mega_shippingdetails.productid='$productid'");
+		$result = $query->row_array();
+		return $result;
+	}
 }

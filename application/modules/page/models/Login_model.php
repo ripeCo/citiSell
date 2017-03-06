@@ -144,7 +144,7 @@ class Login_model extends CI_Model
 	
 
 	// Update user Password
-	public function recoverpass($email,$pass) 
+	public function recoverpass($email,$pass)
 	{
 		$data 	= array(  
 			'user_password'	=> $pass

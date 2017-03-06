@@ -59,7 +59,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | the query builder class.
 */
 
-$active_group = 'live';
+$active_group = 'default';
 //$active_group = 'default';
 $query_builder = TRUE;
 
@@ -68,7 +68,7 @@ $db['default'] = array(
 	'hostname' => 'localhost',
 	'username' => 'root',
 	'password' => '',
-	'database' => 'citisell',
+	'database' => 'citisellv2.2',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => 'mega_',
 	'pconnect' => FALSE,
@@ -82,16 +82,16 @@ $db['default'] = array(
 	'compress' => FALSE,
 	'stricton' => FALSE,
 	'failover' => array(),
-	'save_queries' => TRUE
+	'save_queries' => FALSE
 );
 
 // Live server setup
 $db['live'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
-	'username' => 'root',
-	'password' => '',
-	'database' => 'citisell',
+	'username' => 'ctsellco_cit',
+	'password' => 'MosTak+Sumi019',
+	'database' => 'ctsellco_cit',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => 'mega_',
 	'pconnect' => FALSE,

@@ -151,9 +151,6 @@ class Cart_model extends CI_Model {
 		
 	}
 	
-	
-	
-
 	function delete_outstandingbillingstatus() {
  		
 		$uuid 			= $this->session->userdata('userid');
@@ -170,15 +167,11 @@ class Cart_model extends CI_Model {
 		
 	}
 	
-	
-	
 	function getLastInserted() {
 		$query ="SELECT orderid as maxID from mega_orders where orderid = LAST_INSERT_ID()";
 		return $query;
 	}
 	
-	
-
 	public function placeorder() {
  		
 		$this->db->trans_start();
@@ -524,9 +517,4 @@ class Cart_model extends CI_Model {
 		$this->db->trans_complete();
 		
 	}
-	
-	
-	
-	
-	
 }

@@ -9,7 +9,6 @@
 		
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
 <style>
-	
 	.dp {
 	  border: 1px solid #c3c3c3;
 	  border-radius: 4%;
@@ -244,7 +243,36 @@
                                 </div><!-- End: following_right -->
                             </div>
 							
-							<div class="col-lg-9 col-md-9 col-sm-9" id="products"></div>
+							<div class="col-lg-9 col-md-9 col-sm-9" id="products">
+								<?php 
+									$gteall_productbyshop = $this->yourshop_model->get_productslist($this->session->userdata('shopid'));
+									if(count($gteall_productbyshop) !== 0){
+										foreach($gteall_productbyshop as $productlist){
+											$get_photo = $this->yourshop_model->getprophoto($productlist['productid']);
+										$disp_path = base_url().'/'.'assets/frontend/images/shops/'.str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $this->session->userdata('shopname'))))).'/'.$get_photo['pic_name'];
+								?>
+								<div class="col-lg-4 col-md-4 col-sm-4">
+									<div class="areaa">
+										<div class="pedit"><a title="Update product" href="<?php echo base_url('page/yourshop/peditpage/'.$productlist['productid']); ?>" class="btn btn-primary"><i aria-hidden="true" class="fa fa-pencil"></i> Edit</a>
+										</div>
+										<div class="pname"><h6 class="ellipsis"><?php echo $productlist['product_name']; ?></h6></div>
+										<div class="pcost">$<?php echo $productlist['product_price']; ?></div>
+										<div class="pexpire">Expires - <?php echo $productlist['product_expire_date']; ?> </div>
+										<div class="pinstock"><b><?php echo $productlist['product_stock']; ?></b> - In Stock</div>
+										<?php
+										if($productlist['product_live']){
+											if($productlist['Inactive']){
+										?>
+										<div class='plive'>(Deactive)</div>
+										<?php }else{ ?>
+										<div class='plive'>(<?php echo $productlist['product_live']; ?>)</div>
+										<?php } } ?>
+										<div id="pimg"><img alt="ctSell shop product image" src="<?php echo $disp_path; ?>"></div>
+									</div>
+								</div>
+								<?php } ?>
+								<?php }else{ echo null; } ?>
+							</div>
                             <?php //echo $this->session->userdata('shopid'); ?>
                         </div><!-- End: following_interaction -->
                     </div>
@@ -280,9 +308,7 @@
 	}*/
 	
 ?>
-
-
-	<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script>
 		var opts;
 		var main_opts;
@@ -292,23 +318,21 @@
 			  $.each(data, function() {
 				
 				var tbl_row = "";
-				$.each(this, function(k , v) {
-					if(k=='product_image'){
-						
-						var exploded = v.split(',');
-						
+				$.each(this, function(k, v){
+					
+					if(k=='pic_name'){
+						var photo = v;
 						if(v==''){
 							var imgg = 'default-img.jpg';
 						}else{
-							var imgg = exploded[0];
+							var imgg = photo;
 						}
-						//default-img.jpg
 						
 						var im = '<img src="<?php echo base_url(); ?>assets/frontend/images/shops/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $this->session->userdata('shopname'))))); ?>/'+imgg+'" alt="ctSell shop product image" />';
 						
 						tbl_row += "<div id='pimg'>"+im+"</div>";
 					}
-				   
+				    
 				   
 					if(k=='product_name'){
 						var pname = v;
@@ -325,9 +349,6 @@
 					if(k=='product_price'){
 						tbl_row += "<div class='pcost'>$ "+v+"</div>";
 					}
-				   
-					
-				   
 					if(k=='product_renew'){
 						
 						//var expd = '<?php echo date('Y-m-d H:i:s'); ?>';
@@ -349,13 +370,9 @@
 							tbl_row += "<div class='plive'>("+v+")</div>";
 						}
 					}
-					
-				   
 					if(k=='product_stock'){
 						tbl_row += "<div class='pinstock'><b>"+v+"</b> - In Stock</div>";
 					}
-				   
-				   
 					if(k=='product_expire_date'){
 						tbl_row += "<div class='pexpire'>Expires - "+v+" </div>";
 					}
@@ -372,7 +389,6 @@
 			  })
 			return tbl_body;
 		  }
-
 		  function getFilterOptions(){
 			 opts = [];
 			 main_opts = [];
@@ -392,7 +408,7 @@
 			  cache: false,
 			  data: {filterOpts: opts,filterMainOpts: main_opts,tableName: "mega_products"},
 			  success: function(data){
-				$('#products').html(makeTable(data));
+				//$('#products').html(makeTable(data));
 				//$('#Products tbody').html(makeTable(data));
 			  }
 			});

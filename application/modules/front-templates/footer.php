@@ -1,292 +1,244 @@
-
-<!-- Being of user registration & Login popup form -->
-
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-	<div class="modal-content">
-	  
-	  <div class="modal-body">
-		<div class="row">
-			<div class="popup_tab"><!-- Begin: popup_tab -->
-			
-			
-				<div>
+<!--Authentication By Mostak-->
+	<div class="modal fade regging" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	  <div class="modal-dialog modal-md" role="document">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<div class="modal-content">
+			<div class="signin_details"><!-- Begin: register_details -->
+			  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<?php									
+					// Get User Or Visitors Info
+					// this is where you get the ip
+					$ip = $_SERVER['REMOTE_ADDR'];
+					$country_code = getCountryFromIP($ip, "code");
+					// this is where you create the variable that get you the name of the country
+					$country = getCountryFromIP($ip, " NamE ");
+					//echo "Hello there!<br>This is Gaurav Parmar and I welcome you to my website.<br>Your machine's IP is : <b>$ip</b><br>Your visiting country is : <b>$country</b><br>Your country code is : <b>$country_code</b>";
+					
+				?>
+				<form class="form-horizontal" action="<?php echo base_url(); ?>page/user/userreg" id="msignup" method="post">
+					<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					  <div class="logfb">
+						
+						<h3>
+							<i class="fa fa-user"></i>
+							New user Register here
+						</h3>
+						
+					  </div>
+					</div>
+					<input type="hidden" name="userip" value="<?php echo $ip; ?>" />
+					<!--input type="hidden" name="user_country" value="<?php echo $country; ?>" /-->
 				
-				  <!-- Nav tabs -->
-				  <ul class="nav nav-tabs" role="tablist">
+					<div class="form-group">
+						<label for="" class="col-sm-3 control-label">First Name</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="" autocomplete="off" name="user_first_name" placeholder="Enter first name" />
+						</div>
+					</div>
 				  
-					<li role="presentation" class="active">
-						<a href="#register" aria-controls="register" role="tab" data-toggle="tab">Register</a>
-					</li>
-					<li role="presentation">
-						<a href="#signin" aria-controls="signin" role="tab" data-toggle="tab">Sign In</a>
-					</li>
-				  </ul>
-				
-				  <!-- Tab panes -->
-				  <div class="tab-content">
-					<div role="tabpanel" class="tab-pane registr active" id="register">
-						<div class="row">
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								<div class="register_details"><!-- Begin: register_details -->
-										
-								  <div class="pop_social">
-								
-									<div class="row">
-									
-										<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-										  <div class="logfb">
-											<a class="btn btn-default" href="#" role="button" style="width:100%;background:#4682d8;color:#fff;">
-												<i class="fa fa-facebook"></i> Register With Facebook
-											</a>
-										  </div>
-										</div>
-										
-										<!--div class="col-lg-5 col-md-5 col-sm-5 col-xs-12 col-lg-offset-2 col-md-offset-2 col-sm-offset-2 col-xs-offset-0">
-										  <div class="logtt">
-											<a class="btn btn-default" href="#" role="button" style="width:100%;background:#e04733;color:#fff;"><i class="fa fa-google-plus"></i> Register With Google+</a>
-										  </div>
-										</div-->
-										
-									</div>
-									
+					<div class="form-group">
+						<label for="" class="col-sm-3 control-label">Last Name</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="" name="user_last_name" autocomplete="off" placeholder="Enter last name" />
+						</div>
+					</div>
+				  
+					<div class="radio_box">
+						<div class="form-group">
+							<label for="" class="col-sm-3 control-label">Gender</label>
+							<div class="col-sm-9">
 
-								</div>
-								  
-								<!-- User Registration Start -->
-								<?php
-									
-									// Get User Or Visitors Info
-									// this is where you get the ip
-									$ip = $_SERVER['REMOTE_ADDR'];
-									$country_code = getCountryFromIP($ip, "code");
-									// this is where you create the variable that get you the name of the country
-									$country = getCountryFromIP($ip, " NamE ");
-									//echo "Hello there!<br>This is Gaurav Parmar and I welcome you to my website.<br>Your machine's IP is : <b>$ip</b><br>Your visiting country is : <b>$country</b><br>Your country code is : <b>$country_code</b>";
-									
-								?>
+								<label class="radio-inline">
+								  <input checked type="radio" name="user_gender" id="inlineRadio1" value="Male">
+								   Male
+								</label>
 
-								<div class="pop_register">
-								
-									<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-									  <div class="reg_form">
-										  
-										  <form class="form-horizontal" action="<?php echo base_url(); ?>page/user/userreg" method="post">
-										
-											  <input type="hidden" name="userip" value="<?php echo $ip; ?>" />
-											  <input type="hidden" name="user_country" value="<?php echo $country; ?>" />
-										
-											<div class="form-group">
-												<label for="inputEmail3" class="col-sm-3 control-label">First Name</label>
-												<div class="col-sm-9">
-													<input type="text" required="required" class="form-control" id="inputEmail3" name="user_first_name" placeholder="Enter first name" />
-												</div>
-											</div>
-										  
-											<div class="form-group">
-												<label for="inputEmail3" class="col-sm-3 control-label">Last Name</label>
-												<div class="col-sm-9">
-													<input type="text" required="required" class="form-control" id="inputEmail3" name="user_last_name" placeholder="Enter last name" />
-												</div>
-											</div>
-										  
-											<div class="radio_box">
-												<div class="form-group">
-													<label for="inputEmail3" class="col-sm-3 control-label">Gender</label>
-													<div class="col-sm-9">
+								<label class="radio-inline">
+								  <input type="radio" name="user_gender" id="inlineRadio1" value="Female">
+								   Female 
+								</label>
 
-														<label class="radio-inline">
-														  <input type="radio" name="user_gender" id="inlineRadio1" value="Male">
-														   Male
-														</label>
+								<label class="radio-inline">
+								  <input type="radio" name="user_gender" id="inlineRadio1" value="Private">
+									Rather not say
+								 </label>
 
-														<label class="radio-inline">
-														  <input type="radio" name="user_gender" id="inlineRadio1" value="Female">
-														   Female 
-														</label>
-
-														<label class="radio-inline">
-														  <input type="radio" name="user_gender" id="inlineRadio1" value="Private">
-															Rather not say
-														 </label>
-
-													</div>
-												</div>
-											</div>
-										  
-											<div class="form-group">
-												<label for="inputEmail3" class="col-sm-3 control-label">Enter E-mail</label>
-												<div class="col-sm-9">
-													<input type="email" required="required" class="form-control" id="inputEmail3" name="user_email" placeholder="Enter e-mail">
-												</div>
-											</div>
-										  
-											<div class="form-group">
-												<label for="inputPassword3" class="col-sm-3 control-label">Password</label>
-												<div class="col-sm-9">
-													<input type="password" class="form-control" id="field_pwd1" name="user_password" placeholder="Enter password" title="Password must contain at least 6 characters, including UPPER/lowercase and numbers." required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}">
-												</div>
-											</div>
-										  
-											<div class="form-group">
-												<label for="inputPassword3" class="col-sm-3 control-label">Confirm Password</label>
-												<div class="col-sm-9">
-													<input type="password" class="form-control" id="field_pwd2" name="conf_user_password" placeholder="Enter confirm password" title="Please enter the same Password as above." required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}">
-												</div>
-											</div>
-										  
-										  <div class="form-group">
-											<div class="col-sm-offset-3 col-sm-9">
-												
-												<div class="checkbox">
-													<label>
-														<input name="newsletter" type="checkbox" checked="checked" value="1">
-													   I want to receive <?php echo sitename(); ?> Finds, an email newsletter of fresh trends.
-													</label>
-												</div>
-											
-											</div>
-										  </div>
-										  
-										<div class="form-group">
-											<div class="col-sm-offset-3 col-sm-9">
-											  <button type="submit" class="btn btn-info btn-lg" style="width:40%;">Register Now</button>
-											</div>
-										</div>
-										  
-										  
-										</form>
-									  </div>
-									</div>
-										
-								</div>
-								
-								<!-- User Registration End -->
-								
-																								
-								</div><!-- End: register_details -->
 							</div>
 						</div>
 					</div>
+				  
+					<div class="form-group">
+						<label for="usseml" class="col-sm-3 control-label">Enter E-mail</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="usseml" autocomplete="off" onkeyup="checkemil(this.value);" name="user_email" placeholder="Enter e-mail">
+						</div>
+						<div class="col-lg-offset-3 col-lg-9">
+							<span id="emerr"></span>
+						</div>
+					</div>
 					
+				  
+					<div class="form-group">
+						<label for="inputEmail3" class="col-sm-3 control-label">Your Country</label>
+						<div class="col-sm-9">
+							<select required="required" name="user_country" id="user_country" class="form-control">
+								<option value="">Select country</option>
+								<?php $fxdcountry = fixedcountry();  foreach($fxdcountry as $cresult){ 
+									if(empty($country)){ $contry = 'Bangladesh';}
+									if($cresult == $contry){ $slt = 'selected="selected"'; }else{ $slt = ''; }
+									echo '<option '.$slt.' value="'.$cresult.'">'.$cresult.'</option>';
+								 } ?>
+							</select>
+						</div>
+					</div>
 					
-					<div role="tabpanel" class="tab-pane signi" id="signin">
-						<div class="row">
-							<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				  
+					<div class="form-group">
+						<label for="inputPassword3" class="col-sm-3 control-label">Password</label>
+						<div class="col-sm-9">
+							<input type="password" class="form-control" id="regfldOne" autocomplete="off" name="user_password" placeholder="Enter password" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword3" class="col-sm-3 control-label">Confirm Password</label>
+						<div class="col-sm-9">
+							<input type="password" class="form-control" name="conf_user_password" autocomplete="off" placeholder="Enter confirm password" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-lg-9">
 							
-								<div class="signin_details"><!-- Begin: register_details -->
-								  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								  
-									  <form class="form-horizontal" id="myForm" action="<?php echo base_url(); ?>page/login/dologin" method="post">
-									  
-											<div class="form-group">
-												
-												<label for="inputEmail3" class="col-sm-3 control-label">User email</label>
-												<div class="col-sm-9">
-													
-													<input type="email" name="user_email" class="form-control" id="inputEmail3" placeholder="Enter Email">
-													
-													<?php echo form_error('user_email'); ?>
-													
-												</div>
-												
-											</div>
-											
-											<div class="form-group">
-												
-												<label for="inputPassword3" class="col-sm-3 control-label">Password</label>
-												<div class="col-sm-9">
-													
-													<input type="password" name="user_password" class="form-control" id="inputPassword3" placeholder="Enter Password">
-													
-													<?php echo form_error('user_password'); ?>
-													
-												</div>
-												
-											</div>
-										  
-											<div class="form-group">
-												<div class="col-sm-offset-3 col-sm-9">
-												  <div class="checkbox">
-													<label>
-													  <input name="remember" type="checkbox" checked="checked" value="1">Remember me
-													</label>
-												  </div>
-												</div>
-											</div>
-										  
-											<div class="form-group">
-												<div class="col-sm-offset-3 col-sm-9 col-md-9 col-lg-9">
-												  <button type="submit" class="btn btn-info btn-lg" style="width:40%;">Signin</button>
-												</div>
-											</div>
-										  
-									</form>
-										
-									<div class="or_separator">
-										<div class="or-spacer">
-										  <div class="mask"></div>
-										  <span><i>or</i></span>
-										</div>
-									  </div>
-									
-									  <div class="pop_social">
-									
-										<div class="row">
-										
-											<div class="col-lg-12 col-md-21 col-sm-12 col-xs-12">
-											  <div class="logfb">
-												
-												<a class="btn btn-default" href="#" role="button" style="width:100%;background:#4682d8;color:#fff;">
-														<i class="fa fa-facebook"></i> Sign in With Facebook
-												</a>
-												
-											  </div>
-											</div>
-											
-											<!--div class="col-lg-5 col-md-5 col-sm-5 col-xs-12 col-lg-offset-2 col-md-offset-2 col-sm-offset-2 col-xs-offset-0">
-											  <div class="logtt">
-												<a class="btn btn-default" href="#" role="button" style="width:100%;background:#e04733;color:#fff;"><i class="fa fa-google-plus"></i> Sign in With Google+</a>
-											  </div>
-											</div-->
-											
-										</div>
-										
-
-									 </div>
-									  
-								  <div class="modal_fp">
-									
-								  </div>
-										<p style="font-size:12px;text-align:center;padding-top:15px;">
-											<!--a href="#" data-toggle="modal" data-target="#forgotpass" style="color:#337ab7;">Forgot Password?</a-->
-												For a new member - <a href="#" style="color:#5bc0de;">Register Here
-											</a>
-										</p>
-									</div>
-										
-									
-								</div><!-- End: register_details -->
+							<div class="checkbox">
+								<label>
+									<input name="newsletter" type="checkbox" value="1">
+									I must agree the <a target="_blank" href="<?php echo base_url(); ?>page/terms">Terms & Conditions</a> and <a target="_blank" href="<?php echo base_url(); ?>page/ppolicy">Business Policy</a> for <?php echo sitename(); ?>.com
+								</label>
 							</div>
 						</div>
 					</div>
-					
-				  </div>
-				
-				</div>                                                
-			
-			</div><!-- End: popup_tab -->
+				  
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-lg-9">
+						  <button type="submit" class="btn btn-info btn-sm custom-button" style="background: #112C6F;border: 0;border-radius: 0;width: 100%">Register Now</button>
+						</div>
+					</div>
+				</form>
+			</div><!-- End: signin_details -->
 		</div>
 	  </div>
-	  
-	  <div class="modal-footer">
-		<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+	</div>
+	</div>
+	<div class="modal fade loggin" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	  <div class="modal-dialog modal-md" role="document">
+		<button type="button" class="close" id="lggclose" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<div class="modal-content">
+			<div class="signin_details"><!-- Begin: register_details -->
+			  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				  <div class="logfb">
+					<h3>
+						<i class="fa fa-user"></i>
+						User Login Here
+					</h3>
+				  </div>
+			  </div>
+			  <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<form class="form-horizontal" id="signinfrm" action="<?php echo base_url('page/login/dologin'); ?>" method="post">
+					<div class="form-group">
+						<label for="inputEmail3" class="col-sm-3 control-label">User email</label>
+						<div class="col-sm-9">
+							<input type="text" name="user_email" class="form-control" id="inputEmail3" placeholder="Enter Email">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword3" class="col-sm-3 control-label">Password</label>
+						<div class="col-sm-9">
+							<input type="password" name="user_password" class="form-control" id="inputPassword3" placeholder="Enter Password">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9">
+						  <div class="checkbox">
+							<label>
+							  <input name="remember" type="checkbox" value="1">Remember me
+							</label>
+						  </div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9 col-md-9 col-lg-9">
+						  <button type="submit" id="signsub" class="btn btn-info btn-sm custom-button" style="background: #112C6F;border: 0;border-radius: 0;width: 100%">Signin</button>
+						</div>
+					</div>
+				</form>
+					
+				  <div class="or_separator">
+					<div class="or-spacer">
+					  <div class="mask"></div>
+					  <span><i>or</i></span>
+					</div>
+				  </div>
+				
+				  <div class="pop_social">
+					<div class="row msloggin">
+						<div class="col-lg-12 col-md-21 col-sm-12 col-xs-12">
+						  <div class="logfb">
+							
+							<a class="btn btn-default" href="" role="button" style="width:100%;background:#4682d8;color:#fff;">
+									<i class="fa fa-facebook"></i> Sign in With Facebook
+							</a>
+							
+						  </div>
+						</div>
+						
+						<div class="col-lg-12 col-md-21 col-sm-12 col-xs-12 text-center">
+						  <div class="logtt">
+							<a class="btn btn-default" href="" role="button" style="width:100%;background:#e04733;color:#fff;"><i class="fa fa-google-plus"></i> Sign in With Google+</a>
+						  </div>
+						</div>
+					</div>
+				 </div> 
+				<div class="modal_fp">
+				</div>
+					<p style="font-size:12px;text-align:center;padding-top:15px;">
+						<!--a href="#" data-toggle="modal" data-target="#forgotpass" style="color:#337ab7;">Forgot Password?</a-->
+						For a new member -
+						<a data-toggle="modal" data-target=".regging" class="registerm recvpass" href="javascript:void(0);">Register Here</a>
+						<br/>
+						Forgot your password?
+						<a data-toggle="modal" data-target=".restpss" class="forgotp recvpass" href="javascript:void(0);">Password reovery</a>
+					</p>
+				</div>
+			</div><!-- End: signin_details -->
+		</div>
 	  </div>
 	</div>
-  </div>
-</div>
 	
-<!-- End of user registration & Login popup form -->
+	<div class="modal fade restpss" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+	  <div class="modal-dialog modal-md" role="document">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<div class="modal-content">
+			<div class="signin_details"><!-- Begin: register_details -->
+				<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<form class="form-horizontal" id="restpss" action="<?php echo base_url(); ?>page/login/resetpass" method="post">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-3 control-label">User Email</label>
+							<div class="col-sm-9">
+								<input type="text" name="user_email" class="form-control" id="inputEmail3" placeholder="Enter User Email">
+							</div>
+						</div>
+					  
+						<div class="form-group">
+							<div class="col-sm-offset-3 col-sm-9 col-md-9 col-lg-9">
+							  <button type="submit" class="btn btn-info btn-sm custom-button" style="width:40%;background: #112C6F;border: 0;border-radius: 0;">Reset Password</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	  </div>
+	</div>
+<!--End Authentication By Mostak-->
 
 
 <div id="big_footer"><!-- Begin: big_footer -->
@@ -440,16 +392,152 @@
         </div>
     </div>
 	
-
 	<!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script-->
 	
 	
-   <script src="<?php echo base_url(); ?>assets/frontend/js/jquery-latest.min.js" type="text/javascript"></script>
+    <!-- Include jQuery Validator plugin -->
+   <script src="<?php echo base_url(); ?>assets/frontend/js/bootstrap.min.js"></script>
+   <script type="text/javascript" src="<?php echo base_url('assets/frontend/js/jquery.validate.js'); ?>"></script>
+   <script type="text/javascript" src="<?php echo base_url('assets/frontend/js/validate_cde.js'); ?>"></script>
+   <script type="text/javascript">
+		$("a.recvpass").on('click', function(){
+			$("button#lggclose").click();
+		});
+   </script>
+   <script type="text/javascript">
+		function checkemil(val){
+			$.ajax({
+				type: "POST",
+				url: "<?php echo base_url('page/checkemail'); ?>",
+				data:'mail='+val,
+				dataType:"json",
+				success: function(data){
+					if(data.status == 'ok'){
+						$("span#emerr").html(data.emerrmess);
+						$("input#usseml").val('');
+					}else if(data.status == 'nok'){
+						$("span#emerr").html('');
+					}else{
+						$("span#emerr").html('');
+					}
+				}
+			});
+		}
+   </script>
+   <script type="text/javascript">
+		$.validator.setDefaults({
+			submitHandler: function() {
+				//window.location=document.getElementById('signinfrm').attr('action');
+				window.location=document.getElementById('msignup').attr('action');
+			}
+		});
+		$("#signinfrm").validate({
+			rules: {
+			   user_email: {
+								required: true,
+								email: true
+			               },
+			   user_password: {
+								required: true,
+			                  }
+			},
+			messages: {
+				user_email: {
+								required: "Please enter your user name",
+								email: "Please enter valid email !"
+							},
+				user_password: "Please enter your password",
+			}
+		});
+		$("#signinp").validate({
+			rules: {
+			   user_email: {
+								required: true,
+								email: true
+			               },
+			   user_password: {
+								required: true,
+			                  }
+			},
+			messages: {
+				user_email: {
+								required: "Please enter your user name",
+								email: "Please enter valid email !"
+							},
+				user_password: "Please enter your password",
+			}
+		});
+		$("#restpss").validate({
+			rules: {
+			   user_email: {
+								required: true,
+								email: true
+			               },
+			},
+			messages: {
+				user_email: {
+								required: "Please enter your user name",
+								email: "Please enter valid email !"
+							},
+			}
+		});
+		
+		$("#msignup").validate({
+			rules: {
+			   user_first_name: "required",
+			   user_last_name: "required",
+			   user_country: "required",
+			   newsletter: "required",
+			   user_email: {
+								required: true,
+								email: true
+			               },
+			   user_password: {
+								required: true,
+			                  },
+			   conf_user_password: {
+								required: true,
+								equalTo: "#regfldOne"
+			                  },
+			},
+			messages: {
+				user_first_name: "Please enter your first name",
+				user_last_name: "Please enter your last name",
+				user_country: "Please select your country",
+				newsletter: "Please check this box",
+				user_email: {
+								required: "Please enter your email",
+								email: "Please enter valid email !"
+							},
+				user_password: {
+								 required: "Please enter your password",
+								},
+				conf_user_password: {
+										required: "Please re-enter your password",
+										equalTo: "Passwrod Do not Match !"
+								    }
+			}
+		});
+		
+   </script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-        
-    <script src="<?php echo base_url(); ?>assets/frontend/js/bootstrap.min.js"></script>
+    <script>
+		var base_url = "<?php echo base_url(); ?>";
+		$('form#signinfrm').on('submit', function(e){
+			e.preventDefault();
+			$.post(base_url + "page/login/checkuser", $('form#signinfrm').serialize(), function(data){
+				if(data.status == 'ok'){
+					
+				}else{
+					
+				}
+			}, "json");
+			return false;
+		});
+	</script>  
+    
 	
     
 	<script type="text/javascript">
@@ -797,7 +885,7 @@
 	</script> 
 
 	<script>if(window.performance && window.performance.mark){window.performance.mark('timer_loadstart_jquery');}</script> 
-	<script src="<?php echo base_url(); ?>assets/frontend/megamenu/require-jquery.js" type="text/javascript" crossorigin=""></script>
+	<!--<script src="<?php echo base_url(); ?>assets/frontend/megamenu/require-jquery.js" type="text/javascript" crossorigin=""></script>-->
 	
 	
 	<!-- Mega Menu JS End -->
@@ -978,21 +1066,15 @@
     <script type="text/javascript">
         
         $( '#carousel' ).elastislide();
+			
+		$('.paypal').click(function() {
+			$('.paypalinfo').show("slow");
+			$('.creditcardinfo').hide("slow");
+		});
 		
-		
-		$(document).ready(function() {
-			
-			$('.paypal').click(function() {
-				$('.paypalinfo').show("slow");
-				$('.creditcardinfo').hide("slow");
-			});
-			
-			$('.creditcard').click(function() {
-				$('.paypalinfo').hide("slow");
-				$('.creditcardinfo').show("slow");
-			});
-			
-			
+		$('.creditcard').click(function() {
+			$('.paypalinfo').hide("slow");
+			$('.creditcardinfo').show("slow");
 		});
         
     </script>
@@ -1140,14 +1222,7 @@
 		}
 		
 		function confirmcheckout() {
-			var shipaddress1 = document.getElementsByName("shipaddress")[0].checked;
-			var shipaddress2 = document.getElementsByName("shipaddress")[1].checked;
-			if (shipaddress1 == true || shipaddress2 == true) {
-				return confirm('Are you sure want to checkout this?');
-			} else {
-				alert('Please select shipping address.');
-				return false;
-			}
+		  return confirm('Are you sure want to checkout this?');
 		}
 		
 		function confirmbillpay() {

@@ -110,7 +110,7 @@
 							<?php
 								
 								foreach($ppcategory as $pview){
-									
+								$get_thumbs = $this->yourshop_model->get_productimgs($pview->productid);
 								$nvs_query 		= $this->db->query("SELECT * FROM mega_shops where shopid='".$pview->shopid."'");
 								$nvs_results 	= $nvs_query->row_array();
 								extract($nvs_results);
@@ -126,25 +126,18 @@
                                                 <div class="plandscape_img"><!-- Begin: plandscape_img -->
                                                     
 													<a href="<?php echo base_url(); ?>page/pdetails/<?php echo str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', str_replace(',', '', str_replace('/', '', str_replace('(', '', str_replace(')', '', $pview->product_name)))))))); ?>/<?php echo $pview->productid; ?>">
-													
-														<?php
-															$ppimg = explode(',',$pview->product_image);
-																
-															for($ppi=0;$ppi< count($ppimg);$ppi++){
-																
-																// Check product Image NULL Or Not
-																if($pview->product_image == NULL){
-																	$pimglocation = base_url()."assets/frontend/images/shops/default-img.jpg";
-																}else{
-																	$sname1 = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));
-																	
-																	$pimglocation = base_url()."assets/frontend/images/shops/$sname1/$ppimg[$ppi]";
-																}
-																
-																echo '<img class="img-responsive img-thumbnail" src="'.$pimglocation.'" alt="'.$pview->product_name.'" />';
-																break;
-															}
+														
+														<?php 
+															$sname = str_replace("&","and",strtolower(str_replace(' ', '-', str_replace("'", '', $shop_name))));	
+															$pooimglocation = base_url()."assets/frontend/images/shops/".$sname."/";
 														?>
+														<?php 
+															if(count($get_thumbs) !== 0){
+														?>
+														<img class="img-responsive" src="<?php echo $pooimglocation.$get_thumbs['pic_name']; ?>" alt="<?php echo $pview->product_name; ?>" />
+														<?php }else{ ?>
+														<img class="img-responsive" src="<?php echo base_url()."assets/frontend/images/shops/default-img.jpg"; ?>" alt="No Image Avaliable" />
+														<?php } ?>
 													</a>
 													
                                                 </div><!-- End: plandscape_img -->

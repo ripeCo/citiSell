@@ -2,7 +2,6 @@
 
 class User extends CI_Controller 
 {
-	
 	public function __construct() 
 	{  
             parent:: __construct(); 
@@ -446,6 +445,7 @@ class User extends CI_Controller
 	}
 	
 	// Image Resize function
+	/*
 	public function img_resize($w,$h,$imgName){
 		$config['image_library'] 	= 'gd2';
 		$config['source_image'] 	= './assets/frontend/images/users/'.$imgName;
@@ -477,7 +477,7 @@ class User extends CI_Controller
 		$this->image_lib->initialize($config);
 		$this->image_lib->resize();
 	}
-		
+	*/
 		
 	// Update User Profile function
 	public function updateuserprofile() 
@@ -499,7 +499,9 @@ class User extends CI_Controller
 			
 			$this->user_model->updateprofilewithimg();
 			
-			$this->img_resize($this->upload->data('file_name'));
+			//$this->img_resize($this->upload->data('file_name'));
+			
+			$this->upload->data('file_name');
 			
 			
 			// Get users all information & store in session
@@ -621,7 +623,7 @@ class User extends CI_Controller
 	// load this function
 	public function setting()
 	{
-		if($this->session->userdata('userid') == NULL){
+		if($this->session->userdata('userid') == NULL) {
 			redirect('page');
 		}
 			
@@ -649,28 +651,43 @@ class User extends CI_Controller
 		
 		$this->load->view('page/yourshop',$data);
 	}
+
+	/* Validates only US address.
+		@param array address - holds the address to validate
+	*/
+	private function validateUSaddress(array $address) {
+		if ($address['country'] != "USA")
+			return [];
+
+		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
+
+		$av = new \RocketShipIt\AddressValidate('USPS');
+		$av->setParameter('toAddr1', $address['addrLine1']);
+		if (!empty($address['addrLine2Of1']))
+			$av->setParameter('toAddr2', $address['addrLine2Of1']);
+		$av->setParameter('toCity', $address['city']);
+		$av->setParameter('toState', $address['state']);
+		$av->setParameter('toCode', $address['zipcode']);
+		$av->setParameter('toExtendedCode', $address['extendedZipcode']);
+		return $av->validate();
+	}
 	
 
 	// load this function
-	public function shippingaddress1()
-	{		
-		if($this->session->userdata('userid') == NULL){
+	public function shippingaddress1() {		
+		if ($this->session->userdata('userid') == NULL)
 			redirect('page');
-		}
 			
 		$userid = $this->session->userdata('userid');
-		$address = $this->input->post('user_address1');
-		$zipCode = $this->input->post('zipCode');
-		$country = $this->input->post('country');
-		
-		if(empty($address)) {
-			$data['breadcrumb'] = 'Shipping Address';
-			$data['error_msg'] 	= 'Shipping address didn\'t updated successfully';
-			
-			$data['users'] 		= $this->user_model->get_data($userid);
-			$this->load->view('page/setting',$data);
-			return;
-		}
+		$country = trim($this->input->post('country1'));
+		$state = trim($this->input->post('state1'));
+		$city = trim($this->input->post('city1'));
+		$addrLine1 = trim($this->input->post('addrLine1'));
+		$addrLine2Of1 = trim($this->input->post('addrLine2Of1'));
+		$zipcode = trim($this->input->post('zipcode1'));
+		$extendedZipcode = trim($this->input->post('extendedZipcode1'));
+		$notUSfullAddress = trim($this->input->post('notUSfullAddress1'));
+		$preferredAddress = trim($this->input->post('preferredAddress1'));
 
 		if (empty($country)) {
 			$data['breadcrumb'] = 'Shipping country';
@@ -681,19 +698,75 @@ class User extends CI_Controller
 			return;
 		}
 
-		/* If the country is USA, we need the zipcode. */
-		if ($country2 == "USA") {
-			if (empty($zipCode2)) {
-				$data['breadcrumb'] = 'Shipping country';
-				$data['error_msg'] 	= 'For US, zipcode is needed.';
-				
+		$preferredAddressFromDB = $this->user_model->getPreferredAddress($userid);
+
+		if (empty($preferredAddress) && !$preferredAddressFromDB) {
+			$data['error_msg'] 	= 'Please select preferred address.';
+			
+			$data['users'] 		= $this->user_model->get_data($userid);
+			$this->load->view('page/setting',$data);
+			return;
+		}
+
+		if (trim($country) == "USA") {
+			$error = FALSE;
+
+			if (empty($state)) {
+				$data['error_msg'] 	= 'Shipping state is empty.';
+				$error = TRUE;
+			}
+			if (empty($city)) {
+				$data['error_msg'] 	= 'Shipping city is empty.';
+				$error = TRUE;
+			}
+			if (empty($addrLine1)) {
+				$data['error_msg'] 	= 'Shipping address line 1 is empty.';
+				$error = TRUE;
+			}
+			if (empty($zipcode)) {
+				$data['error_msg'] 	= 'Shipping zipcode is empty.';
+				$error = TRUE;
+			}
+
+			if ($error) {
 				$data['users'] 		= $this->user_model->get_data($userid);
 				$this->load->view('page/setting',$data);
 				return;
 			}
 		}
 
-		$this->user_model->shippingaddressupdate($userid);
+		$address['country'] = $country;
+		$address['state'] = $state;
+		$address['city'] = $city;
+		$address['addrLine1'] = $addrLine1;
+		$address['addrLine2Of1'] = $addrLine2Of1;
+		$address['zipcode'] = $zipcode;
+		$address['extendedZipcode'] = ($extendedZipcode ? $extendedZipcode : null);
+		$address['notUSfullAddress'] = $notUSfullAddress;
+		$address['preferredAddress'] = ($preferredAddress ? 1 : 2);
+
+		// before the update check address if valid if country is US
+		if ($address['country'] == "USA") {
+			$validatedUSAddress = $this->validateUSaddress($address);
+			file_put_contents('c:\tmp\address.txt', print_r($validatedUSAddress, TRUE));
+			if (!empty($validatedUSAddress['Data']['Errors'])) {	// if there's an error
+				file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
+
+				$data['error_msg'] 	= $validatedUSAddress['Data']['Errors'][0]['Description'];
+				$data['users'] 		= $this->user_model->get_data($userid);
+				$this->load->view('page/setting',$data);
+				return;				
+			} else {	// The API returns with corrected address so better use it.
+				$address['addrLine1'] = $validatedUSAddress['Data']['Addr1'];
+				$address['addrLine2Of1'] = $validatedUSAddress['Data']['Addr2'];
+				$address['city'] = $validatedUSAddress['Data']['City'];
+				$address['state'] = $validatedUSAddress['Data']['State'];
+				$address['zipcode'] = $validatedUSAddress['Data']['ZipCode'];
+				$address['extendedZipcode'] = $validatedUSAddress['Data']['ZipCodeAddon'];
+			}
+		}
+
+		$this->user_model->shippingaddressupdate($userid, $address);
 
 		$data['breadcrumb'] 	= 'Shipping Address';
 		$data['success_msg'] 	= 'Shipping address updated successfully';
@@ -704,28 +777,22 @@ class User extends CI_Controller
 	
 
 	// load this function
-	public function shippingaddress2()
-	{
-		
-		if($this->session->userdata('userid') == NULL){
+	public function shippingaddress2() {		
+		if ($this->session->userdata('userid') == NULL)
 			redirect('page');
-		}
 			
 		$userid = $this->session->userdata('userid');
-		$address = $this->input->post('user_address2');
-		$zipCode2 = $this->input->post('zipCode2');
-		$country2 = $this->input->post('country2');
-		
-		if(empty($address))	{			
-			$data['breadcrumb'] = 'Shipping Address';
-			$data['error_msg'] 	= 'Shipping address didn\'t updated successfully';
-			
-			$data['users'] 		= $this->user_model->get_data($userid);
-			$this->load->view('page/setting',$data);
-			return;
-		}
+		$country = $this->input->post('country2');
+		$state = $this->input->post('state2');
+		$city = $this->input->post('city2');
+		$addrLine1 = $this->input->post('addrLine1Of2');
+		$addrLine2Of2 = $this->input->post('addrLine2Of2');
+		$zipcode = $this->input->post('zipcode2');
+		$extendedZipcode = $this->input->post('extendedZipcode2');
+		$notUSfullAddress = $this->input->post('notUSfullAddress2');
+		$preferredAddress = $this->input->post('preferredAddress2');
 
-		if (empty($country2)) {
+		if (empty($country)) {
 			$data['breadcrumb'] = 'Shipping country';
 			$data['error_msg'] 	= 'Please select country.';
 			
@@ -734,26 +801,80 @@ class User extends CI_Controller
 			return;
 		}
 
-		/* If the country is USA, we need the zipcode. */
-		if ($country2 == "USA") {
-			if (empty($zipCode2)) {
-				$data['breadcrumb'] = 'Shipping country';
-				$data['error_msg'] 	= 'For US, zipcode is needed.';
-				
+		$preferredAddressFromDB = $this->user_model->getPreferredAddress($userid);
+
+		if (empty($preferredAddress) && !$preferredAddressFromDB) {
+			$data['error_msg'] 	= 'Please select preferred address.';
+			
+			$data['users'] 		= $this->user_model->get_data($userid);
+			$this->load->view('page/setting',$data);
+			return;
+		}
+
+		if (trim($country) == "USA") {
+			$error = FALSE;
+
+			if (empty($state)) {
+				$data['error_msg'] 	= 'Shipping state is empty.';
+				$error = TRUE;
+			}
+			if (empty($city)) {
+				$data['error_msg'] 	= 'Shipping city is empty.';
+				$error = TRUE;
+			}
+			if (empty($addrLine1)) {
+				$data['error_msg'] 	= 'Shipping address line 1 is empty.';
+				$error = TRUE;
+			}
+			if (empty($zipcode)) {
+				$data['error_msg'] 	= 'Shipping zipcode is empty.';
+				$error = TRUE;
+			}
+
+			if ($error) {
 				$data['users'] 		= $this->user_model->get_data($userid);
 				$this->load->view('page/setting',$data);
 				return;
 			}
 		}
 
-		$this->user_model->shippingaddressupdate2($userid);
+		$address['country'] = $country;
+		$address['state'] = $state;
+		$address['city'] = $city;
+		$address['addrLine1'] = $addrLine1;
+		$address['addrLine2Of2'] = $addrLine2Of2;
+		$address['zipcode'] = $zipcode;
+		$address['extendedZipcode'] = $extendedZipcode;
+		$address['notUSfullAddress'] = $notUSfullAddress;
+		$address['preferredAddress'] = ($preferredAddress ? 2 : 1);
+
+		// before the update check address if valid if country is US
+		if ($address['country'] == "USA") {
+			$validatedUSAddress = $this->validateUSaddress($address);
+			file_put_contents('c:\tmp\address.txt', print_r($validatedUSAddress, TRUE));
+			if (!empty($validatedUSAddress['Data']['Errors'])) {	// if there's an error
+				file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
+
+				$data['users'] 		= $this->user_model->get_data($userid);
+				$this->load->view('page/setting',$data);
+				return;				
+			} else {	// The API returns with corrected address so better use it.
+				$address['addrLine1'] = $validatedUSAddress['Data']['Addr1'];
+				$address['addrLine2Of1'] = $validatedUSAddress['Data']['Addr2'];
+				$address['city'] = $validatedUSAddress['Data']['City'];
+				$address['state'] = $validatedUSAddress['Data']['State'];
+				$address['zipcode'] = $validatedUSAddress['Data']['ZipCode'];
+				$address['extendedZipcode'] = $validatedUSAddress['Data']['ZipCodeAddon'];
+			}
+		}
+
+		$this->user_model->shippingaddressupdate2($userid, $address);
 
 		$data['breadcrumb'] 	= 'Shipping Address';
 		$data['success_msg'] 	= 'Shipping address updated successfully';
 		
 		$data['users'] 			= $this->user_model->get_data($userid);
-		$this->load->view('page/setting',$data);
-		
+		$this->load->view('page/setting',$data);		
 	}
 	
 
@@ -781,8 +902,7 @@ class User extends CI_Controller
 		$data['users'] 			= $this->user_model->get_data($userid);
 		$this->load->view('page/setting',$data);
 		
-	}
-	
+	}	
 
 	// load this function
 	public function signinhistory()
@@ -809,10 +929,6 @@ class User extends CI_Controller
 		$this->load->view('page/setting',$data);
 		
 	}
-
-	 
-	 
-    
 	
 	// Edit function
 	public function edit() 
@@ -828,9 +944,7 @@ class User extends CI_Controller
 		$this->load->view('users/edit', $data);
 	 }
      
-     
-	 
-	// Update function
+    // Update function
 	public function update()
 	{
 		// field name, error message, validation rules
@@ -903,9 +1017,7 @@ class User extends CI_Controller
 			$this->load->view('usermanagement/users/view',$data);
 		}
 	}
-	
-	
-	
+		
 		
 	// View details user purchase function
 	public function purchasedetails() 
@@ -1166,13 +1278,7 @@ class User extends CI_Controller
 		$data['breadcrumb'] =	'Orders List';
 		
 		$this->load->view('page/vieworders',$data);
-	}
-
-	
-	
-	
-	
-        
+	}      
         
         
     // User SMTP Mail function
@@ -1276,7 +1382,22 @@ class User extends CI_Controller
 
 	}
 
-    
+	public function USStates() {
+		$this->load->helper('myhelp');
 
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode(getUSstates()));
+	}
 
+	public function USCities($stateISOcode = null) {
+		if (!$stateISOcode)
+			return;
+
+		$this->load->helper('myhelp');
+
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode(getUScitiesByState($stateISOcode)));	
+	}
 }
