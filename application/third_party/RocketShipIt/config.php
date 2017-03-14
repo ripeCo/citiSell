@@ -24,7 +24,8 @@ return array(
         // Default timezone
         // You can find out which timezones are available here:
         // http://php.net/manual/en/timezones.php
-        'timezone' => 'America/Denver',
+        // 'timezone' => 'America/Denver',
+        'timezone' => 'Asia/Manila',
 
         // Your company name
         'shipper' => 'RocketShipIt',
@@ -378,8 +379,8 @@ return array(
     'stamps' => array(
 
         // USPS Stamps.com Credentials
-        'username' => 'YOUR_STAMPS_USERNAME',
-        'password' => 'YOUR_STAMPS_PASSWORD',
+        'username' => 'oliur20@gmail.',
+        'password' => 'mahdi01',
 
         // Label Image Type
         //  Zpl
@@ -391,7 +392,8 @@ return array(
         //  Gif
         //  Png
         //  Auto
-        'imageType' => 'Zpl',
+        // 'imageType' => 'Zpl', // default
+        'imageType' => 'Pdf',
 
         'packagingType' => '',
 

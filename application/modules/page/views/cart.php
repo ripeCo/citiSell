@@ -185,7 +185,7 @@
 													<span class="crdico four"><img src="" alt="" /></span>
 												</span>
 											</span>
-											<span class="crdpaypal"><input type="radio" name="paymentmethod" value="Paypal" /> <span class="crdpico"><img src="" alt="" /></span></span>
+											<span class="crdpaypal"><input type="radio" name="paymentmethod" value="Paypal" checked="checked" /> <span class="crdpico"><img src="" alt="" /></span></span>
 										</div>
 										<?php 
 											$shopamount = $this->Msmodel->totalcrt_amount($crtinfo['craw_shopid']);

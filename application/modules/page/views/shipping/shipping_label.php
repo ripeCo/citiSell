@@ -3,6 +3,8 @@
 	$this->load->view('../../front-templates/header.php');
 	$this->load->view('../../front-templates/navigation.php');
 ?>
+<script type="text/javascript" src="<?=base_url();?>assets/frontend/js/jquery-dateFormat.min.js"></script>
+
 	<div class="shippinglabel">
 		<div class="container">
 			<div class="row">
@@ -77,8 +79,8 @@
 														</div>
 														<div class="col-md-9">
 															<?php
-																foreach ($orderDetails as $image)
-																	echo $image['productImage'];
+																foreach ($images as $image)
+																	echo "<img src='$image' width='75' height='75' alt=''>";
 															?>
 														</div>
 												</div>
@@ -87,47 +89,48 @@
 														<div class="panel-body">
 															<div class="col-lg-12">
 																<div class="row">
-																	<div class="col-lg-3">
+																	<div class="col-lg-2">
 																		Note to <b><?php echo($orderDetails[0]['user_first_name'] . ' ' . $orderDetails[0]['user_last_name']); ?></b>
 																	</div>
-																	<div class="col-lg-9">
+																	<div class="col-lg-10">
 																		<div class="panel panel-default">
 																			<div class="panel-body">
-																				<b>Shipping Method:</b> <span id="shippingMethodStamp"><?=$shippingRates[0]['desc']?></span><br>
-																				<b>Packaging:</b> <span id="packagingType"><?=$packagingTypes[0]?></span>
+																				<b>Shipping Method:</b>
+																				<?php
+																					if ($orderStatus != "Pending")
+																						echo "(This item has already been processed.)";
+																					elseif (!empty($meta['data']['error']))
+																						echo "<span id='shippingMethodStamp'>{$meta['data']['error']}</span>";
+																					else
+																						echo "<span id='shippingMethodStamp'>" . reset($meta['data'])->desc . "</span>";
+																				?><br>
 																			</div>
 																		</div>
 																		<div class="col-lg-6">
 																			Shipping Method<br>
 																			<select name="shippingMethod" id="shippingMethod">
 																				<?php
-																					foreach ($shippingRates as $index => $shippingRate)
-																						echo "<option value='$index'>" . $shippingRate['desc'] . "</option>";
+																					foreach ($meta['data'] as $index => $shippingRate)
+																						echo "<option value='$index'>" . $shippingRate->desc . "</option>";
 																				?>
-																			</select><br><br>
-
-																			Package Type<br>
-																			<select name="packagingTypes" id="packagingTypes">
-																				<?php
-																					foreach ($packagingTypes as $packagingType)
-																						echo "<option value='$packagingType'>$packagingType</option>";
-																				?>
-																			</select><br><br>
+																			</select><br>
+																			Expected delivery in <span id="expectedDeliveryInDays"></span> day(s).
+																			<br><br>
 
 																			Package Dimension<br>
-																			(Width x length x height)<br>
-																			<input type="text" name="width" id="width" size="1" maxlength="3"> x 
-																			<input type="text" name="length" id="length" size="1" maxlength="3"> x 
+																			(Length x Width x height)<br>
+																			<input type="text" name="length" id="length" size="1" maxlength="3"> x
+																			<input type="text" name="width" id="width" size="1" maxlength="3"> x																			
 																			<input type="text" name="height" id="height" size="1" maxlength="3"> inches
 
 																			<br><br>Package Weight<br>
 																			<input type="text" name="lbs" id="lbs" size="1" maxlength="3"> lbs
 																			<input type="text" name="oz" id="oz" size="1" maxlength="3"> oz.
 
-																			<br><br>Insurance (optional)<br>
+																			<br><br>Insurance in USD (optional)<br>
 																			<input type="text" name="insurance" id="insurance" size="3" maxlength="9" value="" placeholder="0.00"><br><br>
 
-																			<input type="checkbox" name="signature" id="signature">Signature Confirmation
+																			<input type="checkbox" name="signature" id="signature" value="signature">Signature Confirmation
 																		</div>
 																		<div class="col-lg-6">
 																			<b>Package Costs</b><br>
@@ -142,7 +145,7 @@
 																				</tr>
 																				<tr>
 																					<td>USPS Insurance</td>
-																					<td>Included</td>
+																					<td id="insuranceValue">0.00</td>
 																				</tr>
 																				<tr>
 																					<td><hr></td>
@@ -150,7 +153,7 @@
 																				</tr>
 																				<tr>
 																					<td>Package Total</td>
-																					<td id="packageTotalValue">0.00</td>
+																					<td id="packageTotalValue" class="packageTotalValue">0.00</td>
 																				</tr>
 																			</table>
 																		</div>
@@ -169,7 +172,7 @@
 										<span class="lftshipcrt"><strong>0 labels</strong></span>
 										<span class="rightshipcrt"><strong>$ 0.00</strong></span>
 										<div style="clear:both;"></div>
-										<button class="shipsubmt" id="confirmAndBuy">Confirm and Buy</button>
+										<button type="button" class="shipsubmt" id="confirmAndBuy" data-toggle="modal" data-target="#myModal">Confirm and Buy</button>
 										<div class="">
 											<br />
 											<span>Ship Date</span><br />
@@ -216,6 +219,25 @@
 										</div>
 									</div>
 								</div>
+
+								<!-- Modal -->
+								<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+									<div class="modal-dialog" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+												<h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+											</div>
+											<div class="modal-body">
+												Once purchased, <b><span class="packageTotalValue"></span></b> USD will be added to your CitiSell bill. <br>By clicking Purchase you agree to the CitiSell Shipping Policy.
+											</div>
+											<div class="modal-footer">
+												<button type="button" class="btn btn-default" data-dismiss="modal" id="modalCloseButton">Close</button>
+												<button type="button" class="btn btn-primary" id="confirmPayment">Confirm Payment</button>
+											</div>
+										</div>
+									</div>
+								</div> <!-- End Modal -->
 							</div>
 						</div>
 					</div>
@@ -228,90 +250,178 @@
 		$(document).ready(function() {
 			$("#shippingDateStamp").text($("#shippingDate").val());
 
-
 			$("#shippingDate").change(function() {
 				$("#shippingDateStamp").text($("#shippingDate").val());
-			});			
-
-			$("#packagingTypes").change(function() {
-				$("#packagingType").text($("#packagingTypes").val());
 			});
 
-
-			if (typeof(Storage) !== "undefined")
-				localStorage.setItem('shippingRates', JSON.stringify(<?=json_encode($shippingRates)?>));
-			else {
-			    console.log("Sorry! No Web Storage support.");
+			if (typeof(Storage) !== "undefined") {
+				localStorage.setItem('shippingRates', JSON.stringify([]));
+				localStorage.setItem('shippingRates', JSON.stringify(<?=json_encode($meta['data'])?>));
+			} else {
+			    console.log("Sorry! No Web Storage support. Please upgrade your web browser.");
 			    return;
 			}
 
-			var shippingRate = JSON.parse(localStorage.getItem('shippingRates'));
+			var shippingRates = JSON.parse(localStorage.getItem('shippingRates'));
 
-			$("#postageValue").text(shippingRate[0]['rate']);
-			var packageTotalValue = parseFloat(shippingRate[0]['rate']) + 0; // add more here...
-			$("#packageTotalValue").text(packageTotalValue);
+			// default values
+			for (var shippingRate in shippingRates) {
+				// $("#postageValue").text(shippingRates[shippingRate]['Amount']);
+				$(".packageTotalValue").text(parseFloat(shippingRates[shippingRate]['Amount']));
+				// $("#shippingMethodStamp").text($("#shippingMethod option:selected").text());
+				$("#expectedDeliveryInDays").text(shippingRates[shippingRate]["DeliverDays"]);
+				break;
+			}
 
+			
 			$("#shippingMethod").change(function() {
-				var selectedShippingMethod = $("#shippingMethod").val();
-				$("#postageValue").text(shippingRate[selectedShippingMethod]['rate']);
-				// $("#packageTotalValue").text(shippingRate[selectedShippingMethod]['rate']);
+				/*var selectedShippingMethod = $("#shippingMethod").val();
+				$("#postageValue").text(shippingRate[selectedShippingMethod]['Amount']);
+				$(".packageTotalValue").text(parseFloat(shippingRate[selectedShippingMethod]['Amount']));
+				$("#expectedDeliveryInDays").text(shippingRate[selectedShippingMethod]["DeliverDays"]);*/
 
-				var packageTotalValue = parseFloat(shippingRate[selectedShippingMethod]['rate']) + 0; // add more here...
-				$("#packageTotalValue").text(packageTotalValue);
+				$("#shippingMethodStamp").text($("#shippingMethod option:selected").text());
+				var selectedShippingMethod = $("#shippingMethod").val();
+				$("#expectedDeliveryInDays").text(shippingRates[selectedShippingMethod]["DeliverDays"]);
+
+				getShippingRates();
+			});
+
+			function getShippingRates() {
+				var shippingMethod = $("#shippingMethod").val();
+				var width = $("#width").val();
+				var length = $("#length").val();
+				var height = $("#height").val();
+				var lbs = $("#lbs").val();
+				var oz = $("#oz").val();
+				var insurance = $("#insurance").val();
+				var signature = $("#signature").is(":checked");
+				var shippingDate = $("#shippingDate").val();
+
+				if (!shippingMethod) { return; };
+				if (!length) { return; };
+				if (!width) { return; };
+				if (!height) { return; };
+				if (!lbs) { return; };
+				if (!$.isNumeric(width)) { return; };
+				if (!$.isNumeric(length)) { return; };
+				if (!$.isNumeric(height)) { return; };
+				if (!$.isNumeric(lbs)) { return; };
+
+				var orderNumber = document.documentURI.match(/\d+/g)[1];
+				var url = "<?=base_url();?>page/Shipping/shippingRates/" + orderNumber;
+				var data = {
+					lbs: lbs,
+					oz: oz,
+				};
+
+				$.get(url, data, function(response) {
+					/*if (response['data']['error'])	// if there's an error
+						alert(response['data']['error'][0]['description']);
+					else
+						alert("Successfully processed. Tracking number: " + response['data']['response']['trk_main']);*/
+
+					console.log(response);
+					$("#postageValue").text(response['meta']['data'][shippingMethod]['Amount']);
+					$(".packageTotalValue").text(response['meta']['data'][shippingMethod]['Amount']);
+				});
+			}
+
+			$("#length").change(function() {
+				getShippingRates();
+			});
+			$("#width").change(function() {
+				getShippingRates();
+			});
+			$("#height").change(function() {
+				getShippingRates();
+			});
+			$("#lbs").change(function() {
+				getShippingRates();
+			});
+			$("#oz").change(function() {
+				getShippingRates();
+			});
+			$("#insurance").change(function() {
+				getShippingRates();
+			});
+
+			
+			$("#insurance").change(function() {
+				/*$("#insuranceValue").text($("#insurance").val());
+				var selectedShippingMethod = $("#shippingMethod").val();
+				var packageTotalValue = parseFloat(shippingRate[selectedShippingMethod]['Amount']) + parseFloat($("#insurance").val());
+				$(".packageTotalValue").text(packageTotalValue);*/
+				getShippingRates();
 			});
 
 
 			// confirm and buy
 			$("#confirmAndBuy").click(function() {
 				var shippingMethod = $("#shippingMethod").val();
-				var packagingType = $("#packagingTypes").val();
 				var width = $("#width").val();
 				var length = $("#length").val();
 				var height = $("#height").val();
 				var lbs = $("#lbs").val();
 				var oz = $("#oz").val();
-				var insurance = $("insurance").val();
-				var signature = $("#signature").val();
+				var insurance = $("#insurance").val();
+				var signature = $("#signature").is(":checked");
 				var shippingDate = $("#shippingDate").val();
 
-				if (!shippingMethod) { alert("No shipping Method."); $("#shippingMethod").focus(); return; };
-				if (!packagingType) { alert("No packing type."); $("#packagingTypes").focus(); return; };
-				if (!width) { alert("Please input width."); $("#width").focus(); return; };
-				if (!length) { alert("Please input length."); $("#length").focus(); return; };
-				if (!height) { alert("Please input height."); $("#height").focus(); return; };
-				if (!lbs) { alert("Please input pounds."); $("#lbs").focus(); return; };
-				// if (!oz) { return; };
-				// if (!insurance) { return; };
-				// if (!signature) { return; };
-				// if (!shippingDate) { return; };
+				if (!shippingMethod) { alert("No shipping Method."); $("#shippingMethod").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!length) { alert("Please input length."); $("#length").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!width) { alert("Please input width."); $("#width").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!height) { alert("Please input height."); $("#height").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!lbs) { alert("Please input pounds."); $("#lbs").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!$.isNumeric(width)) { alert("Width must be numeric."); $("#width").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!$.isNumeric(length)) { alert("Length must numeric."); $("#length").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!$.isNumeric(height)) { alert("Height must be numeric."); $("#height").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
+				if (!$.isNumeric(lbs)) { alert("Lbs must be in numeric."); $("#lbs").focus(); $("#confirmAndBuy").attr("data-target", ""); return; };
 
-				if (!$.isNumeric(width)) { alert("Width must be numeric."); $("#width").focus(); return; };
-				if (!$.isNumeric(length)) { alert("Length must numeric."); $("#length").focus(); return; };
-				if (!$.isNumeric(height)) { alert("Height must be numeric."); $("#height").focus(); return; };
-				if (!$.isNumeric(lbs)) { alert("Lbs must be in numeric."); $("#lbs").focus(); return; };
+				$("#confirmAndBuy").attr("data-target", "#myModal");
+			});
 
-				var url = "<?=base_url();?>page/shipping/";
+			// //confirm payment
+			$("#confirmPayment").click(function() {
+				var shippingMethod = $("#shippingMethod").val();
+				var width = $("#width").val();
+				var length = $("#length").val();
+				var height = $("#height").val();
+				var lbs = $("#lbs").val();
+				var oz = $("#oz").val();
+				var insurance = $("#insurance").val();
+				var signature = $("#signature").is(":checked");
+				var shippingDate = $("#shippingDate").val();
+
+				var url = "<?=base_url();?>page/Shipping/confirmAndBuy";
+				var orderNumber = document.documentURI.match(/\d+/g)[1];
 				var data = {
 					shippingMethod: shippingMethod,
-					packagingType: packagingType,
+					orderNumber: orderNumber,
 					width: width,
 					length: length,
 					height: height,
 					lbs: lbs,
 					oz: oz,
 					insurance: insurance,
-					signature: signature,
 					shippingDate: shippingDate,
 				};
 
-				$.post(url, data, function(data) {
-					console.log(data);
+				if (signature)
+					data['signature'] = signature;
+
+				$.post(url, data, function(response) {
+					if (response['data']['error'])	// if there's an error
+						alert(response['data']['error'][0]['description']);
+					else
+						alert("Successfully processed. Tracking number: " + response['data']['response']['trk_main']);
 				});
 
-				alert("Okay");
+				$("#modalCloseButton").click();
 			});
 				
 		});
 	</script>
+	
 
 <?php $this->load->view('../../front-templates/footer.php'); ?>

@@ -207,7 +207,7 @@ class Porder extends CI_Controller {
 								'order_shippingtype' => $getcrt_info['ship_to'],
 								'order_usercountry' => $getcrt_info['user_country'],
 								'order_ship_address' => 'test',
-								'buyerAddress' => 
+								'buyerAddress' => '',
 								'order_tax' => $do_ec_return['PAYMENTINFO_0_TAXAMT'],
 								'order_shipped' => 0,
 								'payment_status' => 'Paid',
@@ -234,9 +234,6 @@ class Porder extends CI_Controller {
 										'quantity' => $orderd['craw_qty'],
 										'subtotal' => number_format($orderd['craw_price'], 2),
 										'shippping_cost' => 0.00,
-										'trk_main' => '',
-										'label_fmt' => '',
-										'label_img' => '',
 										'productVariations' => '',
 										'shipprocessingtime' => $orderd['processing_time']
 									);

@@ -6,7 +6,7 @@ class Msmodel extends CI_Model{
 		$this->db->insert('mega_cart', $data);
 	}
 	public function getcrt_info(){
-		$query = $this->db->query("select * from mega_cart
+		$query = $this->db->query("SELECT * from mega_cart
 									LEFT JOIN mega_shops ON
 									mega_shops.shopid=mega_cart.craw_shopid
 									LEFT JOIN mega_products ON
@@ -22,7 +22,7 @@ class Msmodel extends CI_Model{
 		return $result;
 	}
 	public function getproductby_shopid($shopid){
-		$query = $this->db->query("select * from mega_cart
+		$query = $this->db->query("SELECT * from mega_cart
 									LEFT JOIN mega_shops ON
 									mega_shops.shopid=mega_cart.craw_shopid
 									LEFT JOIN mega_products ON
@@ -38,7 +38,7 @@ class Msmodel extends CI_Model{
 		return $result;
 	}
 	public function placeordr_shopid($shopid){
-		$query = $this->db->query("select * from mega_cart
+		$query = $this->db->query("SELECT * from mega_cart
 									LEFT JOIN mega_shops ON
 									mega_shops.shopid=mega_cart.craw_shopid
 									LEFT JOIN mega_products ON
@@ -54,11 +54,11 @@ class Msmodel extends CI_Model{
 		return $result;
 	}
 	public function totalcrt_amount($shopid){
-		$result = $this->db->query("SELECT SUM(mega_cart.craw_price) AS total FROM mega_cart where mega_cart.craw_shopid='$shopid'");
+		$result = $this->db->query("SELECT SUM(mega_cart.craw_price) AS total FROM mega_cart where mega_cart.craw_shopid=?", [$shopid]);
 		return $result->row_array();
 	}
 	public function removecrt_item($rowid){
-		$this->db->query("delete from mega_cart where mega_cart.craw_id='$rowid'");
+		$this->db->query("DELETE from mega_cart where mega_cart.craw_id='$rowid'");
 	}
 	public function total_itm(){
 		$query = $this->db->query("select * from mega_cart");

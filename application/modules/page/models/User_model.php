@@ -712,6 +712,7 @@ class User_model extends CI_Model
 		return $query2->num_rows();
 	}
 
+	/* Gets shop information. */
 	public function getShopInfo($shopId) {
 		$this->db->select('shop_name, display_name, user_address, user_city, user_state, user_zip, user_country');
 		$this->db->select('user_address2, user_city2, user_state2, user_zip2, user_country2');
