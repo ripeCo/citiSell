@@ -430,7 +430,7 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 											<address>
 												<?php
 													$fullAddress = $user_address . ' ' . $addrLine2Of1 . ', ' . $user_city . ', ' . $user_state . ', ' . $user_country;
-													($user_address ? print ($fullAddress) : print($notUSfullAddress . ', ' . $user_country));
+													($user_address ? print ($fullAddress) : print($notUSfullAddress1 . ', ' . $user_country));
 												?>
 											</address>
 											
@@ -556,13 +556,15 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 														<textarea name="addrLine2Of1" id="addrLine2Of1" rows="3" cols="4" class="form-control" placeholder="Address Line 2" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;"><?php echo $addrLine2Of1; ?></textarea>
 
 														<label id="labelZipcode1" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">Zip code</label>
-														<div class="col-md-3">
-															<input type="text" name="zipcode1" id="zipcode1" class="form-control" placeholder="Zip code" value="<?=$user_zip ?>" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">
+														<div class="row">
+															<div class="col-md-3">
+																<input type="text" name="zipcode1" id="zipcode1" class="form-control" placeholder="Zip code" value="<?=$user_zip ?>" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">
+															</div>
+															<div class="col-md-3">
+																<input type="text" name="extendedZipcode1" id="extendedZipcode1" class="form-control" placeholder="Ext Zip code" value="<?=$extendedZipcode1;?>" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;" maxlength="4">
+															</div>
+															<div class="col-md-6"></div>
 														</div>
-														<div class="col-md-3">
-															<input type="text" name="extendedZipcode1" id="extendedZipcode1" class="form-control" placeholder="Ext Zip code" value="<?=$extendedZipcode1;?>" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;" maxlength="4">
-														</div>
-														<div class="col-md-6"></div>
 
 														<input id="preferredAddress1" type="checkbox" name="preferredAddress1" value="1" <?php (intval($preferredAddress) == 1) ? print('checked=checked') : print(''); ?>>
 														<label for="preferredAddress1">Preferred Address</label>
@@ -758,7 +760,7 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 				$("#labelState1").show();
 				$("#labelCity1").show();
 				$("#labelAddrLine1").show();
-				$("#labelAddrLine2of1").show();
+				$("#labelAddrLine2Of1").show();
 				$("#labelZipcode1").show();
 
 				$("#state1").show();
@@ -779,7 +781,7 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 				$("#labelState1").hide();
 				$("#labelCity1").hide();
 				$("#labelAddrLine1").hide();
-				$("#labelAddrLine2of1").hide();
+				$("#labelAddrLine2Of1").hide();
 				$("#labelZipcode1").hide();
 
 				$("#state1").hide();

@@ -2,9 +2,6 @@
 
 class Shipping extends CI_Controller 
 {
-	private $packagingTypes = ['VARIABLE (default)', 'FLAT RATE ENVELOPE', 'LEGAL FLAT RATE ENVELOPE', 'PADDED FLAT RATE ENVELOPE', 'GIFT CARD FLAT RATE ENVELOPE', 'SM FLAT RATE ENVELOPE',
-		'WINDOW FLAT RATE ENVELOPE', 'SM FLAT RATE BOX', 'MD FLAT RATE BOX', 'LG FLAT RATE BOX', 'REGIONALRATEBOXA', 'REGIONALRATEBOXB', 'RECTANGULAR', 'NONRECTANGULAR'];
-
 	public function __construct() {
 		parent::__construct();
 		$userlogged = $this->session->userdata('userid');
@@ -14,12 +11,10 @@ class Shipping extends CI_Controller
 	
 	// Default load this function
 	public function index() {
-		$this->output
-			->set_content_type('application/json')
-			->set_output(json_encode(["meta" => "", "data" => ""]));
+		// 
 	}
 
-	/* 	Descrption - Call by $this->confirmAndBuy().
+	/* 	Descrption - Call by $this->confirmAndBuy(). We always assume data being passed are all been sanitized already.
 		@param $orderId - the order id
 		@param $shopOwner - the shipper.
 		@param $buyer - the recipient
@@ -27,17 +22,40 @@ class Shipping extends CI_Controller
 		@param $addOns - optional if there are other services your shipper wants to add
 		@return  - returns response from RocketShipIt
 	*/
-	// private function confirmShipment(array $shopOwner, array $buyer, array $package, array $options=null) {
 	private function confirmShipment($orderId, array $shopOwner, array $buyer, array $package, array $addOns=null) {
 		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
 		$this->load->helper('myhelp');
 
+		$toName = $buyer['name'];
+		$toCompany = $buyer['display_name'];
+		$toPhone = $buyer['user_phone'];
+
+		/*if ($buyer['preferredAddress'] == 1) {
+			$toAddr1 = $buyer['user_address'];
+			$toCity = $buyer['user_city'];
+			$toState = $buyer['user_state'];
+			$toCode = $buyer['user_zip'];
+		} elseif ($buyer['preferredAddress'] == 2) {
+			$toAddr1 = $buyer['user_address2'];
+			$toCity = $buyer['user_city2'];
+			$toState = $buyer['user_state2'];
+			$toCode = $buyer['user_zip2'];
+		} else { // unknown recipient
+			return array('error' => 'Invalid buyer preferred address.');
+		}*/
+		$toAddr1 = $buyer['user_address'];
+		$toCity = $buyer['user_city'];
+		$toState = $buyer['user_state'];
+		$toCode = $buyer['user_zip'];
+
+		// create the config
 		$config = new \RocketShipIt\Config;
 		$config->setDefault('generic', 'shipper', $shopOwner['shipper']);
+		$config->setDefault('generic', 'fromName', $shopOwner['shipper']);
 		$config->setDefault('generic', 'shipContact', $shopOwner['shipContact']);
 		$config->setDefault('generic', 'shipPhone', $shopOwner['user_phone']);
 
-		if ($shopOwner['preferredAddress'] == 1) {
+		/*if ($shopOwner['preferredAddress'] == 1) {
 			$shipAddr1 = $shopOwner['user_address'];
 			$shipAddr2 = '';
 			$shipCity = $shopOwner['user_city'];
@@ -52,65 +70,36 @@ class Shipping extends CI_Controller
 			$shipCode = $shopOwner['user_zip2'];
 			$shipCountry = $shopOwner['user_country2'];
 		} else {	// unknown address.
-			return ['error' => [0 => ['code' => -1, 'description' => 'Invalid shop owner preferred address.']]];
-		}
+			return array('error' => 'Invalid shop owner preferred address.');
+		}*/
+
+		$shipAddr1 = $shopOwner['user_address'];
+		$shipAddr2 = '';
+		$shipCity = $shopOwner['user_city'];
+		$shipState = $shopOwner['user_state'];
+		$shipCode = $shopOwner['user_zip'];
+		$shipCountry = $shopOwner['user_country'];
 
 		$config->setDefault('generic', 'shipAddr1', $shipAddr1);
-		$config->setDefault('generic', 'shipAddr2', $shipAddr2);
+		// $config->setDefault('generic', 'shipAddr2', $shipAddr2);
 		$config->setDefault('generic', 'shipCity', $shipCity);
 		$config->setDefault('generic', 'shipState', $shipState);
 		$config->setDefault('generic', 'shipCode', $shipCode);
 		$config->setDefault('generic', 'shipCountry', $shipCountry);
-
-
-		/* After the shipper configuration, shipment. */
-
-		$toName = $buyer['name'];
-		$toCompany = $buyer['display_name'];
-		$toPhone = $buyer['user_phone'];
-
-		if ($buyer['preferredAddress'] == 1) {
-			$toAddr1 = $buyer['user_address'];
-			$toCity = $buyer['user_city'];
-			$toState = $buyer['user_state'];
-			$toCode = $buyer['user_zip'];
-		} elseif ($buyer['preferredAddress'] == 2) {
-			$toAddr1 = $buyer['user_address2'];
-			$toCity = $buyer['user_city2'];
-			$toState = $buyer['user_state2'];
-			$toCode = $buyer['user_zip2'];
-		} else { // unknown recipient
-			return ['error' => [0 => ['code' => -1, 'description' => 'Invalid buyer preferred address.']]];
-		}
+		$config->setDefault('generic', 'toCode', $toCode);
 		
-		$shipment = new \RocketShipIt\Shipment('STAMPS');
-		$shipment->setParameter('toName', $toName);
-		$shipment->setParameter('toCompany', $toCompany);
-		$shipment->setParameter('toPhone', $toPhone);
-		$shipment->setParameter('toAddr1', $toAddr1);
-		$shipment->setParameter('toCity', $toCity);
-		$shipment->setParameter('toState', $toState);
-		$shipment->setParameter('emailTo', $buyer['emailTo']);
-		$shipment->setParameter('shipDate', $package['shipDate']);
-
-		/* Add-ons definitions here. */
-		if (isset($addOns['insuredValue'])) {
-			$shipment->setParameter('insuredCurrency','USD');
-			$shipment->setParameter('insuredValue', $addOns['insuredValue']);			
-		}
-		if (isset($addOns['signatureType']))
-			$shipment->setParameter('signatureType','STAMPS');
-
+		// check the package
 		if (!isNumericAndPositive($package['weight']))
-			return ['error' => [0 => ['code' => -1, 'description' => 'Invalid weight value.']]];
+			return array('error' => 'Invalid weight value.');
 		if (!isNumericAndPositive($package['length']))
-			return ['error' => [0 => ['code' => -1, 'description' => 'Invalid length value.']]];
+			return array('error' => 'Invalid length value.');
 		if (!isNumericAndPositive($package['width']))
-			return ['error' => [0 => ['code' => -1, 'description' => 'Invalid width value.']]];
+			return array('error' => 'Invalid width value.');
 		if (!isNumericAndPositive($package['height']))
-			return ['error' => [0 => ['code' => -1, 'description' => 'Invalid height value.']]];
+			return array('error' => 'Invalid height value.');
 
-		$rate = new \RocketShipIt\Rate('Stamps', array('config' => $config));
+		// create the Rate object
+		$rate = new \RocketShipIt\Rate('STAMPS', array('config' => $config));
 		$rate->setParameter('toCode', $toCode);
 		$rate->setParameter('weight', $package['weight']);
 		$rate->setParameter('length', $package['length']);
@@ -118,7 +107,7 @@ class Shipping extends CI_Controller
 		$rate->setParameter('height', $package['height']);
 		$response = $rate->getAllRates();
 
-		file_put_contents('c:\tmp\rateDebug.txt', print_r($rate->debug(), true));
+		file_put_contents('c:\tmp\responseRate.txt', print_r($response, true));
 
 		$rates = $response->Rates;
 		$rate = $rates->Rate;
@@ -126,6 +115,7 @@ class Shipping extends CI_Controller
 		# Select the rate/service you want
 		# from a list of all available
 		$package = $rate[$package['shippingMethod']];
+		// $package = $rate[3];
 
 		# Remove all addons
 		$package->AddOns = null;
@@ -138,6 +128,28 @@ class Shipping extends CI_Controller
 		array_push($addons, $a);
 		$package->AddOns = $addons;*/
 		//print_r($package);
+
+
+		$shipment = new \RocketShipIt\Shipment('STAMPS');
+		$shipment->setParameter('toCompany', $toCompany);
+		$shipment->setParameter('toName', $toName);		
+		$shipment->setParameter('toPhone', $toPhone);
+		$shipment->setParameter('toAddr1', $toAddr1);
+		$shipment->setParameter('toCity', $toCity);
+		$shipment->setParameter('toState', $toState);
+		$shipment->setParameter('toCode', $toCode);
+		// $shipment->setParameter('emailTo', $buyer['emailTo']);
+		// $shipment->setParameter('shipDate', $package['shipDate']);
+
+		/* Add-ons definitions here. */
+		if (isset($addOns['insuredValue'])) {
+			$shipment->setParameter('insuredCurrency','USD');
+			$shipment->setParameter('insuredValue', $addOns['insuredValue']);			
+		}
+		if (isset($addOns['signatureType']))
+			$shipment->setParameter('signatureType','2');
+			// $shipment->setParameter('signatureType','STAMPS');
+
 
 		// The rate can suggest a new zipcode
 		// Set this new zipcode on the shipment to avoid:
@@ -177,19 +189,18 @@ class Shipping extends CI_Controller
 		$this->load->model('order_model');
 		$orderDetails = $this->order_model->getOrderDetailsByOrderNumber($orderNumber);
 
-		$statusCode = 200; $responseData = [];
-		$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+		// request will always output json.
 		$this->output->set_content_type('application/json');
 
 		if (!$orderDetails) {
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Order number not found.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Order number not found.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
-		if ($orderDetails[0]['itemStatus']) {
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'This item has already been processed.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+		if ($orderDetails[0]['order_status'] != "Pending") {
+			$responseData['error'] = 'This item has already been processed.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -198,9 +209,8 @@ class Shipping extends CI_Controller
 		$data['shopInfo'] = $this->user_model->getShopInfo($orderDetails[0]['shopid']);
 
 		if (!$data['shopInfo']) {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Shop is unknown.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Shop is unknown.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -208,16 +218,14 @@ class Shipping extends CI_Controller
 		$this->load->helper('address');
 
 		if (!addressIsValid($data['shopInfo'])) {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Shop address is invalid.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Shop address is invalid.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
 		if (!addressIsValid($orderDetails[0])) {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Buyer address is invalid.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Buyer address is invalid.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -286,21 +294,20 @@ class Shipping extends CI_Controller
 
 		// we cannot calculate rate if shop owner's address is not from US because there's no USPS outside US.
 		if (trim($shopOwner['user_country']) != "USA") {
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'We don\'t deliver shipment outside USA.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'We don\'t deliver shipment outside USA.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
 
 		$addOns = array();
-
 		$this->load->helper('number');
-		if ($this->input->post('insurance')) {
-			$addOns['insuredValue'] = $this->input->post('insurance');
+
+		if ($this->input->post('insuredValue')) {
+			$addOns['insuredValue'] = $this->input->post('insuredValue');
 			if (!isNumericAndPositive($addOns['insuredValue'])) {
-				$statusCode = 200;
-				$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Invalid insurace amount.']]];
-				$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+				$responseData['error'] = 'Invalid insurace amount.';
+				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
 				return;
 			}
@@ -313,16 +320,14 @@ class Shipping extends CI_Controller
 		$package['width'] = $this->input->post('width');
 		if ($package['width']) {
 			if (!isNumericAndPositive($package['width'])) {
-				$statusCode = 200;
-				$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Invalid width number.']]];
-				$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+				$responseData['error'] = 'Invalid width number.';
+				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
 				return;
 			}
 		} else {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Please input width.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Please input width.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -331,16 +336,14 @@ class Shipping extends CI_Controller
 		$package['length'] = $this->input->post('length');
 		if ($package['length']) {
 			if (!isNumericAndPositive($package['length'])) {
-				$statusCode = 200;
-				$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Invalid length number.']]];
-				$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+				$responseData['error'] = 'Invalid length number.';
+				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
 				return;
 			}
 		} else {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Please length width.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Please length width.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -349,16 +352,14 @@ class Shipping extends CI_Controller
 		$package['height'] = $this->input->post('height');
 		if ($package['height']) {
 			if (!isNumericAndPositive($package['height'])) {
-				$statusCode = 200;
-				$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Invalid height number.']]];
-				$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+				$responseData['error'] = 'Invalid height number.';
+				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
 				return;
 			}
 		} else {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Please height width.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Please height width.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -367,18 +368,16 @@ class Shipping extends CI_Controller
 		$lbs = $this->input->post('lbs');
 		if ($lbs) {
 			if (!isNumericAndPositive($lbs)) {
-				$statusCode = 200;
-				$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Invalid pound number.']]];
-				$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+				$responseData['error'] = 'Invalid pound number.';
+				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
 				return;
 			} else {
 				$lbs = (float) $lbs;
 			}
 		} else {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Please input weight in pounds.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Please input weight in pounds.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -386,9 +385,8 @@ class Shipping extends CI_Controller
 		$oz = $this->input->post('oz');
 		if ($oz) {
 			if (!isNumericAndPositive($oz)) {
-				$statusCode = 200;
-				$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Invalid oz. number.']]];
-				$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+				$responseData['error'] = 'Invalid oz. number.';
+				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
 				return;
 			} else {
@@ -402,10 +400,10 @@ class Shipping extends CI_Controller
 		$package['weight'] = $ozToPounds + $lbs;
 
 		$shippingMethod = $this->input->post('shippingMethod');
+		$shippingMethod = strstr($shippingMethod, ',', true);
 		if (!isNumericAndPositive($shippingMethod)) {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Invalid shipping method.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Invalid shipping method.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
@@ -418,33 +416,28 @@ class Shipping extends CI_Controller
 		$currentDate = new DateTime();
 		$currentDate_string = $currentDate->format("Y-m-d");
 		if ($shipDate_string < $currentDate_string) {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Ship date must be current or future date.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Ship date must be current or future date.';
+			$response['meta'] = ['statusCode' => 202, 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
 
 		if (empty($shipDate)) {
-			$statusCode = 200;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => 'Ship date is missing.']]];
-			$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
+			$responseData['error'] = 'Ship date is missing.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
 		$package['shipDate'] = $shipDate->format(DateTime::ATOM);
 
 		// now let's confirm shipment
-		$uspsResponse = $this->confirmShipment($orderDetails[0]['orderid'], $shopOwner, $buyer, $package, $addOns);
+		$USPSresponse = $this->confirmShipment($orderDetails[0]['orderid'], $shopOwner, $buyer, $package, $addOns);
 		// $uspsResponse['error'] = 'Server was unable to process request. ---> Layout not supported.';
-		if ($uspsResponse['error']) {
-			$statusCode = 202;
-			$responseData = ['error' => [0 => ['code' => -1, 'description' => $uspsResponse['error']]]];
-		} else {
-			$responseData = ['error' => [], 'response' => $uspsResponse];
-		}
+		if (isset($USPSresponse['error']))
+			$response['meta'] = ['statusCode' => 202, 'data' => $USPSresponse];
+		else
+			$response['meta'] = ['statusCode' => 200, 'data' => $USPSresponse];
 
-		$response = ['meta' => ['statusCode' => $statusCode], 'data' => $responseData];
 		$this->output->set_output(json_encode($response));
 	}
 
@@ -465,7 +458,7 @@ class Shipping extends CI_Controller
 		@param $options - optional if there are other service you shipper wants to add
 		@return  - returns response from RocketShipIt
 	*/
-	private function calculateShippingRate(array $shopOwner, array $buyer, array $packageParam=null) {
+	private function calculateShippingRate(array $shopOwner, array $buyer, array $packageParam) {
 		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
 		$this->load->helper('myhelp');
 
@@ -502,7 +495,8 @@ class Shipping extends CI_Controller
 
 
 		$rate = new \RocketShipIt\Rate('STAMPS', array('config' => $config));
-		$rate->setParameter('service', 'PRIORITY');	// this can be set in the config level.
+		if (isset($packageParam['service']))
+			$rate->setParameter('service', $packageParam['service']);	// this can be set in the config level.
 
 		$package = new \RocketShipIt\Package('STAMPS');
 
@@ -525,20 +519,24 @@ class Shipping extends CI_Controller
 				// $package->setparameter('container', 'RECTANGULAR');
 			}
 		} else {	// unknown address
-			$responseData['error'] = 'Invalid buyer preferred address.';
-			return $responseData;
+			return array('error' => 'Invalid buyer preferred address.');
 		}
 
-		// Default to 5 lbs as I don't know why this is needed on calculating rates but RocketShipIt needs it.
+		// Defaults to 5 lbs as RocketShipIt needs it.
 		if (!isset($packageParam['weight']))
 			$package->setParameter('weight', '5');
 		else
 			$package->setParameter('weight', $packageParam['weight']);	
 
 		// Optionally you can set dimensions
-		/*$package->setParameter('length', '1');
-		$package->setParameter('width', '2');
-		$package->setParameter('height', '3');*/
+		if (isset($packageParam['length']) && isset($packageParam['width']) && isset($packageParam['height'])) {
+			$package->setParameter('length', $packageParam['length']);
+			$package->setParameter('width', $packageParam['width']);
+			$package->setParameter('height', $packageParam['height']);
+		}
+		if(isset($packageParam['insuredValue']))
+			$package->setParameter('insuredValue', $packageParam['insuredValue']);
+
 		$rate->addPackageToShipment($package);
 
 		// simple rates doesn't have description property so I request them both and later set it to.
@@ -642,8 +640,21 @@ class Shipping extends CI_Controller
 
 			$buyer['user_country'] = $data['orderDetails'][0]['user_country2'];
 		}
+
+		$packageParam = [];
+		if (isset($data['weight']))
+			$packageParam['weight'] = $data['weight'];
+		if (isset($data['service']))
+			$packageParam['service'] = $data['service'];
+		if(isset($data['length']) && isset($data['width']) && isset($data['height'])) {
+			$packageParam['length'] = $data['length'];
+			$packageParam['width'] = $data['width'];
+			$packageParam['height'] = $data['height'];
+		}
+		if(isset($data['insuredValue']))
+			$packageParam['insuredValue'] = $data['insuredValue'];
 		
-		return $this->calculateShippingRate($shopOwner, $buyer);
+		return $this->calculateShippingRate($shopOwner, $buyer, $packageParam);
 	}
 	
 	// returns web
@@ -687,14 +698,37 @@ class Shipping extends CI_Controller
 		$this->load->view('shipping/shipping_label', $data);
 	}
 
-	// return json; similar to $this->reciept().
+	// return json; similar to $this->reciept() but ajax request.
 	public function shippingRates($orderNumber) {
+		$this->output->set_content_type('application/json');
+
 		$data['orderNumber'] = $orderNumber;
-		$weight = $this->input->get("weight");
+
+		$oz = trim($this->input->get("oz"));
+		($oz == "" ? $oz = 0 : "");
+
+		$this->load->helper('number');
+
+		if (!isNumericAndPositive($oz)) {
+			$response['error'] = 'Invalid onze value.';
+			$data['meta'] = ['statusCode' => 202, 'data' => $response];
+			$this->output->set_output(json_encode($data));
+			return;
+		}
+		$lbs = $this->input->get("lbs");
+		if (!isNumericAndPositive($lbs)) {
+			$response['error'] = 'Invalid pounds value.';
+			$data['meta'] = ['statusCode' => 202, 'data' => $response];
+			$this->output->set_output(json_encode($data));
+			return;
+		}
 
 		$ozToPounds = $oz * 0.0625;	// 1 oz = 0.0625 pounds
-		$package['weight'] = $ozToPounds + $lbs;
-		
+		$data['weight'] = $ozToPounds + $lbs;
+
+		$data['length'] = $this->input->get("length");
+		$data['width'] = $this->input->get("width");
+		$data['height'] = $this->input->get("height");
 
 		$this->load->model('order_model');
 		$orderDetails = $this->order_model->getOrderDetailsByOrderNumber($orderNumber);
@@ -705,19 +739,26 @@ class Shipping extends CI_Controller
 
 		$data['orderStatus'] = $orderDetails[0]['order_status'];
 
+		$shippingMethod = $this->input->get("shippingMethod");
+		$shippingMethod = strstr($shippingMethod, ',');
+		$data['service'] = ltrim($shippingMethod, ',');
+
+		$data['insuredValue'] = $this->input->get("insuredValue");
+
+
 		if ($data['orderStatus'] == "Pending") {
 			$response = $this->prepareCalculatingShipment($data);
 
 			if (isset($response['error']))
-				$data['meta'] = ['statusCode' => 202, 'data' => $response];
+				$jsonResponse['meta'] = ['statusCode' => 202, 'data' => $response];
 			else
-				$data['meta'] = ['statusCode' => 200, 'data' => $response];
+				$jsonResponse['meta'] = ['statusCode' => 200, 'data' => $response];
 		}
-
-		unset($data['orderDetails']);	// not needed
-		unset($data['shopInfo']);	// not needed
-		$this->output->set_content_type('application/json');
-		$this->output->set_output(json_encode($data));
+		
+		$jsonResponse['orderNumber'] = $data['orderNumber'];
+		$jsonResponse['orderStatus'] = $data['orderStatus'];
+		
+		$this->output->set_output(json_encode($jsonResponse));
 	}
 	
 	function purchasedlbl() {
