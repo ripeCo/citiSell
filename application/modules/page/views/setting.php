@@ -536,32 +536,31 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 															 } ?>															
 														</select>
 
-														<label id="labelState1" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">State</label>
-														<select name="state1" id="state1" class="form-control" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">
+														<label id="labelState1">State</label>
+														<select name="<?php ($user_country != "USA" ? print 'stateX' : print 'state1'); ?>" id="state1_selectCtrl" class="form-control" style="display: <?php ($user_country != "USA" ? print 'none' : print 'inline-block'); ?>;">
 															<option value="">Select state</option>
 														</select>
+														<input type="textbox" name="<?php ($user_country != "USA" ? print 'state1' : print 'stateX'); ?>" id="state1_textboxCtrl" class="form-control" style="display: <?php ($user_country != "USA" ? print 'inline-block' : print 'none'); ?>;" value="<?=$user_state;?>">
 
-														<label id="labelFullAddress1" style="display: <?php ($user_country != "USA" ? print 'block' : print 'none'); ?>;">Full address</label>
-														<textarea name="notUSfullAddress1" id="notUSfullAddress1" rows="6" cols="4" class="form-control" style="display: <?php ($user_country != "USA" ? print 'block' : print 'none'); ?>;" placeholder="Full Address"><?php echo $notUSfullAddress1; ?></textarea>
-
-														<label id="labelCity1" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">City</label>
-														<select name="city1" id="city1" class="form-control" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">
+														<label id="labelCity1">City</label>
+														<select name="<?php ($user_country != "USA" ? print 'cityX' : print 'city1'); ?>" id="city1_selectCtrl" class="form-control" style="display: <?php ($user_country != "USA" ? print 'none' : print 'inline-block'); ?>;" value="<?=$user_city;?>">
 															<option value="">Select city</option>
 														</select>
+														<input type="textbox" name="<?php ($user_country != "USA" ? print 'city1' : print 'cityX'); ?>" id="city1_textboxCtrl" class="form-control" style="display: <?php ($user_country != "USA" ? print 'inline-block' : print 'none'); ?>;">
 
-														<label for="addrLine1" id="labelAddrLine1" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">Address Line 1</label>
-														<textarea name="addrLine1" id="addrLine1" rows="3" cols="4" class="form-control" placeholder="Address Line 1" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;"><?php echo $user_address; ?></textarea>
+														<label for="addrLine1" id="labelAddrLine1">Address Line 1</label>
+														<textarea name="addrLine1" id="addrLine1" rows="3" cols="4" class="form-control" placeholder="Address Line 1"><?php echo $user_address; ?></textarea>
 
-														<label for="addrLine2Of1" id="labelAddrLine2Of1" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">Address Line 2</label>
-														<textarea name="addrLine2Of1" id="addrLine2Of1" rows="3" cols="4" class="form-control" placeholder="Address Line 2" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;"><?php echo $addrLine2Of1; ?></textarea>
+														<label for="addrLine2Of1" id="labelAddrLine2Of1">Address Line 2</label>
+														<textarea name="addrLine2Of1" id="addrLine2Of1" rows="3" cols="4" class="form-control" placeholder="Address Line 2"><?php echo $addrLine2Of1; ?></textarea>
 
-														<label id="labelZipcode1" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">Zip code</label>
+														<label id="labelZipcode1">Zip code</label>
 														<div class="row">
 															<div class="col-md-3">
-																<input type="text" name="zipcode1" id="zipcode1" class="form-control" placeholder="Zip code" value="<?=$user_zip ?>" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;">
+																<input type="text" name="zipcode1" id="zipcode1" class="form-control" placeholder="Zip code" value="<?=$user_zip ?>">
 															</div>
 															<div class="col-md-3">
-																<input type="text" name="extendedZipcode1" id="extendedZipcode1" class="form-control" placeholder="Ext Zip code" value="<?=$extendedZipcode1;?>" style="display: <?php ($user_country != "USA" ? print 'none' : print 'block'); ?>;" maxlength="4">
+																<input type="text" name="extendedZipcode1" id="extendedZipcode1" class="form-control" placeholder="Ext Zip code" value="<?=$extendedZipcode1;?>" maxlength="4">
 															</div>
 															<div class="col-md-6"></div>
 														</div>
@@ -623,32 +622,34 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 															 } ?>															
 														</select>
 
-														<label id="labelState2" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">State</label>
-														<select name="state2" id="state2" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">
+														<label id="labelState2">State</label>
+														<select name="<?php ($user_country2 != "USA" ? print 'stateX' : print 'state2'); ?>" id="state2_selectCtrl" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'inline-block'); ?>;">
 															<option value="">Select state</option>
 														</select>
+														<input type="textbox" name="<?php ($user_country2 != "USA" ? print 'state2' : print 'stateX'); ?>" id="state2_textboxCtrl" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'inline-block' : print 'none'); ?>;" value="<?=$user_state2;?>">
 
-														<label id="labelFullAddress2" style="display: <?php ($user_country2 != "USA" ? print 'block' : print 'none'); ?>;">Full address</label>
-														<textarea name="notUSfullAddress2" id="notUSfullAddress2" rows="6" cols="4" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'block' : print 'none'); ?>;" placeholder="Full Address"><?php echo $notUSfullAddress2; ?></textarea>
+														<!-- <label id="labelFullAddress2" style="display: <?php ($user_country2 != "USA" ? print 'block' : print 'none'); ?>;">Full address</label>
+														<textarea name="notUSfullAddress2" id="notUSfullAddress2" rows="6" cols="4" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'block' : print 'none'); ?>;" placeholder="Full Address"><?php echo $notUSfullAddress2; ?></textarea> -->
 
-														<label id="labelCity2" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">City</label>
-														<select name="city2" id="city2" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">
+														<label id="labelCity2">City</label>
+														<select name="<?php ($user_country2 != "USA" ? print 'cityX' : print 'city2'); ?>" id="city2_selectCtrl" class="form-control" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'inline-block'); ?>;">
 															<option value="">Select city</option>
 														</select>
+														<input type="textbox" name="<?php ($user_country2 != "USA" ? print 'city2' : print 'cityX'); ?>" id="city2_textboxCtrl" class="form-control" style="display: <?php ($user_country2 != "USA" ? print 'inline-block' : print 'none'); ?>;" value="<?=$user_city2;?>">
 
-														<label for="addrLine1Of2" id="labelAddrLine1Of2" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">Address Line 1</label>
-														<textarea name="addrLine1Of2" id="addrLine1Of2" rows="3" cols="4" class="form-control" placeholder="Address Line 1" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;"><?php echo $user_address2; ?></textarea>
+														<label for="addrLine1Of2" id="labelAddrLine1Of2">Address Line 1</label>
+														<textarea name="addrLine1Of2" id="addrLine1Of2" rows="3" cols="4" class="form-control" placeholder="Address Line 1"><?php echo $user_address2; ?></textarea>
 
-														<label for="addrLine2Of2" id="labelAddrLine2Of2" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">Address Line 2</label>
-														<textarea name="addrLine2Of2" id="addrLine2Of2" rows="3" cols="4" class="form-control" placeholder="Address Line 2" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;"><?php echo $addrLine2Of2; ?></textarea>
+														<label for="addrLine2Of2" id="labelAddrLine2Of2">Address Line 2</label>
+														<textarea name="addrLine2Of2" id="addrLine2Of2" rows="3" cols="4" class="form-control" placeholder="Address Line 2"><?php echo $addrLine2Of2; ?></textarea>
 
-														<label for="zipcode2" id="labelZipcode2" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">Zip code</label>
+														<label for="zipcode2" id="labelZipcode2">Zip code</label>
 														<div class="row">
 															<div class="col-md-3">
-																<input type="text" name="zipcode2" id="zipcode2" class="form-control" placeholder="Zip code" value="<?=$user_zip2;?>" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;">
+																<input type="text" name="zipcode2" id="zipcode2" class="form-control" placeholder="Zip code" value="<?=$user_zip2;?>">
 															</div>
 															<div class="col-md-3">
-																<input type="text" name="extendedZipcode2" id="extendedZipcode2" class="form-control" placeholder="Ext Zip code" value="<?=$extendedZipcode2;?>" style="display: <?php ($user_country2 != "USA" ? print 'none' : print 'block'); ?>;" maxlength="4">
+																<input type="text" name="extendedZipcode2" id="extendedZipcode2" class="form-control" placeholder="Ext Zip code" value="<?=$extendedZipcode2;?>" maxlength="4">
 															</div>
 															<div class="col-md-6"></div>															
 														</div>
@@ -715,19 +716,19 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 				else
 					selected = '';
 
-				$("#state1").append("<option value='" + index + "' " + selected + ">" + value + "</option>");
+				$("#state1_selectCtrl").append("<option value='" + index + "' " + selected + ">" + value + "</option>");
 
 				if (index.toLowerCase() == "<?=strtolower($user_state2);?>")
 					selected = 'selected';
 				else
 					selected = '';
 
-				$("#state2").append("<option value='" + index + "' "  + selected +  ">" + value + "</option>");
+				$("#state2_selectCtrl").append("<option value='" + index + "' "  + selected +  ">" + value + "</option>");
 			});
 
 			var UScitiesUrl = "<?=base_url();?>page/user/USCities/";
 
-			url = UScitiesUrl + $("#state1").val();
+			url = UScitiesUrl + $("#state1_selectCtrl").val();
 			$.get(url, function(data) {
 				$.each(data, function(index, value) {
 					if (value.toLowerCase() == "<?=strtolower($user_city);?>")
@@ -735,11 +736,11 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 					else
 						selected = '';
 
-					$("#city1").append("<option value='" + value + "' " + selected + ">" + value + "</option>");
+					$("#city1_selectCtrl").append("<option value='" + value + "' " + selected + ">" + value + "</option>");
 				});
 			});
 
-			url = UScitiesUrl + $("#state2").val();
+			url = UScitiesUrl + $("#state2_selectCtrl").val();
 			$.get(url, function(data) {
 				$.each(data, function(index, value) {
 					if (value.toLowerCase() == "<?=strtolower($user_city2);?>")
@@ -754,21 +755,13 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 
 		$("#country1").change(function() {
 			if ($("#country1").val() == "USA") {
-				$("#labelFullAddress1").hide();
-				$("#notUSfullAddress1").hide();
+				$("#state1_selectCtrl").show();
+				$("#city1_selectCtrl").show();
+				$("#state1_textboxCtrl").hide();
+				$("#city1_textboxCtrl").hide();
 
-				$("#labelState1").show();
-				$("#labelCity1").show();
-				$("#labelAddrLine1").show();
-				$("#labelAddrLine2Of1").show();
-				$("#labelZipcode1").show();
-
-				$("#state1").show();
-				$("#city1").show();
-				$("#addrLine1").show();
-				$("#addrLine2Of1").show();
-				$("#zipcode1").show();
-				$("#extendedZipcode1").show();
+				$("#state1_textboxCtrl").attr("name", "stateX")
+				$("#city1_textboxCtrl").attr("name", "cityX")
 
 				$.get("<?php echo base_url() ?>page/user/USStates", function(data) {
 					$("#state1").empty();
@@ -778,38 +771,30 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 					});
 				});
 			} else {
-				$("#labelState1").hide();
-				$("#labelCity1").hide();
-				$("#labelAddrLine1").hide();
-				$("#labelAddrLine2Of1").hide();
-				$("#labelZipcode1").hide();
+				$("#state1_selectCtrl").hide();
+				$("#city1_selectCtrl").hide();
+				$("#state1_textboxCtrl").show();
+				$("#city1_textboxCtrl").show();
 
-				$("#state1").hide();
-				$("#city1").hide();
-				$("#addrLine1").hide();
-				$("#addrLine2Of1").hide();
-				$("#zipcode1").hide();
-				$("#extendedZipcode1").hide();
-
-				$("#labelFullAddress1").show();
-				$("#notUSfullAddress1").show();
+				$("#state2_textboxCtrl").attr("name", "stateX")
+				$("#city2_textboxCtrl").attr("name", "cityX")
 			}
 		});
 
-		$("#state1").change(function() {
-			$("#city1").empty();
+		$("#state1_selectCtrl").change(function() {
+			$("#city1_selectCtrl").empty();
 
-			var url = "<?=base_url();?>page/user/USCities/" + $("#state1").val();
+			var url = "<?=base_url();?>page/user/USCities/" + $("#state1_selectCtrl").val();
 			$.get(url, function(data) {
 				$.each(data, function(index, value) {
-					$("#city1").append("<option value='" + value + "'>" + value + "</option>");
+					$("#city1_selectCtrl").append("<option value='" + value + "'>" + value + "</option>");
 				});
 			});
 		});
 
 		$("#country2").change(function() {
 			if ($("#country2").val() == "USA") {
-				$("#labelFullAddress2").hide();
+				/*$("#labelFullAddress2").hide();
 				$("#notUSfullAddress2").hide();
 
 				$("#labelState2").show();
@@ -823,17 +808,22 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 				$("#addrLine1Of2").show();
 				$("#addrLine2Of2").show();
 				$("#zipcode2").show();
-				$("#extendedZipcode2").show();
+				$("#extendedZipcode2").show();*/
+
+				$("#state2_selectCtrl").show();
+				$("#city2_selectCtrl").show();
+				$("#state2_textboxCtrl").hide();
+				$("#city2_textboxCtrl").hide();
 
 				$.get("<?php echo base_url() ?>page/user/USStates", function(data) {
-					$("#state1").empty();
+					$("#state2_selectCtrl").empty();
 
 					$.each(data, function(index, value) {
-						$("#state2").append("<option value='" + index + "'>" + value + "</option>");
+						$("#state2_selectCtrl").append("<option value='" + index + "'>" + value + "</option>");
 					});
 				});
 			} else {
-				$("#labelState2").hide();
+				/*$("#labelState2").hide();
 				$("#labelCity2").hide();
 				$("#labelAddrLine1Of2").hide();
 				$("#labelAddrLine2Of2").hide();
@@ -847,17 +837,22 @@ Non-delivery cases you have opened will be closed.Reported non-delivery cases fo
 				$("#extendedZipcode2").hide();
 
 				$("#labelFullAddress2").show();
-				$("#notUSfullAddress2").show();
+				$("#notUSfullAddress2").show();*/
+
+				$("#state2_selectCtrl").hide();
+				$("#city2_selectCtrl").hide();
+				$("#state2_textboxCtrl").show();
+				$("#city2_textboxCtrl").show();
 			}
 		});
 
-		$("#state2").change(function() {
-			$("#city2").empty();
+		$("#state2_selectCtrl").change(function() {
+			$("#city2_selectCtrl").empty();
 
-			var url = "<?=base_url();?>page/user/USCities/" + $("#state2").val();
+			var url = "<?=base_url();?>page/user/USCities/" + $("#state2_selectCtrl").val();
 			$.get(url, function(data) {
 				$.each(data, function(index, value) {
-					$("#city2").append("<option value='" + value + "'>" + value + "</option>");
+					$("#city2_selectCtrl").append("<option value='" + value + "'>" + value + "</option>");
 				});
 			});
 		});		

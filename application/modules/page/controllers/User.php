@@ -661,7 +661,7 @@ class User extends CI_Controller
 
 		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
 
-		$av = new \RocketShipIt\AddressValidate('USPS');
+		$av = new \RocketShipIt\AddressValidate('STAMPS');
 		$av->setParameter('toAddr1', $address['addrLine1']);
 		if (!empty($address['addrLine2Of1']))
 			$av->setParameter('toAddr2', $address['addrLine2Of1']);
@@ -708,7 +708,7 @@ class User extends CI_Controller
 			return;
 		}
 
-		if (trim($country) == "USA") {
+		/*if (trim($country) == "USA") {
 			$error = FALSE;
 
 			if (empty($state)) {
@@ -733,7 +733,7 @@ class User extends CI_Controller
 				$this->load->view('page/setting',$data);
 				return;
 			}
-		}
+		}*/
 
 		$address['country'] = $country;
 		$address['state'] = $state;
@@ -747,23 +747,23 @@ class User extends CI_Controller
 
 		// before the update check address if valid if country is US
 		if ($address['country'] == "USA") {
-			$validatedUSAddress = $this->validateUSaddress($address);
-			file_put_contents('c:\tmp\address.txt', print_r($validatedUSAddress, TRUE));
-			if (!empty($validatedUSAddress['Data']['Errors'])) {	// if there's an error
-				file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
+			// $validatedUSAddress = $this->validateUSaddress($address);
+			// file_put_contents('c:\tmp\address.txt', print_r($validatedUSAddress, TRUE));
+			/*if (false) {	// if there's an error
+				// file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
 
-				$data['error_msg'] 	= $validatedUSAddress['Data']['Errors'][0]['Description'];
+				$data['error_msg'] 	= $validatedUSAddress->Address['Errors'][0]['Description'];
 				$data['users'] 		= $this->user_model->get_data($userid);
 				$this->load->view('page/setting',$data);
 				return;				
-			} else {	// The API returns with corrected address so better use it.
-				$address['addrLine1'] = $validatedUSAddress['Data']['Addr1'];
-				$address['addrLine2Of1'] = $validatedUSAddress['Data']['Addr2'];
-				$address['city'] = $validatedUSAddress['Data']['City'];
-				$address['state'] = $validatedUSAddress['Data']['State'];
-				$address['zipcode'] = $validatedUSAddress['Data']['ZipCode'];
-				$address['extendedZipcode'] = $validatedUSAddress['Data']['ZipCodeAddon'];
-			}
+			} else {*/	// The API returns with corrected address so better use it.
+				/*$address['addrLine1'] = $validatedUSAddress->Address->Address1;
+				$address['addrLine2Of1'] = $validatedUSAddress->Address->Address2;
+				$address['city'] = $validatedUSAddress->Address->City;
+				$address['state'] = $validatedUSAddress->Address->State;
+				$address['zipcode'] = $validatedUSAddress->Address->ZipCode;
+				$address['extendedZipcode'] = $validatedUSAddress->Address->ZipCodeAddon;*/
+			// }
 		}
 
 		$this->user_model->shippingaddressupdate($userid, $address);
@@ -811,7 +811,7 @@ class User extends CI_Controller
 			return;
 		}
 
-		if (trim($country) == "USA") {
+		/*if (trim($country) == "USA") {
 			$error = FALSE;
 
 			if (empty($state)) {
@@ -836,7 +836,7 @@ class User extends CI_Controller
 				$this->load->view('page/setting',$data);
 				return;
 			}
-		}
+		}*/
 
 		$address['country'] = $country;
 		$address['state'] = $state;
@@ -850,22 +850,21 @@ class User extends CI_Controller
 
 		// before the update check address if valid if country is US
 		if ($address['country'] == "USA") {
-			$validatedUSAddress = $this->validateUSaddress($address);
-			file_put_contents('c:\tmp\address.txt', print_r($validatedUSAddress, TRUE));
-			if (!empty($validatedUSAddress['Data']['Errors'])) {	// if there's an error
-				file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
+			// $validatedUSAddress = $this->validateUSaddress($address);
+			/*if (!empty($validatedUSAddress->Address['Errors'])) {	// if there's an error
+				// file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
 
 				$data['users'] 		= $this->user_model->get_data($userid);
 				$this->load->view('page/setting',$data);
 				return;				
 			} else {	// The API returns with corrected address so better use it.
-				$address['addrLine1'] = $validatedUSAddress['Data']['Addr1'];
-				$address['addrLine2Of1'] = $validatedUSAddress['Data']['Addr2'];
-				$address['city'] = $validatedUSAddress['Data']['City'];
-				$address['state'] = $validatedUSAddress['Data']['State'];
-				$address['zipcode'] = $validatedUSAddress['Data']['ZipCode'];
-				$address['extendedZipcode'] = $validatedUSAddress['Data']['ZipCodeAddon'];
-			}
+				$address['addrLine1'] = $validatedUSAddress->Address->Address1;
+				$address['addrLine2Of1'] = $validatedUSAddress->Address->Address2;
+				$address['city'] = $validatedUSAddress->Address->City;
+				$address['state'] = $validatedUSAddress->Address->State;
+				$address['zipcode'] = $validatedUSAddress->Address->ZipCode;
+				$address['extendedZipcode'] = $validatedUSAddress->Address->ZipCodeAddon; */
+			// }
 		}
 
 		$this->user_model->shippingaddressupdate2($userid, $address);

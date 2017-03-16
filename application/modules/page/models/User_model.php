@@ -297,7 +297,7 @@ class User_model extends CI_Model
 	
 	// Update record
 	public function shippingaddressupdate($userid, $address) {		
-		if (trim($address['country']) == 'USA') {
+		// if (trim($address['country']) == 'USA') {
 			$data = array(
 				'user_country' => $address['country'],
 				'user_state' => $address['state'],
@@ -308,7 +308,7 @@ class User_model extends CI_Model
 				'extendedZipcode1' => $address['extendedZipcode'],
 				'notUSfullAddress1' => null,
 			);
-		} else {
+		/*} else {
 			$data = array(
 				'user_country' => $address['country'],
 				'notUSfullAddress1' => $address['notUSfullAddress'],
@@ -319,7 +319,7 @@ class User_model extends CI_Model
 				'addrLine2Of1' => null,
 				'extendedZipcode1' => null,
 			);
-		}
+		}*/
 
 		$data['preferredAddress'] = $address['preferredAddress'];
 
@@ -329,7 +329,7 @@ class User_model extends CI_Model
 
 	// Update address 2 on user's profile page
 	public function shippingaddressupdate2($userid, $address) {
-		if ($address['country'] == 'USA') {
+		// if ($address['country'] == 'USA') {
 			$data = array(
 				'user_country2' => $address['country'],
 				'user_state2' => $address['state'],
@@ -340,7 +340,7 @@ class User_model extends CI_Model
 				'extendedZipcode2' => $address['extendedZipcode'],
 				'notUSfullAddress2' => null,
 			);
-		} else {
+		/*} else {
 			$data = array(
 				'user_country2' => $address['country'],
 				'notUSfullAddress2' => $address['notUSfullAddress'],
@@ -351,7 +351,7 @@ class User_model extends CI_Model
 				'user_zip2' => null,
 				'extendedZipcode2' => null,
 			);
-		}
+		}*/
 
 		$data['preferredAddress'] = $address['preferredAddress'];
 

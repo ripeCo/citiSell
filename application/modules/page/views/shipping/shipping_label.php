@@ -106,7 +106,7 @@
 																				?><br>
 																			</div>
 																		</div>
-																		<div class="col-lg-6">
+																		<div class="col-lg-7">
 																			Shipping Method<br>
 																			<select name="shippingMethod" id="shippingMethod">
 																				<?php
@@ -132,12 +132,12 @@
 
 																			<input type="checkbox" name="signature" id="signature" value="signature">Signature Confirmation
 																		</div>
-																		<div class="col-lg-6">
+																		<div class="col-lg-5">
 																			<b>Package Costs</b><br>
 																			<table style="width: 100%">
 																				<tr>
 																					<td>Postage</td>
-																					<td id="postageValue">0.00</td>
+																					<td id="postageValue">-----</td>
 																				</tr>
 																				<tr>
 																					<td>Delivery Confirmation</td>
@@ -149,7 +149,7 @@
 																				</tr>
 																				<tr>
 																					<td>Package Total</td>
-																					<td id="packageTotalValue" class="packageTotalValue">0.00</td>
+																					<td id="packageTotalValue" class="packageTotalValue">-----</td>
 																				</tr>
 																			</table>
 																		</div>
@@ -241,6 +241,7 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
+			var initialLoading = true;
 			$("#shippingDateStamp").text($("#shippingDate").val());
 
 			$("#shippingDate").change(function() {
@@ -264,22 +265,13 @@
 				// $("#shippingMethodStamp").text($("#shippingMethod option:selected").text());
 				$("#expectedDeliveryInDays").text(shippingRates[shippingRate]["DeliverDays"]);
 				break;
-			}
-
-			
-			$("#shippingMethod").change(function() {
-				$("#shippingMethodStamp").text($("#shippingMethod option:selected").text());
-
-				var selectedShippingMethod = $("#shippingMethod").val();	// 2,US-PM
-				commaIndexPos = selectedShippingMethod.indexOf(',');
-				selectedShippingMethod = selectedShippingMethod.substr(0, commaIndexPos);
-				$("#expectedDeliveryInDays").text(shippingRates[selectedShippingMethod]["DeliverDays"]);
-
-				getShippingRates();
-			});
+			}			
 
 			function getShippingRates() {
 				// there should be loder here...
+
+				$("#postageValue").text("-----");
+				$("#packageTotalValue").text("-----");
 
 				var shippingMethod = $("#shippingMethod").val();
 				if (!shippingMethod) { return; }
@@ -316,18 +308,41 @@
 				};
 
 				$.get(url, data, function(response) {
-					/*if (response['data']['error'])	// if there's an error
-						alert(response['data']['error'][0]['description']);
-					else
-						alert("Successfully processed. Tracking number: " + response['data']['response']['trk_main']);*/
+					// echo "<option value='{$index},{$shippingRate->ServiceType}'>" . $shippingRate->desc . "</option>";
+					// $('#shippingMethod').find('option').remove().end().append('<option value="whatever">text</option>').val('whatever');
+					
+					if (initialLoading) {
+						$('#shippingMethod').find('option').remove();
+						$.each(response['meta']['data'], function(index, item) {
+							/*console.log("index", index);
+							console.log("item", item.ServiceType);*/
+							$('#shippingMethod').append('<option value="' + index + ',' + item.ServiceType + '">' + item.desc + '</option>');
+						});
 
-					commaIndexPos = shippingMethod.indexOf(','); // 2,US-PM
-					shippingMethod = shippingMethod.substr(0, commaIndexPos);
-					$("#postageValue").text(response['meta']['data'][shippingMethod]['Amount']);
-					$(".packageTotalValue").text(response['meta']['data'][shippingMethod]['Amount']);
+						initialLoading = false;
+					}
+
+					commaIndexPos = shippingMethod.indexOf(','); // ex. 2,US-PM
+					shippingMethod_processed = shippingMethod.substr(0, commaIndexPos);
+					$("#postageValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
+					$(".packageTotalValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
+
+					$("#shippingMethod").val(shippingMethod);
+
 					$("#confirmAndBuy").prop("disabled", false);
 				});
 			}
+
+			$("#shippingMethod").change(function() {
+				$("#shippingMethodStamp").text($("#shippingMethod option:selected").text());
+
+				var selectedShippingMethod = $("#shippingMethod").val();	// 2,US-PM
+				commaIndexPos = selectedShippingMethod.indexOf(',');
+				selectedShippingMethod = selectedShippingMethod.substr(0, commaIndexPos);
+				$("#expectedDeliveryInDays").text(shippingRates[selectedShippingMethod]["DeliverDays"]);
+
+				getShippingRates();
+			});
 
 			$("#length").change(function() {
 				$("#confirmAndBuy").prop("disabled", true);
