@@ -58,21 +58,14 @@
 																?></b> <br />
 																<?php
 																	if ($orderDetails[0]['preferredAddress'] == 1) {
-																		if ($orderDetails[0]['user_country'] == "USA") {
-																			echo $orderDetails[0]['user_address'], "<br />";
-																			echo $orderDetails[0]['user_city'], ", ", $orderDetails[0]['user_state'], ' ', $orderDetails[0]['user_zip'], "<br />";
-																			echo $orderDetails[0]['user_country'];
-																		} else {
-																			echo $orderDetails[0]['notUSfullAddress'], '<br />', $orderDetails[0]['user_country'];
-																		}
+																		echo $orderDetails[0]['user_address'], "<br />";
+																		echo $orderDetails[0]['user_city'], ", ", $orderDetails[0]['user_state'], ' ', $orderDetails[0]['user_zip'], "<br />";
+																		echo $orderDetails[0]['user_country'];
+																		
 																	} elseif ($orderDetails[0]['preferredAddress'] == 2) {
-																		if ($orderDetails[0]['user_country2'] == "USA") {
-																			echo $orderDetails[0]['user_address2'], "<br />";
-																			echo $orderDetails[0]['user_city2'], ", ", $orderDetails[0]['user_state2'], ' ', $orderDetails[0]['user_zip2'], "<br />";
-																			echo $orderDetails[0]['user_country2'];
-																		} else {
-																			echo $orderDetails[0]['notUSfullAddress2'], '<br />', $orderDetails[0]['user_country2'];
-																		}
+																		echo $orderDetails[0]['user_address2'], "<br />";
+																		echo $orderDetails[0]['user_city2'], ", ", $orderDetails[0]['user_state2'], ' ', $orderDetails[0]['user_zip2'], "<br />";
+																		echo $orderDetails[0]['user_country2'];
 																	}
 																?>
 															 </address>
@@ -80,7 +73,7 @@
 														<div class="col-md-9">
 															<?php
 																foreach ($images as $image)
-																	echo "<img src='$image' width='75' height='75' alt=''>";
+																	echo "<img src='$image' width='75' height='75' style='padding: 5px;'>";
 															?>
 														</div>
 												</div>
@@ -119,13 +112,13 @@
 
 																			Package Dimension<br>
 																			(Length x Width x height)<br>
-																			<input type="text" name="length" id="length" size="1" maxlength="3"> x
-																			<input type="text" name="width" id="width" size="1" maxlength="3"> x																			
-																			<input type="text" name="height" id="height" size="1" maxlength="3"> inches
+																			<input type="text" name="length" id="length" size="1" maxlength="6"> x
+																			<input type="text" name="width" id="width" size="1" maxlength="6"> x																			
+																			<input type="text" name="height" id="height" size="1" maxlength="6"> inches
 
 																			<br><br>Package Weight<br>
-																			<input type="text" name="lbs" id="lbs" size="1" maxlength="3"> lbs
-																			<input type="text" name="oz" id="oz" size="1" maxlength="3"> oz.
+																			<input type="text" name="lbs" id="lbs" size="1" maxlength="6"> lbs
+																			<input type="text" name="oz" id="oz" size="1" maxlength="6"> oz.
 
 																			<br><br>Insurance in USD (optional)<br>
 																			<input type="text" name="insuredValue" id="insuredValue" size="3" maxlength="9" value="" placeholder="0.00"><br><br>
@@ -189,21 +182,13 @@
 												<?php
 													echo $shopInfo['display_name'], "<br>";
 													if ($shopInfo['preferredAddress'] == 1) {
-														if ($shopInfo['user_country'] == "USA") {
-															echo $shopInfo['user_address'], "<br />";
-															echo $shopInfo['user_city'], ", ", $shopInfo['user_state'], ' ', $shopInfo['user_zip'], "<br />";
-															echo $shopInfo['user_country'];
-														} else {
-															echo $shopInfo['notUSfullAddress'], '<br />', $shopInfo['user_country'];
-														}
+														echo $shopInfo['user_address'], "<br />";
+														echo $shopInfo['user_city'], ", ", $shopInfo['user_state'], ' ', $shopInfo['user_zip'], "<br />";
+														echo $shopInfo['user_country'];														
 													} elseif ($shopInfo['preferredAddress'] == 2) {
-														if ($shopInfo['user_country2'] == "USA") {
-															echo $shopInfo['user_address2'], "<br />";
-															echo $shopInfo['user_city2'], ", ", $shopInfo['user_state2'], ' ', $shopInfo['user_zip2'], "<br />";
-															echo $shopInfo['user_country2'];
-														} else {
-															echo $shopInfo['notUSfullAddress2'], '<br />', $shopInfo['user_country2'];
-														}
+														echo $shopInfo['user_address2'], "<br />";
+														echo $shopInfo['user_city2'], ", ", $shopInfo['user_state2'], ' ', $shopInfo['user_zip2'], "<br />";
+														echo $shopInfo['user_country2'];
 													}
 													
 													echo "<br>", $shopInfo['user_phone'];
@@ -258,11 +243,8 @@
 
 			var shippingRates = JSON.parse(localStorage.getItem('shippingRates'));
 
-			// default values
+			// set default values
 			for (var shippingRate in shippingRates) {
-				// $("#postageValue").text(shippingRates[shippingRate]['Amount']);
-				// $(".packageTotalValue").text(parseFloat(shippingRates[shippingRate]['Amount']));
-				// $("#shippingMethodStamp").text($("#shippingMethod option:selected").text());
 				$("#expectedDeliveryInDays").text(shippingRates[shippingRate]["DeliverDays"]);
 				break;
 			}			
@@ -270,6 +252,7 @@
 			function getShippingRates() {
 				// there should be loder here...
 
+				$("#confirmAndBuy").prop("disabled", true);
 				$("#postageValue").text("-----");
 				$("#packageTotalValue").text("-----");
 
@@ -305,17 +288,13 @@
 					lbs: lbs,
 					oz: oz,
 					insuredValue: insuredValue,
+					shippingDate: shippingDate,
 				};
 
-				$.get(url, data, function(response) {
-					// echo "<option value='{$index},{$shippingRate->ServiceType}'>" . $shippingRate->desc . "</option>";
-					// $('#shippingMethod').find('option').remove().end().append('<option value="whatever">text</option>').val('whatever');
-					
+				$.get(url, data, function(response) {					
 					if (initialLoading) {
 						$('#shippingMethod').find('option').remove();
 						$.each(response['meta']['data'], function(index, item) {
-							/*console.log("index", index);
-							console.log("item", item.ServiceType);*/
 							$('#shippingMethod').append('<option value="' + index + ',' + item.ServiceType + '">' + item.desc + '</option>');
 						});
 
@@ -324,12 +303,17 @@
 
 					commaIndexPos = shippingMethod.indexOf(','); // ex. 2,US-PM
 					shippingMethod_processed = shippingMethod.substr(0, commaIndexPos);
-					$("#postageValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
-					$(".packageTotalValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
 
-					$("#shippingMethod").val(shippingMethod);
+					if (!response['meta']['data']['error']) {
+						$("#postageValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
+						$(".packageTotalValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
 
-					$("#confirmAndBuy").prop("disabled", false);
+						$("#shippingMethod").val(shippingMethod);
+
+						$("#confirmAndBuy").prop("disabled", false);
+					} else {
+						alert(response['meta']['data']['error']);
+					}
 				});
 			}
 
@@ -345,32 +329,26 @@
 			});
 
 			$("#length").change(function() {
-				$("#confirmAndBuy").prop("disabled", true);
 				getShippingRates();
 			});
 			$("#width").change(function() {
-				$("#confirmAndBuy").prop("disabled", true);
 				getShippingRates();
 			});
 			$("#height").change(function() {
-				$("#confirmAndBuy").prop("disabled", true);
 				getShippingRates();
 			});
 			$("#lbs").change(function() {
-				$("#confirmAndBuy").prop("disabled", true);
 				getShippingRates();
 			});
-			$("#oz").change(function() {
-				$("#confirmAndBuy").prop("disabled", true);
+			$("#oz").change(function() {		
 				getShippingRates();
 			});
 
 			$("#insuredValue").change(function() {
-				/*$("#insuranceValue").text($("#insuredValue").val());
-				var selectedShippingMethod = $("#shippingMethod").val();
-				var packageTotalValue = parseFloat(shippingRate[selectedShippingMethod]['Amount']) + parseFloat($("#insuredValue").val());
-				$(".packageTotalValue").text(packageTotalValue);*/
-				$("#confirmAndBuy").prop("disabled", true);
+				getShippingRates();
+			});
+
+			$("#shippingDate").change(function() {
 				getShippingRates();
 			});
 
@@ -430,10 +408,12 @@
 					data['signature'] = signature;
 
 				$.post(url, data, function(response) {
-					if (response['data']['error'])	// if there's an error
-						alert(response['data']['error'][0]['description']);
-					else
+					if (response['meta']['data']['error']) {	// if there's an error
+						alert(response['meta']['data']['error']);
+						$("#confirmAndBuy").prop("disabled", false);
+					} else {
 						alert("Successfully processed. Tracking number: " + response['data']['response']['trk_main']);
+					}
 				});
 
 				$("#modalCloseButton").click();

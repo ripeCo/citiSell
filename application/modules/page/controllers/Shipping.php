@@ -1,5 +1,7 @@
 <?php if(!defined('BASEPATH')) exit('Hacking Attempt: Get out of the system ..!');
 
+require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
+
 class Shipping extends CI_Controller 
 {
 	public function __construct() {
@@ -14,7 +16,7 @@ class Shipping extends CI_Controller
 		// 
 	}
 
-	/* 	Descrption - Call by $this->confirmAndBuy(). We always assume data being passed are all been sanitized already.
+	/* 	Descrption - Call by $this->confirmAndBuy(). We always assume data being passed are all been sanitized already. Meaning no more conditional statements.
 		@param $orderId - the order id
 		@param $shopOwner - the shipper.
 		@param $buyer - the recipient
@@ -22,148 +24,114 @@ class Shipping extends CI_Controller
 		@param $addOns - optional if there are other services your shipper wants to add
 		@return  - returns response from RocketShipIt
 	*/
-	private function confirmShipment($orderId, array $shopOwner, array $buyer, array $package, array $addOns=null) {
-		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
-		$this->load->helper('myhelp');
-
-		$toName = $buyer['name'];
-		$toCompany = $buyer['display_name'];
-		$toPhone = $buyer['user_phone'];
-
-		/*if ($buyer['preferredAddress'] == 1) {
-			$toAddr1 = $buyer['user_address'];
-			$toCity = $buyer['user_city'];
-			$toState = $buyer['user_state'];
-			$toCode = $buyer['user_zip'];
-		} elseif ($buyer['preferredAddress'] == 2) {
-			$toAddr1 = $buyer['user_address2'];
-			$toCity = $buyer['user_city2'];
-			$toState = $buyer['user_state2'];
-			$toCode = $buyer['user_zip2'];
-		} else { // unknown recipient
-			return array('error' => 'Invalid buyer preferred address.');
-		}*/
-
-
-		$toAddr1 = $buyer['user_address'];
-		$toCity = $buyer['user_city'];
-		$toState = $buyer['user_state'];
-		$toCode = $buyer['user_zip'];
-
-		// create the config
+	private function confirmShipment($orderId, array $shopOwner, array $buyer, array $packageParam, array $addOns=null) {
+		// file_put_contents('c:\tmp\packageParam.txt', print_r($packageParam, true)); return;
 		$config = new \RocketShipIt\Config;
 		$config->setDefault('generic', 'shipper', $shopOwner['shipper']);
 		$config->setDefault('generic', 'fromName', $shopOwner['shipper']);
 		$config->setDefault('generic', 'shipContact', $shopOwner['shipContact']);
 		$config->setDefault('generic', 'shipPhone', $shopOwner['user_phone']);
+		$config->setDefault('generic', 'shipAddr1', $shopOwner['user_address']);
+		$config->setDefault('generic', 'shipAddr2', $shopOwner['shipAddr2']);
+		$config->setDefault('generic', 'shipCity', $shopOwner['user_city']);
+		$config->setDefault('generic', 'shipState', $shopOwner['user_state']);
+		$config->setDefault('generic', 'shipCode', $shopOwner['user_zip']);
 
-		/*if ($shopOwner['preferredAddress'] == 1) {
-			$shipAddr1 = $shopOwner['user_address'];
-			$shipAddr2 = '';
-			$shipCity = $shopOwner['user_city'];
-			$shipState = $shopOwner['user_state'];
-			$shipCode = $shopOwner['user_zip'];
-			$shipCountry = $shopOwner['user_country'];
-		} elseif ($shopOwner['preferredAddress'] == 2) {
-			$shipAddr1 = $shopOwner['user_address2'];
-			$shipAddr2 = '';
-			$shipCity = $shopOwner['user_city2'];
-			$shipState = $shopOwner['user_state2'];
-			$shipCode = $shopOwner['user_zip2'];
-			$shipCountry = $shopOwner['user_country2'];
-		} else {	// unknown address.
-			return array('error' => 'Invalid shop owner preferred address.');
-		}*/
+		$shipment = new \RocketShipIt\Shipment('STAMPS', array('config' => $config));
+		// $shipment->setParameter('toCompany', 'RocketShipIt');
+		$shipment->setParameter('toName', $buyer['user_name']);
+		$shipment->setParameter('toAddr1', $buyer['user_address']);
+		$shipment->setParameter('toAddr2', $buyer['toAddr2']);
+		$shipment->setParameter('toCity', $buyer['user_city']);
+		$shipment->setParameter('toState', $buyer['user_city']);
+		$shipment->setParameter('toCode', $buyer['user_zip']);
+		if ($buyer['user_country'] != "US")		// country should be in ISO code. If this is international shipment.
+			$shipment->setParameter('toCountry', $buyer['user_country']);		
+		// $shipment->setParameter('referenceValue', '123adsf'); // may be we need this in the future.
 
-		$shipAddr1 = $shopOwner['user_address'];
-		$shipAddr2 = '';
-		$shipCity = $shopOwner['user_city'];
-		$shipState = $shopOwner['user_state'];
-		$shipCode = $shopOwner['user_zip'];
-		$shipCountry = $shopOwner['user_country'];
+		/*$shipment->setParameter('weight', $packageParam['weight']);
+		$shipment->setParameter('length', $packageParam['length']);
+		$shipment->setParameter('width', $packageParam['width']);
+		$shipment->setParameter('height', $packageParam['height']);*/
 
-		$config->setDefault('generic', 'shipAddr1', $shipAddr1);
-		// $config->setDefault('generic', 'shipAddr2', $shipAddr2);
-		$config->setDefault('generic', 'shipCity', $shipCity);
-		$config->setDefault('generic', 'shipState', $shipState);
-		$config->setDefault('generic', 'shipCode', $shipCode);
-		$config->setDefault('generic', 'shipCountry', $shipCountry);
-		$config->setDefault('generic', 'toCode', $toCode);
-		
-		// check the package
-		if (!isNumericAndPositive($package['weight']))
-			return array('error' => 'Invalid weight value.');
-		if (!isNumericAndPositive($package['length']))
-			return array('error' => 'Invalid length value.');
-		if (!isNumericAndPositive($package['width']))
-			return array('error' => 'Invalid width value.');
-		if (!isNumericAndPositive($package['height']))
-			return array('error' => 'Invalid height value.');
-
-		// create the Rate object
 		$rate = new \RocketShipIt\Rate('STAMPS', array('config' => $config));
-		$rate->setParameter('toCode', $toCode);
-		$rate->setParameter('weight', $package['weight']);
-		$rate->setParameter('length', $package['length']);
-		$rate->setParameter('width', $package['width']);
-		$rate->setParameter('height', $package['height']);
+
+		/* Add-ons definitions here. */
+		if (isset($addOns['insuredValue'])) {
+			$rate->setParameter('insuredCurrency', 'USD');
+			$rate->setParameter('insuredValue', $addOns['insuredValue']);
+		}
+		if (isset($addOns['signatureType']))
+			$rate->setParameter('signatureType','2');
+		
+		if ($buyer['user_country'] != "US") { // country should be in ISO code. If this is international shipment.
+			# customs
+			$shipment->setParameter('customsContentType', 'Merchandise');
+			# customs lines
+			$custLines = new \RocketShipIt\Customs('STAMPS');
+			$custLines->setParameter('customsDescription', 'For personal use.');
+			$custLines->setParameter('customsQuantity', '1');
+			$custLines->setParameter('customsWeight', $packageParam['weight']);
+			$custLines->setParameter('customsValue', '0.00');
+			$custLines->setParameter('customsHsTariff', '');
+			$custLines->setParameter('customsOriginCountry', 'US');
+
+			$shipment->addCustomsLineToShipment($custLines);
+
+			$rate->setParameter('customsValue', '0.00');
+			$rate->setParameter('toCountry', $buyer['user_country']);
+
+			$shipment->setParameter('toPhone', $buyer['user_phone']);
+		} else {	// if only going to US it needs toCode.
+			$rate->setParameter('toCode', $buyer['user_zip']);
+		}
+
+		if (isset($packageParam['shipDate']))	//Y-m-d format
+			$rate->setParameter('shipDate', $packageParam['shipDate']); 
+		
+		$rate->setParameter('weight', $packageParam['weight']);
+		$rate->setParameter('length', $packageParam['length']);
+		$rate->setParameter('width', $packageParam['width']);
+		$rate->setParameter('height', $packageParam['height']);
+
 		$response = $rate->getAllRates();
+
+		// file_put_contents('c:\tmp\response.txt', print_r($response, true));
 
 		$rates = $response->Rates;
 		$rate = $rates->Rate;
 
 		# Select the rate/service you want
 		# from a list of all available
-		$package = $rate[$package['shippingMethod']];
-		// $package = $rate[3];
+		$package = $rate[$packageParam['shippingMethod']];
 
 		# Remove all addons
 		$package->AddOns = null;
 
-		# Add the addons you want for this
+		/*# Add the addons you want for this
 		# shipment
-		/*$addons = array();
+		$addons = array();
 		$a = new \stdClass();
 		$a->AddOnType = 'US-A-DC';
 		array_push($addons, $a);
 		$package->AddOns = $addons;*/
-		//print_r($package);
 
-
-		$shipment = new \RocketShipIt\Shipment('STAMPS');
-		$shipment->setParameter('toCompany', $toCompany);
-		$shipment->setParameter('toName', $toName);		
-		$shipment->setParameter('toPhone', $toPhone);
-		$shipment->setParameter('toAddr1', $toAddr1);
-		$shipment->setParameter('toCity', $toCity);
-		$shipment->setParameter('toState', $toState);
-		$shipment->setParameter('toCode', $toCode);
-		// $shipment->setParameter('emailTo', $buyer['emailTo']);
-		// $shipment->setParameter('shipDate', $package['shipDate']);
-
-		/* Add-ons definitions here. */
-		if (isset($addOns['insuredValue'])) {
-			$shipment->setParameter('insuredCurrency','USD');
-			$shipment->setParameter('insuredValue', $addOns['insuredValue']);			
+		if ($buyer['user_country'] == "US") { // country should be in ISO code. If this is international shipment.
+			// The rate can suggest a new zipcode
+			// Set this new zipcode on the shipment to avoid:
+			// "Rate ToZIPCode and Destination Address ZIPCode field must match."
+			$shipment->setParameter('toCode', $package->ToZIPCode);
 		}
-		if (isset($addOns['signatureType']))
-			$shipment->setParameter('signatureType','2');
-			// $shipment->setParameter('signatureType','STAMPS');
 
-
-		// The rate can suggest a new zipcode
-		// Set this new zipcode on the shipment to avoid:
-		// "Rate ToZIPCode and Destination Address ZIPCode field must match."
-		$shipment->setParameter('toCode', $package->ToZIPCode);
-		// $shipment->setParameter('toCode', $toCode);
+		$shipment->setParameter('weight', $package->WeightLb);
+		$shipment->setParameter('length', $package->Length);
+		$shipment->setParameter('width', $package->Width);
+		$shipment->setParameter('height', $package->Height);
+		
 
 		$shipment->addPackageToShipment($package);
 
-		// Now let's submit it.
 		$response = $shipment->submitShipment();
-		file_put_contents('c:\tmp\usps_response.txt', print_r($response, true));
-		file_put_contents('c:\tmp\package.txt', print_r($package, true));
-		file_put_contents('c:\tmp\shipmentDebug.txt', print_r($shipment->debug(), true));
 
 		// Save label as a pdf
 		if (isset($response['pkgs'])) {
@@ -211,6 +179,14 @@ class Shipping extends CI_Controller
 			return;
 		}
 
+		// we cannot calculate rate if shop owner's address is not from US because there's no USPS outside US.
+		if (trim($data['shopInfo']['user_country']) != "USA") {
+			$responseData['error'] = 'We don\'t deliver shipment outside USA.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
+			$this->output->set_output(json_encode($response));
+			return;
+		}
+
 		$this->load->helper('address');
 
 		if (!addressIsValid($data['shopInfo'])) {
@@ -230,72 +206,57 @@ class Shipping extends CI_Controller
 		$shopOwner['shipper'] = $data['shopInfo']['shop_name'];
 		$shopOwner['shipContact'] = $data['shopInfo']['display_name'];
 		$shopOwner['user_phone'] = $data['shopInfo']['user_phone'];
-		$shopOwner['preferredAddress'] = $data['shopInfo']['preferredAddress'];
 
 		if ($data['shopInfo']['preferredAddress'] == 1) {
-			if ($data['shopInfo']['user_country'] == "USA") {
-				$shopOwner['user_address'] = $data['shopInfo']['user_address'];
-				$shopOwner['user_city'] = $data['shopInfo']['user_city'];
-				$shopOwner['user_state'] = $data['shopInfo']['user_state'];
-				$shopOwner['user_zip'] = $data['shopInfo']['user_zip'];
-			} else {
-				$shopOwner['notUSfullAddress'] = $data['shopInfo']['notUSfullAddress1'];
-			}
-
+			$shopOwner['user_address'] = $data['shopInfo']['user_address'];
+			$shopOwner['shipAddr2'] = $data['shopInfo']['addrLine2Of1'];
+			$shopOwner['user_city'] = $data['shopInfo']['user_city'];
+			$shopOwner['user_state'] = $data['shopInfo']['user_state'];
+			$shopOwner['user_zip'] = $data['shopInfo']['user_zip'];
 			$shopOwner['user_country'] = $data['shopInfo']['user_country'];
 		} elseif ($data['shopInfo']['preferredAddress'] == 2) {
-			if ($data['shopInfo']['user_country2'] == "USA") {
-				$shopOwner['user_address'] = $data['shopInfo']['user_address2'];
-				$shopOwner['user_city'] = $data['shopInfo']['user_city2'];
-				$shopOwner['user_state'] = $data['shopInfo']['user_state2'];
-				$shopOwner['user_zip'] = $data['shopInfo']['user_zip2'];
-			} else {
-				$shopOwner['notUSfullAddress'] = $data['shopInfo']['notUSfullAddress2'];
-			}
-
+			$shopOwner['user_address'] = $data['shopInfo']['user_address2'];
+			$shopOwner['shipAddr2'] = $data['shopInfo']['addrLine2Of2'];
+			$shopOwner['user_city'] = $data['shopInfo']['user_city2'];
+			$shopOwner['user_state'] = $data['shopInfo']['user_state2'];
+			$shopOwner['user_zip'] = $data['shopInfo']['user_zip2'];
 			$shopOwner['user_country'] = $data['shopInfo']['user_country2'];
 		}
 
 
 		/* data for the buyer */
-		$buyer['name'] = $orderDetails[0]['user_first_name'] . ' ' . $orderDetails[0]['user_last_name'];
+		$buyer['user_name'] = $orderDetails[0]['user_first_name'] . ' ' . $orderDetails[0]['user_last_name'];
 		$buyer['display_name'] = $orderDetails[0]['display_name'];
 		$buyer['user_phone'] = $orderDetails[0]['user_phone'];
 		$buyer['preferredAddress'] = $orderDetails[0]['preferredAddress'];
 		$buyer['emailTo'] = $orderDetails[0]['user_email'];
 
+		$this->load->helper('myhelp');
 		if ($orderDetails[0]['preferredAddress'] == 1) {
-			if ($orderDetails[0]['user_country'] == "USA") {
-				$buyer['user_address'] = $orderDetails[0]['user_address'];
-				$buyer['user_city'] = $orderDetails[0]['user_city'];
-				$buyer['user_state'] = $orderDetails[0]['user_state'];
-				$buyer['user_zip'] = $orderDetails[0]['user_zip'];
-			} else {
-				$buyer['notUSfullAddress'] = $orderDetails[0]['notUSfullAddress1'];
-			}
-
-			$buyer['user_country'] = $orderDetails[0]['user_country'];
+			$buyer['user_address'] = $orderDetails[0]['user_address'];
+			$buyer['toAddr2'] = $orderDetails[0]['addrLine2Of1'];
+			$buyer['user_city'] = $orderDetails[0]['user_city'];
+			$buyer['user_state'] = $orderDetails[0]['user_state'];
+			$buyer['user_zip'] = $orderDetails[0]['user_zip'];
+			$buyer['user_country'] = getCountryISOCodeByCountryName($orderDetails[0]['user_country']);
 		} elseif ($orderDetails[0]['preferredAddress'] == 2) {
-			if ($orderDetails[0]['user_country2'] == "USA") {
-				$buyer['user_address'] = $orderDetails[0]['user_address2'];
-				$buyer['user_city'] = $orderDetails[0]['user_city2'];
-				$buyer['user_state'] = $orderDetails[0]['user_state2'];
-				$buyer['user_zip'] = $orderDetails[0]['user_zip2'];
-			} else {
-				$buyer['notUSfullAddress'] = $orderDetails[0]['notUSfullAddress2'];
-			}
-
-			$buyer['user_country'] = $orderDetails[0]['user_country2'];
+			$buyer['user_address'] = $orderDetails[0]['user_address2'];
+			$buyer['toAddr2'] = $orderDetails[0]['addrLine2Of2'];
+			$buyer['user_city'] = $orderDetails[0]['user_city2'];
+			$buyer['user_state'] = $orderDetails[0]['user_state2'];
+			$buyer['user_zip'] = $orderDetails[0]['user_zip2'];
+			$buyer['user_country'] = getCountryISOCodeByCountryName($orderDetails[0]['user_country2']);
 		}
 
-		// we cannot calculate rate if shop owner's address is not from US because there's no USPS outside US.
-		if (trim($shopOwner['user_country']) != "USA") {
-			$responseData['error'] = 'We don\'t deliver shipment outside USA.';
+		if (!$buyer['user_country']) {	//ISO country code
+			$responseData['error'] = 'Unknown buyer country.';
 			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 			$this->output->set_output(json_encode($response));
 			return;
 		}
 
+
+		/* data for add-ons */
 		$addOns = array();
 		$this->load->helper('number');
 
@@ -313,9 +274,9 @@ class Shipping extends CI_Controller
 			$addOns['signatureType'] = $this->input->post('signature');
 		
 		// check the width
-		$package['width'] = $this->input->post('width');
-		if ($package['width']) {
-			if (!isNumericAndPositive($package['width'])) {
+		$packageParam['width'] = $this->input->post('width');
+		if ($packageParam['width']) {
+			if (!isNumericAndPositive($packageParam['width'])) {
 				$responseData['error'] = 'Invalid width number.';
 				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
@@ -329,9 +290,9 @@ class Shipping extends CI_Controller
 		}
 
 		// let's check length
-		$package['length'] = $this->input->post('length');
-		if ($package['length']) {
-			if (!isNumericAndPositive($package['length'])) {
+		$packageParam['length'] = $this->input->post('length');
+		if ($packageParam['length']) {
+			if (!isNumericAndPositive($packageParam['length'])) {
 				$responseData['error'] = 'Invalid length number.';
 				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
@@ -345,9 +306,9 @@ class Shipping extends CI_Controller
 		}
 
 		// let's check height
-		$package['height'] = $this->input->post('height');
-		if ($package['height']) {
-			if (!isNumericAndPositive($package['height'])) {
+		$packageParam['height'] = $this->input->post('height');
+		if ($packageParam['height']) {
+			if (!isNumericAndPositive($packageParam['height'])) {
 				$responseData['error'] = 'Invalid height number.';
 				$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
 				$this->output->set_output(json_encode($response));
@@ -393,7 +354,7 @@ class Shipping extends CI_Controller
 		}
 
 		$ozToPounds = $oz * 0.0625;	// 1 oz = 0.0625 pounds
-		$package['weight'] = $ozToPounds + $lbs;
+		$packageParam['weight'] = $ozToPounds + $lbs;
 
 		$shippingMethod = $this->input->post('shippingMethod');
 		$shippingMethod = strstr($shippingMethod, ',', true);
@@ -404,7 +365,7 @@ class Shipping extends CI_Controller
 			return;
 		}
 
-		$package['shippingMethod'] = $shippingMethod;
+		$packageParam['shippingMethod'] = $shippingMethod;
 
 		$shipDate = $this->input->post('shippingDate');
 		$shipDate = new DateTime($shipDate);
@@ -424,166 +385,36 @@ class Shipping extends CI_Controller
 			$this->output->set_output(json_encode($response));
 			return;
 		}
-		$package['shipDate'] = $shipDate->format(DateTime::ATOM);
+		$packageParam['shipDate'] = $shipDate_string;
 
 		// now let's confirm shipment
-		$USPSresponse = $this->confirmShipment($orderDetails[0]['orderid'], $shopOwner, $buyer, $package, $addOns);
-		// $uspsResponse['error'] = 'Server was unable to process request. ---> Layout not supported.';
-		if (isset($USPSresponse['error']))
-			$response['meta'] = ['statusCode' => 202, 'data' => $USPSresponse];
+		$StampsResponse = $this->confirmShipment($orderDetails[0]['orderid'], $shopOwner, $buyer, $packageParam, $addOns);
+		// $StampsResponse['error'] = 'Server was unable to process request. ---> Layout not supported.';
+		if (isset($StampsResponse['error']))
+			$response['meta'] = ['statusCode' => 202, 'data' => $StampsResponse];
 		else
-			$response['meta'] = ['statusCode' => 200, 'data' => $USPSresponse];
+			$response['meta'] = ['statusCode' => 200, 'data' => $StampsResponse];
 
 		$this->output->set_output(json_encode($response));
 	}
 
-	/* 	@param $shopOwner - the shipper
+	/* 	Description - We always assume data being passed are all been sanitized already. Meaning no more conditional statements.
+		@param $shopOwner - the shipper
 		@param $buyer - the recipient
 		@param $options - optional if there are other service you shipper wants to add
 		@return  - returns response from RocketShipIt
 	*/
-	private function calculateShippingRate2(array $shopOwner, array $buyer, array $packageParam) {
-		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
+	private function calculateShippingRates(array $shopOwner, array $buyer, array $packageParam) {		
 		$this->load->helper('myhelp');
 
 		$config = new \RocketShipIt\Config;
-		$config->setDefault('generic', 'shipper', $shopOwner['shipper']);
-		$config->setDefault('generic', 'shipContact', $shopOwner['shipContact']);
-		$config->setDefault('generic', 'shipPhone', $shopOwner['user_phone']);
-
-		if ($shopOwner['preferredAddress'] == 1) {
-			$shipAddr1 = $shopOwner['user_address'];
-			$shipAddr2 = '';
-			$shipCity = $shopOwner['user_city'];
-			$shipState = $shopOwner['user_state'];
-			$shipCode = $shopOwner['user_zip'];
-			$shipCountry = $shopOwner['user_country'];
-		} elseif ($shopOwner['preferredAddress'] == 2) {
-			$shipAddr1 = $shopOwner['user_address2'];
-			$shipAddr2 = '';
-			$shipCity = $shopOwner['user_city2'];
-			$shipState = $shopOwner['user_state2'];
-			$shipCode = $shopOwner['user_zip2'];
-			$shipCountry = $shopOwner['user_country2'];
-		} else {	// unknown address.
-			$responseData['error'] = 'Invalid shop owner preferred address.';
-			return $responseData;
-		}
-
-		$config->setDefault('generic', 'shipAddr1', $shipAddr1);
-		$config->setDefault('generic', 'shipAddr2', $shipAddr2);
-		$config->setDefault('generic', 'shipCity', $shipCity);
-		$config->setDefault('generic', 'shipState', $shipState);
-		$config->setDefault('generic', 'shipCode', $shipCode);
-		$config->setDefault('generic', 'shipCountry', $shipCountry);
-
+		$config->setDefault('generic', 'shipCode', $shopOwner['user_zip']);
 
 		$rate = new \RocketShipIt\Rate('STAMPS', array('config' => $config));
-		/*if (isset($packageParam['service']))
-			$rate->setParameter('service', $packageParam['service']);	// this can be set in the config level.*/
-
-		$package = new \RocketShipIt\Package('STAMPS');
-
-		if ($buyer['preferredAddress'] == 1) {
-			// $toCountry = getCountryISOCodeByCountryName(trim($buyer['user_country']));
-
-			// if ($toCountry == "US") {
-				$rate->setParameter('toCode', $buyer['user_zip']);
-			//} else {
-			//	$rate->setParameter('toCountry', $toCountry);
-				// $package->setparameter('container', 'RECTANGULAR');
-			// }
-		} elseif ($buyer['preferredAddress'] == 2) {
-			$toCountry = getCountryISOCodeByCountryName(trim($buyer['user_country2']));
-
-			if ($toCountry == "US") {
-				$rate->setParameter('toCode', $buyer['user_zip2']);
-			} else {
-				$rate->setParameter('toCountry', $toCountry);
-				// $package->setparameter('container', 'RECTANGULAR');
-			}
-		} else {	// unknown address
-			return array('error' => 'Invalid buyer preferred address.');
-		}
-
-		// Defaults to 5 lbs as RocketShipIt needs it.
-		// if (!isset($packageParam['weight']))
-			$package->setParameter('weight', '5');
-		/*else
-			$package->setParameter('weight', $packageParam['weight']);	*/
-
-		// Optionally you can set dimensions
-		/*if (isset($packageParam['length']) && isset($packageParam['width']) && isset($packageParam['height'])) {
-			$package->setParameter('length', $packageParam['length']);
-			$package->setParameter('width', $packageParam['width']);
-			$package->setParameter('height', $packageParam['height']);
-		}
-		if(isset($packageParam['insuredValue']))
-			$package->setParameter('insuredValue', $packageParam['insuredValue']);*/
-
-		$rate->addPackageToShipment($package);
-
-		// simple rates doesn't have description property so I request them both and later set it to.
-		$shippingRates = $rate->getAllRates()->Rates->Rate;
-		$simpleShippingRates = $rate->getSimpleRates();
-
-		file_put_contents('c:\tmp\shippingRatesB4.txt', print_r($shippingRates, true));
-		file_put_contents('c:\tmp\simpleShippingRates.txt', print_r($simpleShippingRates, true));
-
-		if (isset($simpleShippingRates['error']) || isset($shippingRates['error'])) {
-			$responseData['error'] = $simpleShippingRates['error'] . ' ' . $shippingRates['error'];
-			return $responseData;
-		} else {	// simple rates doesn't have description property so I request them both and set it to the shippingRates.
-			foreach ($shippingRates as $index => $classObj)
-				$classObj->desc = $simpleShippingRates[$index]['desc'];
-
-			// return $this->deleteUnnecessaryShippingMethods($shippingRates);
-			return $shippingRates;
-		}
-	}
-
-	private function calculateShippingRate(array $shopOwner, array $buyer, array $packageParam) {
-		require_once APPPATH . 'third_party/RocketShipIt/autoload.php';
-		$this->load->helper('myhelp');
-
-		$config = new \RocketShipIt\Config;
-		$config->setDefault('generic', 'shipper', $shopOwner['shipper']);
-		$config->setDefault('generic', 'shipContact', $shopOwner['shipContact']);
-		$config->setDefault('generic', 'shipPhone', $shopOwner['user_phone']);
-
-		if ($shopOwner['preferredAddress'] == 1) {
-			$shipAddr1 = $shopOwner['user_address'];
-			$shipAddr2 = '';
-			$shipCity = $shopOwner['user_city'];
-			$shipState = $shopOwner['user_state'];
-			$shipCode = $shopOwner['user_zip'];
-			$shipCountry = $shopOwner['user_country'];
-		} elseif ($shopOwner['preferredAddress'] == 2) {
-			$shipAddr1 = $shopOwner['user_address2'];
-			$shipAddr2 = '';
-			$shipCity = $shopOwner['user_city2'];
-			$shipState = $shopOwner['user_state2'];
-			$shipCode = $shopOwner['user_zip2'];
-			$shipCountry = $shopOwner['user_country2'];
-		} else {	// unknown address.
-			$responseData['error'] = 'Invalid shop owner preferred address.';
-			return $responseData;
-		}
-
-		$config->setDefault('generic', 'shipAddr1', $shipAddr1);
-		$config->setDefault('generic', 'shipAddr2', $shipAddr2);
-		$config->setDefault('generic', 'shipCity', $shipCity);
-		$config->setDefault('generic', 'shipState', $shipState);
-		$config->setDefault('generic', 'shipCode', $shipCode);
-		$config->setDefault('generic', 'shipCountry', $shipCountry);
-
-		$rate = new \RocketShipIt\Rate('STAMPS', array('config' => $config));
-
-		$toCode = $buyer['user_zip'];
-		$toCountry = getCountryISOCodeByCountryName(trim($buyer['user_country']));
-
-		$rate->setParameter('toCode', $toCode);
-		$rate->setParameter('toCountry', $toCountry);
+		$rate->setParameter('toCode', $buyer['user_zip']);
+		
+		if ($buyer['user_country'] != "US")
+			$rate->setParameter('toCountry', $buyer['user_country']);
 
 		$package = new \RocketShipIt\Package('STAMPS');
 		if (!isset($packageParam['weight']))
@@ -591,23 +422,31 @@ class Shipping extends CI_Controller
 		else
 			$package->setParameter('weight', $packageParam['weight']);
 
-		// Optionally you can set dimensions
+		// Set dimensions
 		if (isset($packageParam['length']) && isset($packageParam['width']) && isset($packageParam['height'])) {
 			$package->setParameter('length', $packageParam['length']);
 			$package->setParameter('width', $packageParam['width']);
 			$package->setParameter('height', $packageParam['height']);
 		}
+
 		if(isset($packageParam['insuredValue']))
 			$package->setParameter('insuredValue', $packageParam['insuredValue']);
+		if (isset($packageParam['shipDate']))	//Y-m-d format
+			$rate->setParameter('shipDate', $packageParam['shipDate']); 
+
 
 		$rate->addPackageToShipment($package);
 
 		// simple rates doesn't have description property so I request them both and later set it to.
-		$shippingRates = $rate->getAllRates()->Rates->Rate;
-		$simpleShippingRates = $rate->getSimpleRates();
+		$shippingRates = $rate->getAllRates();		
 
-		file_put_contents('c:\tmp\shippingRatesB4.txt', print_r($shippingRates, true));
-		file_put_contents('c:\tmp\simpleShippingRates.txt', print_r($simpleShippingRates, true));
+		if (!property_exists($shippingRates, 'Rates')) {
+			$responseData['error'] = $shippingRates->getMessage();
+			return $responseData;
+		}
+
+		$shippingRates = $shippingRates->Rates->Rate;
+		$simpleShippingRates = $rate->getSimpleRates();
 
 		if (isset($simpleShippingRates['error']) || isset($shippingRates['error'])) {
 			$responseData['error'] = $simpleShippingRates['error'] . ' ' . $shippingRates['error'];
@@ -620,14 +459,24 @@ class Shipping extends CI_Controller
 		}
 	}
 
+	/* This verifies US addresses. */
+	private function validateRecipientAddress(array $recipient) {
+		$av = new \RocketShipIt\AddressValidate('STAMPS');
+		$av->setParameter('toState', $recipient['user_state']);
+		$av->setParameter('toCity', $recipient['user_city']);
+		$av->setParameter('toAddr1', $recipient['user_address']);
+		$av->setParameter('toCode', $recipient['user_zip']);
+		return $av->validate();
+	}
 
-	/* 	Description - call by $this->reciept().
+
+	/* 	Description - call by $this->reciept(). This sanitizes all input into $this->calculateShippingRates().
 		@param $data - includes shopInfo index for the shop owner's info
 			$data['orderDetails'] - for the order details
 	
 		@return  - calculated rates passed to calculateShippinhRate();
 	*/
-	private function prepareCalculatingShipment(array $data) {
+	private function prepareCalculatingShipmentRates(array $data) {
 		// we cannot calculate rate if shop owner's address is not from US because there's no USPS outside US.
 		if (trim($data['shopInfo']['user_country']) != "USA") {
 			$responseData['error'] = 'Cannot send shipment from outside USA.';
@@ -636,7 +485,7 @@ class Shipping extends CI_Controller
 
 		$this->load->helper('address');
 		if (!addressIsValid($data['shopInfo'])) {
-			$responseData['error'] = 'Invalid shipper\'s address.';
+			$responseData['error'] = "Invalid shipper's address.";
 			return $responseData;
 		}
 		if (!addressIsValid($data['orderDetails'][0])) {
@@ -645,63 +494,38 @@ class Shipping extends CI_Controller
 		}
 
 		/* data for the shop owner */
-		$shopOwner['shipper'] = $data['shopInfo']['shop_name'];
-		$shopOwner['shipContact'] = $data['shopInfo']['display_name'];
-		$shopOwner['user_phone'] = $data['shopInfo']['user_phone'];
-		$shopOwner['preferredAddress'] = $data['shopInfo']['preferredAddress'];
 
-		if ($data['shopInfo']['preferredAddress'] == 1) {
-			if ($data['shopInfo']['user_country'] == "USA") {
-				$shopOwner['user_address'] = $data['shopInfo']['user_address'];
-				$shopOwner['user_city'] = $data['shopInfo']['user_city'];
-				$shopOwner['user_state'] = $data['shopInfo']['user_state'];
-				$shopOwner['user_zip'] = $data['shopInfo']['user_zip'];
-			} else {
-				$shopOwner['notUSfullAddress'] = $data['shopInfo']['notUSfullAddress1'];
-			}
-
-			$shopOwner['user_country'] = $data['shopInfo']['user_country'];
+		if ($data['shopInfo']['preferredAddress'] == 1) {			
+			$shopOwner['user_address'] = $data['shopInfo']['user_address'];
+			$shopOwner['user_city'] = $data['shopInfo']['user_city'];
+			$shopOwner['user_state'] = $data['shopInfo']['user_state'];
+			$shopOwner['user_zip'] = $data['shopInfo']['user_zip'];
 		} elseif ($data['shopInfo']['preferredAddress'] == 2) {
-			if ($data['shopInfo']['user_country2'] == "USA") {
-				$shopOwner['user_address'] = $data['shopInfo']['user_address2'];
-				$shopOwner['user_city'] = $data['shopInfo']['user_city2'];
-				$shopOwner['user_state'] = $data['shopInfo']['user_state2'];
-				$shopOwner['user_zip'] = $data['shopInfo']['user_zip2'];
-			} else {
-				$shopOwner['notUSfullAddress'] = $data['shopInfo']['notUSfullAddress2'];
-			}
-
-			$shopOwner['user_country'] = $data['shopInfo']['user_country2'];
+			$shopOwner['user_address'] = $data['shopInfo']['user_address2'];
+			$shopOwner['user_city'] = $data['shopInfo']['user_city2'];
+			$shopOwner['user_state'] = $data['shopInfo']['user_state2'];
+			$shopOwner['user_zip'] = $data['shopInfo']['user_zip2'];
 		}
+
 
 		/* data for the buyer */
 		$buyer['name'] = $data['orderDetails'][0]['user_first_name'] . ' ' . $data['orderDetails'][0]['user_last_name'];
 		$buyer['display_name'] = $data['orderDetails'][0]['display_name'];
 		$buyer['user_phone'] = $data['orderDetails'][0]['user_phone'];
-		$buyer['preferredAddress'] = $data['orderDetails'][0]['preferredAddress'];
 
+		$this->load->helper("myhelp");
 		if ($data['orderDetails'][0]['preferredAddress'] == 1) {
-			// if ($data['orderDetails'][0]['user_country'] == "USA") {
-				$buyer['user_address'] = $data['orderDetails'][0]['user_address'];
-				$buyer['user_city'] = $data['orderDetails'][0]['user_city'];
-				$buyer['user_state'] = $data['orderDetails'][0]['user_state'];
-				$buyer['user_zip'] = $data['orderDetails'][0]['user_zip'];
-			// } else {
-				// $buyer['notUSfullAddress'] = $data['orderDetails'][0]['notUSfullAddress1'];
-			// }
-
-			$buyer['user_country'] = $data['orderDetails'][0]['user_country'];
+			$buyer['user_address'] = $data['orderDetails'][0]['user_address'];
+			$buyer['user_city'] = $data['orderDetails'][0]['user_city'];
+			$buyer['user_state'] = $data['orderDetails'][0]['user_state'];
+			$buyer['user_zip'] = $data['orderDetails'][0]['user_zip'];
+			$buyer['user_country'] = getCountryISOCodeByCountryName($data['orderDetails'][0]['user_country']);
 		} elseif ($data['orderDetails'][0]['preferredAddress'] == 2) {
-			// if ($data['orderDetails'][0]['user_country2'] == "USA") {
-				$buyer['user_address'] = $data['orderDetails'][0]['user_address2'];
-				$buyer['user_city'] = $data['orderDetails'][0]['user_city2'];
-				$buyer['user_state'] = $data['orderDetails'][0]['user_state2'];
-				$buyer['user_zip'] = $data['orderDetails'][0]['user_zip2'];
-			// } else {
-			//	$buyer['notUSfullAddress'] = $data['orderDetails'][0]['notUSfullAddress2'];
-			// }
-
-			$buyer['user_country'] = $data['orderDetails'][0]['user_country2'];
+			$buyer['user_address'] = $data['orderDetails'][0]['user_address2'];
+			$buyer['user_city'] = $data['orderDetails'][0]['user_city2'];
+			$buyer['user_state'] = $data['orderDetails'][0]['user_state2'];
+			$buyer['user_zip'] = $data['orderDetails'][0]['user_zip2'];
+			$buyer['user_country'] = getCountryISOCodeByCountryName($data['orderDetails'][0]['user_country2']);
 		} else {	// unknown address
 			return array('error' => 'Invalid buyer preferred address.');
 		}
@@ -711,15 +535,21 @@ class Shipping extends CI_Controller
 			$packageParam['weight'] = $data['weight'];
 		if (isset($data['service']))
 			$packageParam['service'] = $data['service'];
-		if(isset($data['length']) && isset($data['width']) && isset($data['height'])) {
+		if (isset($data['length']) && isset($data['width']) && isset($data['height'])) {
 			$packageParam['length'] = $data['length'];
 			$packageParam['width'] = $data['width'];
 			$packageParam['height'] = $data['height'];
 		}
 		if(isset($data['insuredValue']))
 			$packageParam['insuredValue'] = $data['insuredValue'];
+		if(isset($data['shipDate']))
+			$packageParam['shipDate'] = $data['shipDate'];
+
+		if ($buyer['user_country'] == 'US')
+			if (!$this->validateRecipientAddress($buyer)->AddressMatch)
+				return array('error' => 'Invalid buyer address. USPS cannot verify the address.');
 		
-		return $this->calculateShippingRate($shopOwner, $buyer, $packageParam);
+		return $this->calculateShippingRates($shopOwner, $buyer, $packageParam);
 	}
 	
 	// returns web
@@ -748,7 +578,7 @@ class Shipping extends CI_Controller
 		}
 
 		if ($data['orderStatus'] == "Pending") {
-			$response = $this->prepareCalculatingShipment($data);
+			$response = $this->prepareCalculatingShipmentRates($data);
 
 			if (isset($response['error']))
 				$data['meta'] = ['statusCode' => 202, 'data' => $response];
@@ -790,8 +620,26 @@ class Shipping extends CI_Controller
 		$data['weight'] = $ozToPounds + $lbs;
 
 		$data['length'] = $this->input->get("length");
+		if (!isNumericAndPositive($data['length'])) {
+			$response['error'] = 'Invalid length value.';
+			$data['meta'] = ['statusCode' => 202, 'data' => $response];
+			$this->output->set_output(json_encode($data));
+			return;
+		}
 		$data['width'] = $this->input->get("width");
+		if (!isNumericAndPositive($data['width'])) {
+			$response['error'] = 'Invalid width value.';
+			$data['meta'] = ['statusCode' => 202, 'data' => $response];
+			$this->output->set_output(json_encode($data));
+			return;
+		}
 		$data['height'] = $this->input->get("height");
+		if (!isNumericAndPositive($data['height'])) {
+			$response['error'] = 'Invalid height value.';
+			$data['meta'] = ['statusCode' => 202, 'data' => $response];
+			$this->output->set_output(json_encode($data));
+			return;
+		}
 
 		$this->load->model('order_model');
 		$orderDetails = $this->order_model->getOrderDetailsByOrderNumber($orderNumber);
@@ -802,17 +650,35 @@ class Shipping extends CI_Controller
 
 		$data['orderStatus'] = $orderDetails[0]['order_status'];
 
-		$shippingMethod = $this->input->get("shippingMethod");
+		$shippingMethod = $this->input->get("shippingMethod");	// Sample: shippingMethod = 2,US-PM
 		$shippingMethod = strstr($shippingMethod, ',');
 		$data['service'] = ltrim($shippingMethod, ',');
 
 		$data['insuredValue'] = $this->input->get("insuredValue");
 
+		$shipDate = $this->input->get("shippingDate");
+		$shipDate = new DateTime($shipDate);
+		$shipDate_string = $shipDate->format("Y-m-d");
+		$currentDate = new DateTime();
+		$currentDate_string = $currentDate->format("Y-m-d");
+		if ($shipDate_string < $currentDate_string) {
+			$responseData['error'] = 'Ship date must be current or future date.';
+			$response['meta'] = ['statusCode' => 202, 'data' => $responseData];
+			$this->output->set_output(json_encode($response));
+			return;
+		}
+
+		if (empty($shipDate)) {
+			$responseData['error'] = 'Ship date is missing.';
+			$response = ['meta' => ['statusCode' => 202], 'data' => $responseData];
+			$this->output->set_output(json_encode($response));
+			return;
+		}
+		$data['shipDate'] = $shipDate_string;
+
 
 		if ($data['orderStatus'] == "Pending") {
-			$response = $this->prepareCalculatingShipment($data);
-
-			// $response = array_values($response);	// reindexing the array because sometimes it doesn't starts at 0 or some items are removed if the packageType is letter or postcard.
+			$response = $this->prepareCalculatingShipmentRates($data);
 
 			if (isset($response['error']))
 				$jsonResponse['meta'] = ['statusCode' => 202, 'data' => $response];

@@ -30,8 +30,8 @@ class Order_model extends CI_Model
 		$shopOwnerUserId = $this->session->userdata('userid');
 
 		$query = $this->db->query("select users.display_name, users.user_email, users.user_first_name, users.user_last_name
-							,users.preferredAddress, users.user_address, users.user_city, users.user_state, users.user_zip, users.user_country
-							,users.user_address2, users.user_city2, users.user_state2, users.user_zip2, users.user_country2
+							,users.preferredAddress, users.user_address, addrLine2Of1, users.user_city, users.user_state, users.user_zip, users.user_country
+							,users.user_address2, addrLine2Of2, users.user_city2, users.user_state2, users.user_zip2, users.user_country2
 							,notUSfullAddress1, notUSfullAddress2, users.user_phone
 							,orderDetails.shopid
 							,orderDetails.orderid

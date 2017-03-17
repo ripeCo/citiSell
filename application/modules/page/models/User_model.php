@@ -714,8 +714,8 @@ class User_model extends CI_Model
 
 	/* Gets shop information. */
 	public function getShopInfo($shopId) {
-		$this->db->select('shop_name, display_name, user_address, user_city, user_state, user_zip, user_country');
-		$this->db->select('user_address2, user_city2, user_state2, user_zip2, user_country2');
+		$this->db->select('shop_name, display_name, user_address, addrLine2Of1, user_city, user_state, user_zip, user_country');
+		$this->db->select('user_address2, addrLine2Of2, user_city2, user_state2, user_zip2, user_country2');
 		$this->db->select('notUSfullAddress1, notUSfullAddress2, preferredAddress, user_phone');
 		$this->db->from('users');
 		$this->db->join('shops', 'users.userid = shops.userid');

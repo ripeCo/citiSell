@@ -708,33 +708,6 @@ class User extends CI_Controller
 			return;
 		}
 
-		/*if (trim($country) == "USA") {
-			$error = FALSE;
-
-			if (empty($state)) {
-				$data['error_msg'] 	= 'Shipping state is empty.';
-				$error = TRUE;
-			}
-			if (empty($city)) {
-				$data['error_msg'] 	= 'Shipping city is empty.';
-				$error = TRUE;
-			}
-			if (empty($addrLine1)) {
-				$data['error_msg'] 	= 'Shipping address line 1 is empty.';
-				$error = TRUE;
-			}
-			if (empty($zipcode)) {
-				$data['error_msg'] 	= 'Shipping zipcode is empty.';
-				$error = TRUE;
-			}
-
-			if ($error) {
-				$data['users'] 		= $this->user_model->get_data($userid);
-				$this->load->view('page/setting',$data);
-				return;
-			}
-		}*/
-
 		$address['country'] = $country;
 		$address['state'] = $state;
 		$address['city'] = $city;
@@ -744,27 +717,6 @@ class User extends CI_Controller
 		$address['extendedZipcode'] = ($extendedZipcode ? $extendedZipcode : null);
 		$address['notUSfullAddress'] = $notUSfullAddress;
 		$address['preferredAddress'] = ($preferredAddress ? 1 : 2);
-
-		// before the update check address if valid if country is US
-		if ($address['country'] == "USA") {
-			// $validatedUSAddress = $this->validateUSaddress($address);
-			// file_put_contents('c:\tmp\address.txt', print_r($validatedUSAddress, TRUE));
-			/*if (false) {	// if there's an error
-				// file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
-
-				$data['error_msg'] 	= $validatedUSAddress->Address['Errors'][0]['Description'];
-				$data['users'] 		= $this->user_model->get_data($userid);
-				$this->load->view('page/setting',$data);
-				return;				
-			} else {*/	// The API returns with corrected address so better use it.
-				/*$address['addrLine1'] = $validatedUSAddress->Address->Address1;
-				$address['addrLine2Of1'] = $validatedUSAddress->Address->Address2;
-				$address['city'] = $validatedUSAddress->Address->City;
-				$address['state'] = $validatedUSAddress->Address->State;
-				$address['zipcode'] = $validatedUSAddress->Address->ZipCode;
-				$address['extendedZipcode'] = $validatedUSAddress->Address->ZipCodeAddon;*/
-			// }
-		}
 
 		$this->user_model->shippingaddressupdate($userid, $address);
 
@@ -811,33 +763,6 @@ class User extends CI_Controller
 			return;
 		}
 
-		/*if (trim($country) == "USA") {
-			$error = FALSE;
-
-			if (empty($state)) {
-				$data['error_msg'] 	= 'Shipping state is empty.';
-				$error = TRUE;
-			}
-			if (empty($city)) {
-				$data['error_msg'] 	= 'Shipping city is empty.';
-				$error = TRUE;
-			}
-			if (empty($addrLine1)) {
-				$data['error_msg'] 	= 'Shipping address line 1 is empty.';
-				$error = TRUE;
-			}
-			if (empty($zipcode)) {
-				$data['error_msg'] 	= 'Shipping zipcode is empty.';
-				$error = TRUE;
-			}
-
-			if ($error) {
-				$data['users'] 		= $this->user_model->get_data($userid);
-				$this->load->view('page/setting',$data);
-				return;
-			}
-		}*/
-
 		$address['country'] = $country;
 		$address['state'] = $state;
 		$address['city'] = $city;
@@ -847,25 +772,6 @@ class User extends CI_Controller
 		$address['extendedZipcode'] = $extendedZipcode;
 		$address['notUSfullAddress'] = $notUSfullAddress;
 		$address['preferredAddress'] = ($preferredAddress ? 2 : 1);
-
-		// before the update check address if valid if country is US
-		if ($address['country'] == "USA") {
-			// $validatedUSAddress = $this->validateUSaddress($address);
-			/*if (!empty($validatedUSAddress->Address['Errors'])) {	// if there's an error
-				// file_put_contents('c:\tmp\error_address.txt', print_r($validatedUSAddress, TRUE));
-
-				$data['users'] 		= $this->user_model->get_data($userid);
-				$this->load->view('page/setting',$data);
-				return;				
-			} else {	// The API returns with corrected address so better use it.
-				$address['addrLine1'] = $validatedUSAddress->Address->Address1;
-				$address['addrLine2Of1'] = $validatedUSAddress->Address->Address2;
-				$address['city'] = $validatedUSAddress->Address->City;
-				$address['state'] = $validatedUSAddress->Address->State;
-				$address['zipcode'] = $validatedUSAddress->Address->ZipCode;
-				$address['extendedZipcode'] = $validatedUSAddress->Address->ZipCodeAddon; */
-			// }
-		}
 
 		$this->user_model->shippingaddressupdate2($userid, $address);
 
