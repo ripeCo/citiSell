@@ -1,32 +1,14 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Shipping_model extends CI_Model{
-	/*	Sample successful output
-		[charges] => 9.19
-	    [trk_main] => 9400111969000940000011
-	    [transaction_id] => 73b0ee20-49ec-412f-931e-41c4e5c2e05e
-	    [pkgs] => Array
-	        (
-	            [0] => Array
-	                (
-	                    [pkg_trk_num] => 9400111969000940000011
-	                    [label_fmt] => Pdf
-	                    [label_img] => // the very long string for the image.
-	                )
-
-	        )
-
-	    [media] => Array
-	        (
-	            [0] => // the very long string for the image.
-	*/
-	public function saveTrackingDetails($orderID, array $paramData) {
+class Shipping_model extends CI_Model {
+	public function saveTrackingDetails($orderNumber, array $paramData) {
 		$data['charges'] = $paramData['charges'];
 		$data['trk_main'] = $paramData['trk_main'];
 		$data['transaction_id'] = $paramData['transaction_id'];
 		$data['order_status'] = 'Processing';
+		$data['shipDate'] = $paramData['shipDate'];
 
-		$this->db->where('orderid', $orderID);
+		$this->db->where('ordernumber', $orderNumber);
 		$this->db->update('orders', $data);
 
 		$data = [];

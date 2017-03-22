@@ -137,6 +137,14 @@
 																					<td>Included</td>
 																				</tr>
 																				<tr>
+																					<td>Insurance</td>
+																					<td id="insuredStamp">-----</td>
+																				</tr>
+																				<tr>
+																					<td>Signature Confirmation</td>
+																					<td id="signatureConfirmationAmt">-----</td>
+																				</tr>
+																				<tr>
 																					<td><hr></td>
 																					<td><hr></td>
 																				</tr>
@@ -254,7 +262,10 @@
 
 				$("#confirmAndBuy").prop("disabled", true);
 				$("#postageValue").text("-----");
+				$("#insuredStamp").text("-----");
+				$("#signatureConfirmationAmt").text("-----");
 				$("#packageTotalValue").text("-----");
+				$("#signature").prop('disabled', true);
 
 				var shippingMethod = $("#shippingMethod").val();
 				if (!shippingMethod) { return; }
@@ -279,11 +290,11 @@
 				if (!$.isNumeric(lbs)) { return; };
 
 				var orderNumber = document.documentURI.match(/\d+/g)[1];
-				var url = "<?=base_url();?>page/Shipping/shippingRates/" + orderNumber;
+				var url = "<?=base_url();?>page/Shipping/shippingRates";
 				var data = {
-					shippingMethod: shippingMethod,
-					length: length,
+					orderNumber: orderNumber,
 					width: width,
+					length: length,
 					height: height,
 					lbs: lbs,
 					oz: oz,
@@ -291,10 +302,13 @@
 					shippingDate: shippingDate,
 				};
 
-				$.get(url, data, function(response) {					
+				if (signature)
+					data['signature'] = signature;
+
+				$.get(url, data, function(response) {
 					if (initialLoading) {
 						$('#shippingMethod').find('option').remove();
-						$.each(response['meta']['data'], function(index, item) {
+						$.each(response['data'], function(index, item) {
 							$('#shippingMethod').append('<option value="' + index + ',' + item.ServiceType + '">' + item.desc + '</option>');
 						});
 
@@ -304,15 +318,50 @@
 					commaIndexPos = shippingMethod.indexOf(','); // ex. 2,US-PM
 					shippingMethod_processed = shippingMethod.substr(0, commaIndexPos);
 
-					if (!response['meta']['data']['error']) {
-						$("#postageValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
-						$(".packageTotalValue").text(response['meta']['data'][shippingMethod_processed]['Amount']);
+					if (!response['data']['error']) {
+						$("#postageValue").text(response['data'][shippingMethod_processed]['Amount']);
+						
+						var AddOnsV7 = response['data'][shippingMethod_processed]['AddOns']['AddOnV7'];
+						var insuranceIndex = -1, signatureConfirmationIndex = -1;
+						$.each(AddOnsV7, function(index, item) {
+							if (item.AddOnType == 'SC-A-INS')
+								insuranceIndex = index;
+							if (item.AddOnType == 'US-A-SC')
+								signatureConfirmationIndex = index;
+						});
+
+						var postageAmt, insuranceAmt, signatureConfirmationAmt;
+						if (insuranceIndex == -1) {
+							$("#insuredValue").prop("disabled", true);
+							$("#insuredValue").val("");
+						} else {
+							$("#insuredValue").prop("disabled", false);
+							insuranceAmt = response['data'][shippingMethod_processed]['AddOns']['AddOnV7'][insuranceIndex]['Amount'];
+							if (typeof insuranceAmt !== 'undefined')
+								$("#insuredStamp").text(insuranceAmt);
+						}
+
+						if (signatureConfirmationIndex > -1) {
+							$("#signature").prop("disabled", false);
+
+							if (signature) {
+								signatureConfirmationAmt = response['data'][shippingMethod_processed]['AddOns']['AddOnV7'][signatureConfirmationIndex]['Amount'];
+								if (typeof signatureConfirmationAmt !== 'undefined')
+									$("#signatureConfirmationAmt").text(signatureConfirmationAmt);
+							}
+						}
+
+						postageAmt = response['data'][shippingMethod_processed]['Amount'];
+						insuranceAmt = ($.isNumeric($("#insuredStamp").text()) ? $("#insuredStamp").text() : 0);
+						signatureConfirmationAmt = ($.isNumeric($("#signatureConfirmationAmt").text()) ? $("#signatureConfirmationAmt").text() : 0);
+						var packageTotalAmt = parseFloat(postageAmt) + parseFloat(insuranceAmt) + parseFloat(signatureConfirmationAmt);
+						$(".packageTotalValue").text(packageTotalAmt.toFixed(2));
 
 						$("#shippingMethod").val(shippingMethod);
 
 						$("#confirmAndBuy").prop("disabled", false);
 					} else {
-						alert(response['meta']['data']['error']);
+						alert(response['data']['error']);
 					}
 				});
 			}
@@ -345,6 +394,10 @@
 			});
 
 			$("#insuredValue").change(function() {
+				getShippingRates();
+			});
+
+			$("#signature").change(function() {
 				getShippingRates();
 			});
 
@@ -408,11 +461,13 @@
 					data['signature'] = signature;
 
 				$.post(url, data, function(response) {
-					if (response['meta']['data']['error']) {	// if there's an error
-						alert(response['meta']['data']['error']);
+					if (response['data']['error']) {	// if there's an error
+						alert(response['data']['error']);
 						$("#confirmAndBuy").prop("disabled", false);
 					} else {
-						alert("Successfully processed. Tracking number: " + response['data']['response']['trk_main']);
+						console.log("response: ", response);
+						alert("Successfully processed. Tracking number: " + response['data']['trk_main']);
+						// window.location = "<?=base_url();?>page/order";
 					}
 				});
 

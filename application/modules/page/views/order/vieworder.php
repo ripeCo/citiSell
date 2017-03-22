@@ -27,7 +27,7 @@
 							<div class="row">
 								<div class="col-lg-12 col-md-12 col-sm-12">
 									<?php 
-										foreach($orderinfos as $orderinfo){
+										foreach ($orderinfos as $orderinfo) {
 										$getbuyer = $this->order_model->getbuyerinfo($orderinfo['order_buyerid'])
 									?>
 									<div class="orderbx">
@@ -86,7 +86,7 @@
 														</div>
 														<?php 
 															$getorderproductinfo = $this->order_model->getorderproductinfo($getshoipbyuser['shopid'], $orderinfo['orderid']);
-															foreach($getorderproductinfo as $productinfo){
+															foreach ($getorderproductinfo as $productinfo) {
 														?>
 														<div class="ordrsteptwo">
 															<div class="colnm thumbpro">
@@ -128,6 +128,7 @@
 																	<div class="pmntmthd">
 																		<strong>Payment Method</strong>
 																		<span style="display:block;">Paid Via <?php echo $orderinfo['order_paymenttype']; ?></span>
+																		<strong><a href="#" data-toggle="modal" data-target="#trackingModal" onClick="getTrackingStatus('<?=$orderinfo['trk_main']?>')"><?=$orderinfo['trk_main']?></a></strong>
 																		
 																		<strong style="margin-top:20px;">Paid On 
 																		<?php
@@ -151,21 +152,13 @@
 																			?> <br />
 																			<?php
 																				if ($orderinfo['preferredAddress'] == 1) {
-																					if ($orderinfo['user_country'] == "USA") {
-																						echo $orderinfo['user_address'], "<br />";
-																						echo $orderinfo['user_city'], ", ", $orderinfo['user_state'], ' ', $orderinfo['user_zip'], "<br />";
-																						echo $orderinfo['user_country'];
-																					} else {
-																						echo $orderinfo['notUSfullAddress'], '<br />', $orderinfo['user_country'];
-																					}
+																					echo $orderinfo['user_address'], "<br />";
+																					echo $orderinfo['user_city'], ", ", $orderinfo['user_state'], ' ', $orderinfo['user_zip'], "<br />";
+																					echo $orderinfo['user_country'];
 																				} elseif ($orderinfo['preferredAddress'] == 2) {
-																					if ($orderinfo['user_country2'] == "USA") {
-																						echo $orderinfo['user_address2'], "<br />";
-																						echo $orderinfo['user_city2'], ", ", $orderinfo['user_state2'], ' ', $orderinfo['user_zip2'], "<br />";
-																						echo $orderinfo['user_country2'];
-																					} else {
-																						echo $orderinfo['notUSfullAddress2'], '<br />', $orderinfo['user_country2'];
-																					}
+																					echo $orderinfo['user_address2'], "<br />";
+																					echo $orderinfo['user_city2'], ", ", $orderinfo['user_state2'], ' ', $orderinfo['user_zip2'], "<br />";
+																					echo $orderinfo['user_country2'];
 																				}
 																			?>
 																		 </address>
@@ -227,5 +220,52 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Tracking Modal -->
+	<div class="modal fade" id="trackingModal" tabindex="-1" role="dialog" aria-labelledby="trackingLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="trackingLabel">Tracking</h4>
+				</div>
+				<div class="modal-body">
+					
+				</div>
+				<div class="modal-footer"></div>
+			</div>
+		</div>
+	</div> <!-- End tracking Modal -->
+
+	<script type="text/javascript">
+		function getTrackingStatus(trackingNumber) {
+			var url = "<?=base_url();?>page/Shipping/tracking/" + trackingNumber;
+			// var url = "<?=base_url();?>page/testonly/tracking/" + trackingNumber;
+			$("#trackingModal .modal-body").empty();
+			$("#trackingModal .modal-footer").empty();
+
+			$.get(url, function(response) {
+				if (response['Data']['Errors'].length > 0) {
+					$("#trackingModal .modal-body").append("<p>" + response['Data']['Errors'][0]['Description'] + "</p>");
+				} else {
+					$("#trackingModal .modal-body").append('<table class="table" id="trackingTable"></table>');
+					$("#trackingTable").append("<tr><th>Date</th><th>Shipping</th><th>Event</th></tr>");
+					$.each(response['Data']['Packages'][0]['Activity'], function(index, item) {
+						var location = item.Location.City + ', ' + item.Location.State + ', ' + item.Location.PostalCode + ', ' + item.Location.Country;
+						markup = "<tr><td>" + item.Time + "</td><td>" +  location + "</td><td>" + item.StatusDescription + "</td></tr>";
+						$("#trackingTable").append(markup);
+					});
+
+					$("#trackingModal .modal-body").append("<p>Shipped on <b><span id='shipDate'></span></b></p>");
+
+					var a_dom = "<a href='https://tools.usps.com/go/TrackConfirmAction_input?qtc_tLabels1=" + trackingNumber + "' target='_blank'>" + trackingNumber + "</a>";
+
+					$("#trackingModal .modal-footer").append(a_dom);
+
+					$("#shipDate").text(response['shipDate']);
+				}				
+			});
+		}
+	</script>
 
 <?php $this->load->view('../../front-templates/footer.php'); ?>
